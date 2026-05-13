@@ -3,7 +3,7 @@
 // cache-first para assets externos (fonts, Chart.js CDN).
 // Auto-update: cuando hay versión nueva, se aplica inmediatamente.
 
-const VERSION = 'momentum-v1.0.0';
+const VERSION = 'momentum-v2.0.0-awakening';
 const CACHE_NAME = `momentumos-${VERSION}`;
 
 // Archivos core de la app
@@ -146,3 +146,4 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+
