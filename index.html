@@ -2597,6 +2597,254 @@
     const HARD_QUEST_CATEGORIES = ['vulnerabilidad', 'confrontacion'];
 
     // ============================================================
+    // V3.2 — SPECIAL EXAMS
+    // ============================================================
+
+    const SPECIAL_EXAMS = [
+      {
+        id: 'digital_isolation',
+        name: 'Aislamiento Digital',
+        desc: '7 días sin perder el checkpoint matutino + reflection cerrada todos los días. El silencio digital como herramienta, no como castigo.',
+        duration: 7,
+        conditions: [
+          { type: 'daily_habit', habitId: 'no_scroll_am', label: 'Scroll AM limpio' },
+          { type: 'daily_reflection', label: 'Reflection cerrada' },
+        ],
+        reward: { pp: 1000, title: 'Solitario' },
+        difficulty: 'hard',
+      },
+      {
+        id: 'constant_movement',
+        name: 'Movimiento Constante',
+        desc: '7 días con mínimo 2 hábitos físicos diarios. No necesitás romper récords — necesitás no parar.',
+        duration: 7,
+        conditions: [
+          { type: 'daily_stat_count', stat: 'fuerza', min: 2, label: '2+ hábitos físicos/día' },
+        ],
+        reward: { pp: 1000, title: 'Incansable', oaaBoost: { fisico: 12 } },
+        difficulty: 'hard',
+      },
+      {
+        id: 'social_exam',
+        name: 'Examen Social',
+        desc: '5 interacciones presenciales (meal o new_person) en 7 días. No likes, no mensajes. Cara a cara.',
+        duration: 7,
+        conditions: [
+          { type: 'total_habits', habitIds: ['meal', 'new_person'], min: 5, label: '5 interacciones presenciales' },
+        ],
+        reward: { pp: 1000, title: 'Tejedor', oaaBoost: { social: 12 } },
+        difficulty: 'hard',
+      },
+      {
+        id: 'exam_zero',
+        name: 'Examen Cero',
+        desc: '7 días marcando al menos 1 hábito de cada uno de los 6 stats. No es perfección, es presencia constante en cada dimensión.',
+        duration: 7,
+        conditions: [
+          { type: 'daily_all_stats', label: '1+ hábito de cada stat/día' },
+        ],
+        reward: { pp: 1500, title: 'Completo' },
+        difficulty: 'extreme',
+      },
+      {
+        id: 'deep_exam',
+        name: 'Examen Profundo',
+        desc: '10 sesiones de deep work (pomodoro o deep_work) en 7 días. Atención como recurso escaso.',
+        duration: 7,
+        conditions: [
+          { type: 'total_habits', habitIds: ['pomo', 'deep_work'], min: 10, label: '10 sesiones de foco' },
+        ],
+        reward: { pp: 1200, title: 'Concentrado', oaaBoost: { mental: 12 } },
+        difficulty: 'hard',
+      },
+      {
+        id: 'silence_exam',
+        name: 'Examen del Silencio',
+        desc: '7 días con scroll AM limpio + journal completo en cada reflection. No scroll + escribir. Doble silencio activo.',
+        duration: 7,
+        conditions: [
+          { type: 'daily_habit', habitId: 'no_scroll_am', label: 'Scroll AM limpio' },
+          { type: 'daily_journal', label: 'Journal con contenido en reflection' },
+        ],
+        reward: { pp: 1500, title: 'Contemplativo' },
+        difficulty: 'extreme',
+      },
+    ];
+
+    const EXAM_COOLDOWN_FAIL = 21;
+    const EXAM_COOLDOWN_REJECT = 14;
+
+    // ============================================================
+    // V3.2 — TALENTS SYSTEM
+    // ============================================================
+
+    const TALENTS = [
+      {
+        id: 'iron_discipline',
+        name: 'Iron Discipline',
+        desc: 'OAA Mental nunca cayó debajo de B en 90 días',
+        hint: 'El Sistema observa tu consistencia mental a largo plazo.',
+        permanent: false,
+        check: (hist, st) => {
+          const last90 = hist.filter(h => daysSince(h.date) <= 90 && h.dims.mental !== null);
+          if (last90.length < 60) return false;
+          return last90.every(h => h.dims.mental >= 10);
+        },
+        decay: (hist) => {
+          const last14 = hist.filter(h => daysSince(h.date) <= 14 && h.dims.mental !== null);
+          if (last14.length < 7) return false;
+          return last14.some(h => h.dims.mental < 9);
+        },
+      },
+      {
+        id: 'builder',
+        name: 'Builder',
+        desc: '3+ mazmorras completadas en 90 días',
+        hint: 'Construir, terminar, repetir.',
+        permanent: true,
+        check: (hist, st) => {
+          const recent = st.bosses.filter(b => b.completed && daysSince(b.completedAt) <= 90);
+          return recent.length >= 3;
+        },
+      },
+      {
+        id: 'the_connector',
+        name: 'The Connector',
+        desc: 'Vínculo creció más rápido que cualquier otro stat en 30 días',
+        hint: 'Las conexiones no se fuerzan — se notan.',
+        permanent: false,
+        check: (hist, st) => {
+          const last30 = hist.filter(h => daysSince(h.date) <= 30);
+          if (last30.length < 20) return false;
+          const first = last30[0]?.dims;
+          const last = last30[last30.length - 1]?.dims;
+          if (!first || !last) return false;
+          const growth = {};
+          for (const k of ['academico', 'fisico', 'mental', 'social', 'identidad']) {
+            growth[k] = (last[k] || 0) - (first[k] || 0);
+          }
+          return growth.social > 0 && growth.social >= Math.max(...Object.values(growth));
+        },
+        decay: (hist) => false,
+      },
+      {
+        id: 'the_architect',
+        name: 'The Architect',
+        desc: '5+ hábitos custom activos mantenidos 30+ días',
+        hint: 'No solo usás el sistema — lo diseñás.',
+        permanent: true,
+        check: (hist, st) => {
+          const logs = getRecentLogs(30);
+          const activeCustoms = st.custom.filter(c => logs.some(l => l.habits.includes(c.id)));
+          return activeCustoms.length >= 5;
+        },
+      },
+      {
+        id: 'resilient',
+        name: 'Resilient',
+        desc: 'Te recuperaste de 2+ caídas de OAA en 14 días',
+        hint: 'La caída no define — la velocidad de recuperación sí.',
+        permanent: true,
+        check: (hist, st) => {
+          if (hist.length < 30) return false;
+          let drops = 0;
+          for (let i = 7; i < hist.length; i++) {
+            const prev = hist[i - 7]?.total;
+            const curr = hist[i]?.total;
+            const next7 = hist[Math.min(i + 7, hist.length - 1)]?.total;
+            if (prev && curr && next7 && curr < prev - 1.5 && next7 > curr + 1) drops++;
+          }
+          return drops >= 2;
+        },
+      },
+      {
+        id: 'the_scholar',
+        name: 'The Scholar',
+        desc: 'OAA Académico ≥ A− por 60 días',
+        hint: 'El conocimiento no es un sprint.',
+        permanent: false,
+        check: (hist, st) => {
+          const last60 = hist.filter(h => daysSince(h.date) <= 60 && h.dims.academico !== null);
+          if (last60.length < 45) return false;
+          return last60.every(h => h.dims.academico >= 12);
+        },
+        decay: (hist) => {
+          const last21 = hist.filter(h => daysSince(h.date) <= 21 && h.dims.academico !== null);
+          return last21.length >= 14 && last21.some(h => h.dims.academico < 11);
+        },
+      },
+      {
+        id: 'the_workhorse',
+        name: 'The Workhorse',
+        desc: '100+ pomodoros en 90 días',
+        hint: 'Volumen puro, sin excusas.',
+        permanent: true,
+        check: (hist, st) => {
+          const logs = getRecentLogs(90);
+          const count = logs.reduce((s, l) => s + l.habits.filter(h => h === 'pomo' || h === 'deep_work').length, 0);
+          return count >= 100;
+        },
+      },
+      {
+        id: 'the_initiator',
+        name: 'The Initiator',
+        desc: 'Aceptaste 90%+ de sysquests en 60 días',
+        hint: 'Aceptar primero, pensar después.',
+        permanent: false,
+        check: (hist, st) => {
+          const recent = st.sysquest_history.filter(q => daysSince(q.date) <= 60);
+          if (recent.length < 15) return false;
+          const accepted = recent.filter(q => q.status !== 'rejected').length;
+          return (accepted / recent.length) >= 0.9;
+        },
+        decay: (hist, st) => {
+          const recent = st.sysquest_history.filter(q => daysSince(q.date) <= 21);
+          if (recent.length < 5) return false;
+          const accepted = recent.filter(q => q.status !== 'rejected').length;
+          return (accepted / recent.length) < 0.7;
+        },
+      },
+      {
+        id: 'the_polymath',
+        name: 'The Polymath',
+        desc: '5 dimensiones OAA ≥ B− simultáneamente por 30 días',
+        hint: 'No el mejor en nada. Peligroso en todo.',
+        permanent: false,
+        check: (hist, st) => {
+          const last30 = hist.filter(h => daysSince(h.date) <= 30);
+          if (last30.length < 20) return false;
+          return last30.every(h => {
+            const dims = h.dims;
+            return dims.academico >= 9 && dims.fisico >= 9 && dims.mental >= 9 &&
+              dims.social >= 9 && dims.identidad >= 9;
+          });
+        },
+        decay: (hist) => {
+          const last = hist[hist.length - 1];
+          if (!last) return false;
+          const dims = last.dims;
+          return dims.academico < 9 || dims.fisico < 9 || dims.mental < 9 ||
+            dims.social < 9 || dims.identidad < 9;
+        },
+      },
+      {
+        id: 'the_stoic',
+        name: 'The Stoic',
+        desc: 'Físico ≥ B + Mental ≥ B con Social ≤ C+ por 60 días',
+        hint: 'Fortaleza interna sin necesidad de validación.',
+        permanent: false,
+        check: (hist, st) => {
+          const last60 = hist.filter(h => daysSince(h.date) <= 60);
+          if (last60.length < 40) return false;
+          return last60.every(h =>
+            h.dims.fisico >= 10 && h.dims.mental >= 10 && h.dims.social <= 8
+          );
+        },
+        decay: (hist) => false,
+      },
+    ];
+
+    // ============================================================
     // V3.1 — API INTEGRATIONS (todas opcionales)
     // ============================================================
 
@@ -3309,6 +3557,296 @@
     }
 
     // ============================================================
+    // TALENTS — Evaluation Engine
+    // ============================================================
+
+    function evaluateTalents() {
+      if (!state.oaa_history || state.oaa_history.length < 30) return;
+      const hist = state.oaa_history;
+
+      TALENTS.forEach(t => {
+        const hasTalent = state.talents.find(x => x.id === t.id);
+
+        if (!hasTalent) {
+          try {
+            if (t.check(hist, state)) {
+              state.talents.push({
+                id: t.id,
+                unlockedAt: todayKey(),
+                active: true,
+              });
+              earnPP(PP_EARN.talent_unlocked, 'talent_' + t.id);
+              setTimeout(() => sysToast(`TALENT DETECTADO · ${t.name.toUpperCase()}`, 'positive'), 800);
+            }
+          } catch (e) {
+            console.warn('Talent check error:', t.id, e.message);
+          }
+        } else if (hasTalent.active && !t.permanent && t.decay) {
+          try {
+            if (t.decay(hist, state)) {
+              hasTalent.active = false;
+              hasTalent.lostAt = todayKey();
+              setTimeout(() => sysToast(`TALENT PERDIDO · ${t.name.toUpperCase()}`, 'danger'), 800);
+            }
+          } catch (e) {
+            console.warn('Talent decay error:', t.id, e.message);
+          }
+        }
+      });
+
+      persist();
+    }
+
+    function getActiveTalents() {
+      return state.talents.filter(t => t.active);
+    }
+
+    function getAllTalentsWithStatus() {
+      return TALENTS.map(t => {
+        const unlocked = state.talents.find(x => x.id === t.id);
+        return {
+          ...t,
+          unlocked: !!unlocked,
+          active: unlocked?.active || false,
+          unlockedAt: unlocked?.unlockedAt,
+          lostAt: unlocked?.lostAt,
+        };
+      });
+    }
+
+    // ============================================================
+    // SPECIAL EXAMS — Lifecycle
+    // ============================================================
+
+    function examEnabled() {
+      const classIdx = CLASS_ORDER.indexOf(state.currentClass || 'D');
+      return classIdx >= CLASS_ORDER.indexOf('A');
+    }
+
+    function maybeOfferExam() {
+      if (!examEnabled()) return;
+      if (state.specialExam) return;
+
+      const lastExam = state.examHistory[state.examHistory.length - 1];
+      if (lastExam) {
+        const daysSinceLast = daysSince(lastExam.endDate || lastExam.offeredDate);
+        if (lastExam.status === 'failed' && daysSinceLast < EXAM_COOLDOWN_FAIL) return;
+        if (lastExam.status === 'rejected' && daysSinceLast < EXAM_COOLDOWN_REJECT) return;
+        if (lastExam.status === 'expired' && daysSinceLast < EXAM_COOLDOWN_REJECT) return;
+        if (lastExam.status === 'passed') {
+          const lastMonth = lastExam.endDate?.slice(0, 7);
+          const thisMonth = todayKey().slice(0, 7);
+          if (lastMonth === thisMonth) return;
+        }
+      }
+
+      const today = new Date();
+      if (today.getDate() > 3 && state.examHistory.length > 0) return;
+
+      const lastId = lastExam?.examId;
+      const pool = SPECIAL_EXAMS.filter(e => e.id !== lastId);
+      const exam = pool[Math.floor(Math.random() * pool.length)];
+
+      state.specialExam = {
+        examId: exam.id,
+        status: 'offered',
+        offeredDate: todayKey(),
+        acceptDeadline: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+        dayLogs: [],
+      };
+      persist();
+      setTimeout(() => sysToast('SPECIAL EXAM DISPONIBLE'), 1500);
+    }
+
+    function acceptExam() {
+      if (!state.specialExam || state.specialExam.status !== 'offered') return;
+      state.specialExam.status = 'active';
+      state.specialExam.startDate = todayKey();
+      state.specialExam.endDate = (() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 7);
+        return d.toISOString().slice(0, 10);
+      })();
+      persist();
+      render();
+      sysToast('SPECIAL EXAM ACEPTADO · 7 DÍAS');
+    }
+
+    function rejectExam() {
+      if (!state.specialExam) return;
+      if (!confirm('¿Rechazar el Special Exam? Cooldown de 14 días para el próximo.')) return;
+      state.specialExam.status = 'rejected';
+      state.examHistory.push({ ...state.specialExam });
+      state.specialExam = null;
+      persist();
+      render();
+      sysToast('SPECIAL EXAM RECHAZADO', 'danger');
+    }
+
+    function checkExamExpiry() {
+      if (!state.specialExam) return;
+      const exam = state.specialExam;
+
+      if (exam.status === 'offered' && new Date(exam.acceptDeadline) < new Date()) {
+        exam.status = 'expired';
+        state.examHistory.push({ ...exam });
+        state.specialExam = null;
+        persist();
+        return;
+      }
+
+      if (exam.status === 'active' && exam.endDate && todayKey() > exam.endDate) {
+        evaluateExam();
+      }
+    }
+
+    function checkExamDaily() {
+      if (!state.specialExam || state.specialExam.status !== 'active') return;
+      const exam = state.specialExam;
+      const template = SPECIAL_EXAMS.find(e => e.id === exam.examId);
+      if (!template) return;
+
+      const today = todayKey();
+      if (exam.dayLogs.some(d => d.date === today)) return;
+
+      const dayResult = evaluateExamDay(template);
+      exam.dayLogs.push({ date: today, passed: dayResult.allMet, details: dayResult.details });
+      persist();
+    }
+
+    function evaluateExamDay(template) {
+      const details = [];
+      let allMet = true;
+
+      template.conditions.forEach(cond => {
+        let met = false;
+        switch (cond.type) {
+          case 'daily_habit':
+            met = log.habits.includes(cond.habitId);
+            break;
+          case 'daily_reflection':
+            met = !!log.reflection?.closed;
+            break;
+          case 'daily_journal':
+            met = !!(log.reflection?.journal && log.reflection.journal.length > 10);
+            break;
+          case 'daily_stat_count': {
+            const statHabits = HABITS_BASE[cond.stat]?.map(h => h.id) || [];
+            const count = log.habits.filter(h => statHabits.includes(h)).length;
+            met = count >= cond.min;
+            break;
+          }
+          case 'daily_all_stats': {
+            const statKeys = Object.keys(STATS);
+            met = statKeys.every(sk => {
+              const ids = (HABITS_BASE[sk] || []).map(h => h.id)
+                .concat(state.custom.filter(c => c.stat === sk).map(c => c.id));
+              return log.habits.some(h => ids.includes(h));
+            });
+            break;
+          }
+          case 'total_habits':
+            met = true;
+            break;
+        }
+        details.push({ label: cond.label, met });
+        if (!met && cond.type !== 'total_habits') allMet = false;
+      });
+
+      return { allMet, details };
+    }
+
+    function evaluateExam() {
+      const exam = state.specialExam;
+      if (!exam || exam.status !== 'active') return;
+      const template = SPECIAL_EXAMS.find(e => e.id === exam.examId);
+      if (!template) return;
+
+      let passed = true;
+
+      const dailyConditions = template.conditions.filter(c => c.type !== 'total_habits');
+      if (dailyConditions.length > 0) {
+        const requiredDays = template.duration;
+        const passedDays = exam.dayLogs.filter(d => d.passed).length;
+        if (passedDays < requiredDays) passed = false;
+      }
+
+      const totalConditions = template.conditions.filter(c => c.type === 'total_habits');
+      totalConditions.forEach(cond => {
+        let totalCount = 0;
+        for (let i = 0; i < template.duration; i++) {
+          const d = new Date(exam.startDate);
+          d.setDate(d.getDate() + i);
+          const key = d.toISOString().slice(0, 10);
+          const dayLog = load(K.log(key), null);
+          if (dayLog) {
+            totalCount += dayLog.habits.filter(h => cond.habitIds.includes(h)).length;
+          }
+        }
+        if (totalCount < cond.min) passed = false;
+      });
+
+      exam.status = passed ? 'passed' : 'failed';
+      exam.completedAt = todayKey();
+
+      if (passed) {
+        earnPP(template.reward.pp, 'special_exam_' + exam.examId);
+        if (template.reward.title) {
+          if (!state.examTitles) state.examTitles = [];
+          if (!state.examTitles.includes(template.reward.title)) {
+            state.examTitles.push(template.reward.title);
+          }
+        }
+        setTimeout(() => sysToast(`SPECIAL EXAM APROBADO · +${template.reward.pp} PP`, 'positive'), 600);
+      } else {
+        setTimeout(() => sysToast('SPECIAL EXAM FALLIDO · Cooldown 21 días', 'danger'), 600);
+      }
+
+      state.examHistory.push({ ...exam });
+      state.specialExam = null;
+      persist();
+      render();
+    }
+
+    function getExamProgress() {
+      if (!state.specialExam || state.specialExam.status !== 'active') return null;
+      const exam = state.specialExam;
+      const template = SPECIAL_EXAMS.find(e => e.id === exam.examId);
+      if (!template) return null;
+
+      const startDate = new Date(exam.startDate);
+      const now = new Date();
+      const dayNumber = Math.min(template.duration, Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + 1);
+      const passedDays = exam.dayLogs.filter(d => d.passed).length;
+      const totalDays = template.duration;
+
+      let totalProgress = {};
+      template.conditions.filter(c => c.type === 'total_habits').forEach(cond => {
+        let count = 0;
+        for (let i = 0; i < dayNumber; i++) {
+          const d = new Date(exam.startDate);
+          d.setDate(d.getDate() + i);
+          const key = d.toISOString().slice(0, 10);
+          const dayLog = load(K.log(key), null);
+          if (dayLog) count += dayLog.habits.filter(h => cond.habitIds.includes(h)).length;
+        }
+        totalProgress[cond.label] = { current: count, target: cond.min };
+      });
+
+      const todayResult = evaluateExamDay(template);
+
+      return {
+        template,
+        dayNumber,
+        totalDays,
+        passedDays,
+        pct: (passedDays / totalDays) * 100,
+        todayConditions: todayResult.details,
+        totalProgress,
+      };
+    }
+
+    // ============================================================
     // WEATHER \u2014 contexto para informes y smart suggestions
     // ============================================================
 
@@ -3776,6 +4314,11 @@
       ppLog: 'mo_pp_log',
       ppLimits: 'mo_pp_limits',
       pause: 'mo_pause',
+      specialExam: 'mo_special_exam',
+      examHistory: 'mo_exam_history',
+      talents: 'mo_talents',
+      weeklyReports: 'mo_weekly_reports',
+      ayanokoji: 'mo_ayanokoji',
     };
 
     function load(key, fallback) {
@@ -3820,6 +4363,12 @@
       ppLog: load(K.ppLog, []),
       ppLimits: load(K.ppLimits, {}),
       pause: load(K.pause, null),
+      specialExam: load(K.specialExam, null),
+      examHistory: load(K.examHistory, []),
+      talents: load(K.talents, []),
+      examTitles: load('mo_exam_titles', []),
+      weeklyReports: load(K.weeklyReports, []),
+      ayanokoji: load(K.ayanokoji, { lastMessage: null, messages: [] }),
       page: 'home',
       uiState: load(K.state, { onb_done: false }),
     };
@@ -3844,6 +4393,12 @@
       save(K.ppLog, state.ppLog);
       save(K.ppLimits, state.ppLimits);
       save(K.pause, state.pause);
+      save(K.specialExam, state.specialExam);
+      save(K.examHistory, state.examHistory);
+      save(K.talents, state.talents);
+      if (state.examTitles) save('mo_exam_titles', state.examTitles);
+      save(K.weeklyReports, state.weeklyReports);
+      save(K.ayanokoji, state.ayanokoji);
     }
 
     function getLog(date) {
@@ -3953,6 +4508,8 @@
       }
 
       log.habits.push(habitId);
+      // Prompt nota (no-blocking, aparece después)
+      setTimeout(() => promptHabitNote(habitId), 800);
       if (xpToAdd > 0) {
         log.xp_gained[h.stat] += xpToAdd;
         const prevLevel = levelFromXP(state.xp[h.stat]);
@@ -3984,6 +4541,45 @@
 
       // APOD trigger cuando marca astronomía
       if (habitId === 'stars') showAPOD();
+    }
+
+    function promptHabitNote(habitId) {
+      // Solo preguntar si no es la primera vez (no molestar en el primer uso)
+      if (countAllHabits() < 10) return;
+      // No preguntar si ya hay nota para este hábito hoy
+      if (log.habit_notes?.[habitId]) return;
+
+      const h = findHabit(habitId);
+      if (!h) return;
+
+      // Crear mini-prompt no intrusivo (toast con input)
+      const el = document.createElement('div');
+      el.style.cssText = 'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--sys);padding:12px 16px;border-radius:var(--radius);z-index:260;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:90vw;width:320px;animation:fadeIn .25s var(--ease);';
+      el.id = 'habitNotePrompt';
+      el.innerHTML = `
+        <div class="mono" style="font-size:9px;color:var(--sys2);letter-spacing:.2em;margin-bottom:6px;">NOTA · ${escapeHtml(h.label)}</div>
+        <input class="input" id="habitNoteInput" placeholder="Opcional: peso, sensación, detalle..." maxlength="140" style="font-size:12px;padding:8px 10px;">
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="btn btn-sm" onclick="saveHabitNote('${habitId}')">Guardar</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('habitNotePrompt')?.remove()">Skip</button>
+        </div>
+      `;
+      document.body.appendChild(el);
+      document.getElementById('habitNoteInput')?.focus();
+      // Auto-dismiss after 8 seconds
+      setTimeout(() => el.remove(), 8000);
+    }
+
+    function saveHabitNote(habitId) {
+      const input = document.getElementById('habitNoteInput');
+      const note = input?.value?.trim();
+      if (note) {
+        if (!log.habit_notes) log.habit_notes = {};
+        log.habit_notes[habitId] = note;
+        saveLog(log);
+        toast('Nota guardada', 'positive');
+      }
+      document.getElementById('habitNotePrompt')?.remove();
     }
 
     function setScrollAM(won) {
@@ -4328,7 +4924,7 @@
       state.page = p;
       render();
       if (p === 'stats') {
-        setTimeout(() => { renderRadar(); renderHeatmap(); }, 60);
+        setTimeout(() => { renderRadar(); renderHeatmap(); renderOAALine(); renderXPStack(); }, 60);
       }
       if (p === 'focus') {
         setTimeout(updateTimerUI, 60);
@@ -4476,6 +5072,931 @@
       `;
     }
 
+    // ============================================================
+    // V3.2 — RENDER: Special Exams, Talents, Exam History
+    // ============================================================
+
+    function renderSpecialExam() {
+      const exam = state.specialExam;
+      if (!exam) return '';
+      const template = SPECIAL_EXAMS.find(e => e.id === exam.examId);
+      if (!template) return '';
+
+      if (exam.status === 'offered') {
+        const deadline = new Date(exam.acceptDeadline);
+        const hoursLeft = Math.max(0, Math.ceil((deadline - new Date()) / (1000 * 60 * 60)));
+        return `
+          <div class="sysnotif" style="border-color:var(--rank-a);box-shadow:0 0 30px rgba(245,158,11,.3);">
+            <div class="sysnotif-corner tl" style="border-color:var(--rank-a)"></div>
+            <div class="sysnotif-corner tr" style="border-color:var(--rank-a)"></div>
+            <div class="sysnotif-corner bl" style="border-color:var(--rank-a)"></div>
+            <div class="sysnotif-corner br" style="border-color:var(--rank-a)"></div>
+            <div class="sysnotif-head">
+              <span class="sysnotif-icon" style="color:var(--rank-a)">${svgIcon('trophy', 'icon')}</span>
+              <span class="sysnotif-tag" style="color:var(--rank-a)">SPECIAL EXAM DISPONIBLE</span>
+              <span class="sysnotif-rank">${hoursLeft}H PARA ACEPTAR</span>
+            </div>
+            <div class="sysnotif-body">
+              <div class="sysnotif-title">${escapeHtml(template.name)}</div>
+              <div class="sysnotif-desc">${escapeHtml(template.desc)}</div>
+              <div class="sysnotif-stats">
+                <div class="sysnotif-stat reward">
+                  <div class="sysnotif-stat-label">Recompensa</div>
+                  <div class="sysnotif-stat-val">+${template.reward.pp} PP${template.reward.title ? ' + "' + template.reward.title + '"' : ''}</div>
+                </div>
+                <div class="sysnotif-stat penalty">
+                  <div class="sysnotif-stat-label">Si fallás</div>
+                  <div class="sysnotif-stat-val">Cooldown ${EXAM_COOLDOWN_FAIL}d</div>
+                </div>
+                <div class="sysnotif-stat deadline">
+                  <div class="sysnotif-stat-label">Duración</div>
+                  <div class="sysnotif-stat-val">${template.duration} días</div>
+                </div>
+                <div class="sysnotif-stat" style="border-left-color:var(--info);">
+                  <div class="sysnotif-stat-label">Dificultad</div>
+                  <div class="sysnotif-stat-val" style="color:var(--info);">${template.difficulty.toUpperCase()}</div>
+                </div>
+              </div>
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--ink3);letter-spacing:.08em;margin-bottom:12px;padding:0 6px;">
+                ${template.conditions.map(c => '◇ ' + c.label).join('<br>')}
+              </div>
+            </div>
+            <div class="sysnotif-actions">
+              <button class="btn btn-block" style="background:var(--rank-a);border-color:var(--rank-a);" onclick="acceptExam()">Aceptar examen</button>
+              <button class="btn btn-ghost btn-sm" onclick="rejectExam()">Rechazar</button>
+            </div>
+          </div>
+        `;
+      }
+
+      if (exam.status === 'active') {
+        const progress = getExamProgress();
+        if (!progress) return '';
+        return `
+          <div class="sysnotif" style="border-color:var(--rank-a);box-shadow:0 0 24px rgba(245,158,11,.25);">
+            <div class="sysnotif-corner tl" style="border-color:var(--rank-a)"></div>
+            <div class="sysnotif-corner tr" style="border-color:var(--rank-a)"></div>
+            <div class="sysnotif-corner bl" style="border-color:var(--rank-a)"></div>
+            <div class="sysnotif-corner br" style="border-color:var(--rank-a)"></div>
+            <div class="sysnotif-head">
+              <span class="sysnotif-icon" style="color:var(--rank-a)">${svgIcon('trophy', 'icon')}</span>
+              <span class="sysnotif-tag" style="color:var(--rank-a)">SPECIAL EXAM · DÍA ${progress.dayNumber}/${progress.totalDays}</span>
+            </div>
+            <div class="sysnotif-body">
+              <div class="sysnotif-title">${escapeHtml(template.name)}</div>
+              <div style="margin-bottom:12px;">
+                <div class="quest-bar" style="height:6px;"><div class="quest-fill" style="width:${progress.pct}%;background:var(--rank-a);"></div></div>
+                <div class="quest-progress" style="color:var(--rank-a);">${progress.passedDays}/${progress.totalDays} días completados</div>
+              </div>
+              <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;padding:0 6px;">
+                ${progress.todayConditions.map(c => `
+                  <div style="display:flex;align-items:center;gap:6px;padding:4px 0;color:${c.met ? 'var(--positive)' : 'var(--ink2)'};">
+                    <span>${c.met ? '✓' : '○'}</span>
+                    <span>${c.label}</span>
+                  </div>
+                `).join('')}
+                ${Object.entries(progress.totalProgress).map(([label, p]) => `
+                  <div style="display:flex;align-items:center;gap:6px;padding:4px 0;color:${p.current >= p.target ? 'var(--positive)' : 'var(--ink2)'};">
+                    <span>${p.current >= p.target ? '✓' : '○'}</span>
+                    <span>${label}: ${p.current}/${p.target}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      return '';
+    }
+
+    function renderTalentsSection() {
+      const allTalents = getAllTalentsWithStatus();
+      const active = allTalents.filter(t => t.active);
+      const showLocked = CLASS_ORDER.indexOf(state.currentClass || 'D') >= CLASS_ORDER.indexOf('B');
+
+      let html = `
+        <div class="card">
+          <div class="card-title"><span class="card-title-text">Talents detectados · ${active.length}</span></div>
+      `;
+
+      if (active.length === 0 && !showLocked) {
+        html += `
+          <div class="empty">
+            <div class="empty-icon">${svgIcon('ach_eye', 'icon')}</div>
+            <div class="empty-text">El Sistema necesita 90+ días de datos para detectar patrones.</div>
+          </div>
+        `;
+      } else {
+        active.forEach(t => {
+          html += `
+            <div style="padding:10px 0;border-top:1px solid var(--border);">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="color:var(--rank-a);font-size:14px;">◆</span>
+                <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.1em;">${t.name}</span>
+                ${!t.permanent ? '<span class="mono" style="font-size:9px;color:var(--ink3);margin-left:auto;">PUEDE DECAER</span>' : '<span class="mono" style="font-size:9px;color:var(--positive);margin-left:auto;">PERMANENTE</span>'}
+              </div>
+              <div style="font-size:11px;color:var(--ink2);margin-top:4px;padding-left:22px;">${t.desc}</div>
+              <div class="mono" style="font-size:9px;color:var(--ink3);margin-top:3px;padding-left:22px;">Desbloqueado: ${t.unlockedAt}</div>
+            </div>
+          `;
+        });
+
+        if (showLocked) {
+          const locked = allTalents.filter(t => !t.active);
+          if (locked.length > 0) {
+            html += `<div class="modal-label" style="margin-top:12px;">Patrones en observación · ${locked.length}</div>`;
+            locked.forEach(t => {
+              const wasLost = t.lostAt;
+              html += `
+                <div style="padding:8px 0;border-top:1px solid var(--border);opacity:0.5;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="color:var(--ink4);font-size:14px;">◇</span>
+                    <span style="font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--ink3);">???</span>
+                    ${wasLost ? '<span class="mono" style="font-size:9px;color:var(--negative);margin-left:auto;">PERDIDO</span>' : ''}
+                  </div>
+                  <div style="font-size:10px;color:var(--ink4);margin-top:3px;padding-left:22px;font-style:italic;">${t.hint}</div>
+                </div>
+              `;
+            });
+          }
+        }
+      }
+
+      html += `</div>`;
+      return html;
+    }
+
+    function renderExamHistory() {
+      if (!examEnabled()) return '';
+      const hist = state.examHistory || [];
+      const titles = state.examTitles || [];
+
+      let html = '';
+
+      if (titles.length > 0) {
+        html += `
+          <div class="card">
+            <div class="card-title"><span class="card-title-text">Títulos · ${titles.length}</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${titles.map(t => `
+                <span style="font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 12px;border:1px solid var(--rank-a);color:var(--rank-a);border-radius:var(--radius);">"${t}"</span>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if (hist.length > 0) {
+        html += `
+          <div class="card">
+            <div class="card-title"><span class="card-title-text">Special Exams · historial</span></div>
+            ${hist.slice(-6).reverse().map(e => {
+          const tpl = SPECIAL_EXAMS.find(x => x.id === e.examId);
+          const color = e.status === 'passed' ? 'var(--positive)' : e.status === 'failed' ? 'var(--negative)' : 'var(--ink3)';
+          const icon = e.status === 'passed' ? 'check' : 'x';
+          return `
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border);font-size:12px;">
+                  <span style="color:${color}">${svgIcon(icon, 'icon icon-sm')}</span>
+                  <span style="flex:1;">${tpl ? escapeHtml(tpl.name) : e.examId}</span>
+                  <span class="mono" style="font-size:9px;color:var(--ink3);">${e.status} · ${(e.completedAt || e.offeredDate || '').slice(5)}</span>
+                </div>
+              `;
+        }).join('')}
+          </div>
+        `;
+      }
+
+      return html;
+    }
+
+    function renderActiveTalentsBadge() {
+      const active = getActiveTalents();
+      if (active.length === 0) return '';
+      return `
+        <div class="card" onclick="goPage('character')" style="cursor:pointer;">
+          <div class="card-title">
+            <span class="card-title-text">Talents activos · ${active.length}</span>
+            <span class="card-action">ver</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            ${active.map(t => {
+        const tpl = TALENTS.find(x => x.id === t.id);
+        return `
+                <span style="font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.1em;padding:5px 10px;background:var(--sys-dim);border:1px solid var(--sys);border-radius:var(--radius);color:var(--sys2);">◆ ${tpl?.name || t.id}</span>
+              `;
+      }).join('')}
+          </div>
+        </div>
+    `;
+    }
+
+    // ============================================================
+    // V3.3 — INFORME DE EVALUACIÓN SEMANAL
+    // ============================================================
+
+    function generateWeeklyReport() {
+      const today = new Date();
+      if (today.getDay() !== 0) return null; // solo domingos
+
+      const wk = weekKey();
+      // No generar si ya existe para esta semana
+      if (state.weeklyReports.find(r => r.week === wk)) return null;
+
+      const oaa = getCurrentOAA();
+      if (!oaa || oaa.total === null) return null;
+
+      const logs7 = getRecentLogs(7);
+      const logs30 = getRecentLogs(30);
+      const rank = currentRank();
+      const cls = state.currentClass || 'D';
+
+      // Calcular cambios vs semana anterior
+      const hist = state.oaa_history || [];
+      const prevWeek = hist.length >= 8 ? hist[hist.length - 8] : null;
+      const dimChange = {};
+      const dims = ['academico', 'fisico', 'mental', 'social', 'identidad'];
+      dims.forEach(d => {
+        dimChange[d] = prevWeek?.dims?.[d] != null && oaa.dims[d] != null
+          ? oaa.dims[d] - prevWeek.dims[d]
+          : 0;
+      });
+      const totalChange = prevWeek?.total != null ? oaa.total - prevWeek.total : 0;
+
+      // === OBSERVACIONES ===
+      const observations = [];
+
+      // 1. Caída significativa en alguna dimensión
+      dims.forEach(d => {
+        if (dimChange[d] < -1.5) {
+          const dimName = { academico: 'Académico', fisico: 'Físico', mental: 'Mental', social: 'Social', identidad: 'Identidad' }[d];
+          // Intentar detectar causa
+          let causa = '';
+          if (d === 'fisico') {
+            const gymDays = logs7.filter(l => l.habits.includes('gym')).length;
+            if (gymDays <= 1) causa = ` Causa probable: ${gymDays === 0 ? 'ausencia total de gym' : 'solo 1 día de gym'} esta semana.`;
+          }
+          if (d === 'social') {
+            const vincDays = logs7.filter(l => l.habits.some(h => ['call', 'meal', 'msg', 'new_person', 'compliment'].includes(h))).length;
+            if (vincDays <= 1) causa = ` Causa probable: ${vincDays === 0 ? 'cero' : '1'} interacción social registrada.`;
+          }
+          observations.push(`Caída detectada en ${dimName} (${numToLetter(oaa.dims[d] + Math.abs(dimChange[d]))} → ${numToLetter(oaa.dims[d])}).${causa}`);
+        }
+      });
+
+      // 2. Patrón de rechazo de sysquests
+      const recentQ = state.sysquest_history.filter(q => daysSince(q.date) <= 7);
+      if (recentQ.length >= 2) {
+        const rejected = recentQ.filter(q => q.status === 'rejected');
+        if (rejected.length >= 2) {
+          const categories = rejected.map(q => q.category);
+          const uniqueCats = [...new Set(categories)];
+          if (uniqueCats.length === 1) {
+            const catName = { ruptura: 'Ruptura', confrontacion: 'Confrontación', disciplina_pura: 'Disciplina', curiosidad: 'Curiosidad', vulnerabilidad: 'Vulnerabilidad', fisico_extremo: 'Físico Extremo' }[uniqueCats[0]] || uniqueCats[0];
+            observations.push(`Patrón persistente: ${rejected.length} de ${recentQ.length} quests rechazadas pertenecen a categoría ${catName}. Esto sugiere evitación deliberada de esa área.`);
+          }
+        }
+      }
+
+      // 3. Récord de scroll AM
+      if (state.streaks.no_scroll_am.current >= 7 && state.streaks.no_scroll_am.current === state.streaks.no_scroll_am.longest) {
+        observations.push(`Récord personal: ${state.streaks.no_scroll_am.current} días consecutivos sin scroll AM.`);
+      }
+
+      // 4. Daily intent completion
+      let intentDone = 0, intentTotal = 0;
+      logs7.forEach(l => {
+        if (l.daily_intent?.items?.length > 0) {
+          intentTotal += l.daily_intent.items.length;
+          intentDone += (l.daily_intent.completed || []).filter(Boolean).length;
+        }
+      });
+      const intentRate = intentTotal > 0 ? Math.round((intentDone / intentTotal) * 100) : null;
+      if (intentRate !== null) {
+        let intentObs = `Daily intent completion: ${intentRate}%.`;
+        // Comparar con mes anterior
+        let monthIntentDone = 0, monthIntentTotal = 0;
+        logs30.forEach(l => {
+          if (l.daily_intent?.items?.length > 0) {
+            monthIntentTotal += l.daily_intent.items.length;
+            monthIntentDone += (l.daily_intent.completed || []).filter(Boolean).length;
+          }
+        });
+        const monthRate = monthIntentTotal > 0 ? Math.round((monthIntentDone / monthIntentTotal) * 100) : null;
+        if (monthRate !== null && Math.abs(intentRate - monthRate) > 10) {
+          intentObs += ` Comparativo mes: ${monthRate}%.`;
+          if (intentRate < monthRate - 15) {
+            intentObs += ` Hipótesis: estás definiendo intenciones que exceden tu energía operativa.`;
+          }
+        }
+        observations.push(intentObs);
+      }
+
+      // 5. Subida notable
+      dims.forEach(d => {
+        if (dimChange[d] > 1.5) {
+          const dimName = { academico: 'Académico', fisico: 'Físico', mental: 'Mental', social: 'Social', identidad: 'Identidad' }[d];
+          observations.push(`Progreso significativo en ${dimName}: +${dimChange[d].toFixed(1)} niveles esta semana.`);
+        }
+      });
+
+      // 6. Streak diario
+      if (state.streaks.daily_log.current >= 14) {
+        observations.push(`Streak activo de ${state.streaks.daily_log.current} días. Consistencia operativa sostenida.`);
+      }
+
+      // 7. Dimensión descuidada
+      const lowest = dims.reduce((a, b) => (oaa.dims[a] || 0) < (oaa.dims[b] || 0) ? a : b);
+      const highest = dims.reduce((a, b) => (oaa.dims[a] || 0) > (oaa.dims[b] || 0) ? a : b);
+      if (oaa.dims[highest] - oaa.dims[lowest] > 4) {
+        const loName = { academico: 'Académico', fisico: 'Físico', mental: 'Mental', social: 'Social', identidad: 'Identidad' }[lowest];
+        observations.push(`Desbalance detectado: ${loName} está ${Math.round(oaa.dims[highest] - oaa.dims[lowest])} niveles por debajo de tu dimensión más fuerte.`);
+      }
+
+      // Limitar a 4 observaciones
+      const finalObs = observations.slice(0, 4);
+
+      // === RECOMENDACIONES ===
+      const recommendations = [];
+
+      // Recomendación basada en observaciones
+      if (intentRate !== null && intentRate < 60) {
+        recommendations.push('Reducir daily intents a 2 ítems durante 7 días. Re-evaluar el próximo domingo.');
+      }
+      const rejectedCats = recentQ.filter(q => q.status === 'rejected').map(q => q.category);
+      if (rejectedCats.length >= 2) {
+        recommendations.push(`Aceptar la próxima quest de ${rejectedCats[0] || 'la categoría rechazada'}${ppEnabled() ? ' o gastar 80 PP para skip.' : '.'}`);
+      }
+      if (dimChange.fisico < -1) {
+        recommendations.push('Priorizar al menos 3 sesiones de actividad física esta semana.');
+      }
+      if (dimChange.social < -1) {
+        recommendations.push('Agendar al menos 1 interacción presencial (meal o call) esta semana.');
+      }
+      if (recommendations.length === 0) {
+        recommendations.push('Mantener el ritmo actual. Sin ajustes urgentes detectados.');
+      }
+
+      // === PP summary ===
+      const ppWeek = state.ppLog.filter(l => daysSince(l.date) <= 7);
+      const ppEarned = ppWeek.filter(l => l.type === 'earn').reduce((s, l) => s + l.amount, 0);
+      const ppSpent = ppWeek.filter(l => l.type === 'spend').reduce((s, l) => s + Math.abs(l.amount), 0);
+
+      // Weather context (if available)
+      let weatherNote = '';
+
+      const report = {
+        week: wk,
+        weekNumber: getWeekNumber(),
+        year: today.getFullYear(),
+        generatedAt: new Date().toISOString(),
+        rank: rank.rank,
+        class: classCode(cls),
+        level: totalLevel(),
+        oaa: {
+          total: oaa.total,
+          totalLetter: numToLetter(oaa.total),
+          dims: {},
+          totalChange: totalChange,
+        },
+        observations: finalObs,
+        recommendations: recommendations.slice(0, 2),
+        pp: { balance: state.pp, earned: ppEarned, spent: ppSpent },
+        streak: state.streaks.daily_log.current,
+        habitsThisWeek: logs7.reduce((s, l) => s + l.habits.filter(h => h !== '__touched').length, 0),
+        feedbackGiven: false,
+        resonatedObs: [],
+      };
+
+      dims.forEach(d => {
+        report.oaa.dims[d] = {
+          value: oaa.dims[d],
+          letter: oaa.dims[d] !== null ? numToLetter(oaa.dims[d]) : '—',
+          change: dimChange[d],
+        };
+      });
+
+      state.weeklyReports.push(report);
+      // Mantener últimos 52 informes (1 año)
+      if (state.weeklyReports.length > 52) state.weeklyReports.shift();
+      persist();
+
+      return report;
+    }
+
+    function getWeekNumber() {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+      const week1 = new Date(d.getFullYear(), 0, 4);
+      return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    }
+
+    function getLatestReport() {
+      if (!state.weeklyReports.length) return null;
+      return state.weeklyReports[state.weeklyReports.length - 1];
+    }
+
+    function markReportFeedback(obsIndex) {
+      const report = getLatestReport();
+      if (!report) return;
+      if (report.resonatedObs.includes(obsIndex)) {
+        report.resonatedObs = report.resonatedObs.filter(i => i !== obsIndex);
+      } else {
+        report.resonatedObs.push(obsIndex);
+      }
+      report.feedbackGiven = true;
+      persist();
+      // Re-render modal
+      closeModal();
+      openModal('report');
+    }
+
+    // ============================================================
+    // V3.3 — MODAL DEL INFORME
+    // ============================================================
+
+    function modalReport(reportIdx) {
+      const report = reportIdx !== undefined
+        ? state.weeklyReports[reportIdx]
+        : getLatestReport();
+      if (!report) {
+        return `
+        <div class="modal-handle"></div>
+        <div class="modal-tag">INFORME DE EVALUACIÓN</div>
+        <div class="modal-title">Sin informes</div>
+        <div class="modal-sub">El primer informe se genera el próximo domingo a las 21:00.</div>
+      `;
+      }
+
+      const trend = getOAATrend(4);
+      const trendText = trend === 'up' ? 'Ascendente' : trend === 'down' ? 'Descendente' : 'Estable';
+      const arrowFor = (d) => d > 0.3 ? '▲' : d < -0.3 ? '▼' : '→';
+      const colorFor = (d) => d > 0.3 ? 'var(--positive)' : d < -0.3 ? 'var(--negative)' : 'var(--ink3)';
+
+      let html = `
+      <div class="modal-handle"></div>
+      <div class="modal-tag">INFORME DE EVALUACIÓN SEMANAL</div>
+      <div class="modal-sub" style="margin-bottom:4px;">Semana ${report.weekNumber} · ${report.year}</div>
+
+      <div style="border:1px solid var(--sys);padding:14px;border-radius:var(--radius);margin-bottom:16px;background:var(--bg);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+          <span class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.15em;">CLASIFICACIÓN ACTUAL</span>
+        </div>
+        <div style="font-size:12px;color:var(--ink2);font-family:var(--font-mono);letter-spacing:.08em;">
+          Rank ${report.rank} · Clase ${report.class} · Lv. ${report.level}
+        </div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-top:8px;">
+          <span class="display" style="font-size:42px;color:var(--sys2);text-shadow:0 0 10px var(--sys-glow);">${report.oaa.totalLetter}</span>
+          <span class="mono" style="font-size:10px;color:${colorFor(report.oaa.totalChange)};letter-spacing:.1em;">${report.oaa.totalChange > 0 ? '+' : ''}${report.oaa.totalChange.toFixed(1)} vs semana anterior</span>
+        </div>
+      </div>
+
+      <div class="modal-label">Dimensiones</div>
+      <div style="margin-bottom:16px;">
+        ${['academico', 'fisico', 'mental', 'social', 'identidad'].map(d => {
+        const dim = report.oaa.dims[d];
+        const name = { academico: 'Académico', fisico: 'Físico', mental: 'Mental', social: 'Social', identidad: 'Identidad' }[d];
+        return `
+            <div style="display:grid;grid-template-columns:1fr auto auto;align-items:baseline;gap:12px;padding:6px 0;border-top:1px solid var(--border);">
+              <span class="mono" style="font-size:11px;font-weight:600;letter-spacing:.12em;">${name}</span>
+              <span class="display" style="font-size:18px;color:var(--sys2);">${dim.letter}</span>
+              <span class="mono" style="font-size:12px;font-weight:700;color:${colorFor(dim.change)};width:16px;text-align:center;">${arrowFor(dim.change)}</span>
+            </div>
+          `;
+      }).join('')}
+        <div style="text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--ink3);letter-spacing:.15em;padding-top:8px;border-top:1px solid var(--border2);">Tendencia 4 semanas: ${trendText}</div>
+      </div>
+
+      <div class="modal-label">Observaciones</div>
+      <div style="margin-bottom:16px;">
+        ${report.observations.map((obs, i) => `
+          <div style="padding:8px 0;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;">
+            <span class="mono" style="font-size:10px;color:var(--sys2);flex-shrink:0;margin-top:2px;">[${i + 1}]</span>
+            <span style="font-size:12px;color:var(--ink2);line-height:1.55;flex:1;">${escapeHtml(obs)}</span>
+          </div>
+        `).join('')}
+        ${report.observations.length === 0 ? '<div style="font-size:12px;color:var(--ink3);padding:8px 0;">Sin observaciones significativas esta semana.</div>' : ''}
+      </div>
+
+      <div class="modal-label">Recomendación operativa</div>
+      <div style="margin-bottom:16px;">
+        ${report.recommendations.map((rec, i) => `
+          <div style="padding:8px 10px;background:var(--bg);border-left:2px solid var(--sys);margin-bottom:6px;font-size:12px;color:var(--ink);line-height:1.5;">${escapeHtml(rec)}</div>
+        `).join('')}
+      </div>
+
+      ${ppEnabled() ? `
+        <div class="modal-label">Private Points</div>
+        <div style="margin-bottom:16px;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;">
+          <div>Saldo: ${report.pp.balance} PP</div>
+          <div style="color:var(--positive);">+${report.pp.earned} esta semana</div>
+          <div style="color:var(--negative);">−${report.pp.spent} esta semana</div>
+        </div>
+      ` : ''}
+
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink);margin-bottom:8px;letter-spacing:.1em;">¿Alguna observación te resonó?</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+        ${report.observations.map((_, i) => `
+          <button class="btn btn-sm ${report.resonatedObs?.includes(i) ? '' : 'btn-ghost'}" onclick="markReportFeedback(${i})" style="font-size:10px;">
+            #${i + 1} ${report.resonatedObs?.includes(i) ? '✓' : ''}
+          </button>
+        `).join('')}
+        ${report.observations.length === 0 ? '' : `
+          <button class="btn btn-sm btn-ghost" onclick="closeModal()" style="font-size:10px;">Ninguna</button>
+        `}
+      </div>
+
+      <div style="text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--ink4);letter-spacing:.2em;text-transform:uppercase;">
+        Generado: ${report.generatedAt.slice(0, 16).replace('T', ' ')}
+      </div>
+    `;
+
+      return html;
+    }
+
+    function modalReportHistory() {
+      if (!state.weeklyReports.length) {
+        return `
+        <div class="modal-handle"></div>
+        <div class="modal-tag">INFORMES</div>
+        <div class="modal-title">Sin historial</div>
+        <div class="modal-sub">Los informes se generan cada domingo.</div>
+      `;
+      }
+      let html = `
+      <div class="modal-handle"></div>
+      <div class="modal-tag">INFORMES HISTÓRICOS</div>
+      <div class="modal-title">Evaluaciones</div>
+      <div class="modal-sub">${state.weeklyReports.length} informes archivados</div>
+    `;
+      state.weeklyReports.slice().reverse().forEach((r, idx) => {
+        const realIdx = state.weeklyReports.length - 1 - idx;
+        const color = r.oaa.totalChange > 0.3 ? 'var(--positive)' : r.oaa.totalChange < -0.3 ? 'var(--negative)' : 'var(--ink3)';
+        html += `
+        <div class="setting-row" onclick="closeModal(); openModal('report', ${realIdx})" style="cursor:pointer;">
+          <div>
+            <div class="setting-name">Semana ${r.weekNumber} · ${r.oaa.totalLetter}</div>
+            <div class="setting-sub" style="color:${color}">${r.oaa.totalChange > 0 ? '+' : ''}${r.oaa.totalChange.toFixed(1)} · ${r.observations.length} obs</div>
+          </div>
+          <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+        </div>
+      `;
+      });
+      return html;
+    }
+
+    function maybeGenerateReport() {
+      const today = new Date();
+      if (today.getDay() !== 0) return; // solo domingos
+      if (today.getHours() < 21) return; // después de las 21
+      const report = generateWeeklyReport();
+      if (report) {
+        setTimeout(() => sysToast('INFORME DE EVALUACIÓN DISPONIBLE'), 2000);
+      }
+    }
+
+    // ============================================================
+    // V3.3 — SMART SUGGESTIONS
+    // ============================================================
+
+    function getSmartSuggestion() {
+      // Solo Clase B+
+      const classIdx = CLASS_ORDER.indexOf(state.currentClass || 'D');
+      if (classIdx < CLASS_ORDER.indexOf('B')) return null;
+
+      // Solo una sugerencia por día
+      if (state.uiState.smart_suggestion_today === todayKey()) return null;
+
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0=dom, 1=lun...
+      const hour = today.getHours();
+
+      // Analizar los últimos 30 días para detectar patrón por día de la semana
+      const logs = getRecentLogs(30);
+      const dayPatterns = {};
+
+      // Contar hábitos por día de la semana
+      logs.forEach(l => {
+        const d = new Date(l.date);
+        const dow = d.getDay();
+        if (!dayPatterns[dow]) dayPatterns[dow] = {};
+        l.habits.forEach(h => {
+          if (h === '__touched') return;
+          dayPatterns[dow][h] = (dayPatterns[dow][h] || 0) + 1;
+        });
+      });
+
+      // Para hoy: ¿cuál hábito se hizo más veces en este día de la semana?
+      const todayPattern = dayPatterns[dayOfWeek];
+      if (!todayPattern) return null;
+
+      // Encontrar el hábito dominante (más de 3 veces en las últimas ~4 semanas de este día)
+      const entries = Object.entries(todayPattern).sort((a, b) => b[1] - a[1]);
+      if (entries.length === 0) return null;
+
+      const [topHabit, count] = entries[0];
+      if (count < 3) return null; // no hay patrón fuerte
+
+      // ¿Ya se marcó hoy?
+      if (log.habits.includes(topHabit)) return null;
+
+      const habit = findHabit(topHabit);
+      if (!habit) return null;
+
+      const dayNames = ['domingos', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados'];
+
+      return {
+        habit: topHabit,
+        label: habit.label,
+        stat: habit.stat,
+        count,
+        dayName: dayNames[dayOfWeek],
+        message: `${habit.label} registrado en ${count} de los últimos ${Math.min(4, Math.floor(logs.length / 7))} ${dayNames[dayOfWeek]}. Hoy aún sin actividad.`,
+      };
+    }
+
+    function dismissSmartSuggestion() {
+      state.uiState.smart_suggestion_today = todayKey();
+      persist();
+      render();
+    }
+
+    // ============================================================
+    // V3.3 — LAYER AYANOKOJI
+    // ============================================================
+
+    const AYANOKOJI_MESSAGES = [
+      // Para cuando el OAA es bajo pero mejorando
+      {
+        id: 'rising_below',
+        condition: (oaa, st) => oaa.total < 8 && getOAATrend(4) === 'up',
+        text: 'Tu patrón actual muestra trayectoria ascendente desde un punto bajo. El Sistema registra que las recuperaciones tempranas correlacionan con sostenibilidad a largo plazo. Continuá.',
+      },
+      // Para cuando el OAA es alto y estable
+      {
+        id: 'high_stable',
+        condition: (oaa, st) => oaa.total >= 12 && getOAATrend(4) === 'flat',
+        text: 'Tu rendimiento se estabilizó en un nivel alto. Esto no es una meseta — es una plataforma. El Sistema observa que los Hunters que se mantienen aquí tienden a buscar profundidad, no más amplitud.',
+      },
+      // Para cuando rechaza mucha vulnerabilidad
+      {
+        id: 'avoids_vulnerability',
+        condition: (oaa, st) => {
+          const recent = st.sysquest_history.filter(q => daysSince(q.date) <= 60);
+          const vulnRejected = recent.filter(q => q.category === 'vulnerabilidad' && q.status === 'rejected').length;
+          return vulnRejected >= 3;
+        },
+        text: 'Observación interna: tu patrón de rechazo de quests de Vulnerabilidad sugiere una zona de evitación consistente. El Sistema no juzga esto. Solo nota que los Hunters que eventualmente la atraviesan reportan el mayor delta de crecimiento en Identidad.',
+      },
+      // Para cuando tiene muchos customs activos
+      {
+        id: 'architect_pattern',
+        condition: (oaa, st) => st.custom.length >= 4,
+        text: 'Estás modificando el sistema más que usándolo. Esto no es un error — es una señal. Los Hunters que diseñan sus propias herramientas tienden a sostener el progreso más tiempo que los que solo ejecutan las predeterminadas.',
+      },
+      // Para cuando Social es muy bajo vs el resto
+      {
+        id: 'social_gap',
+        condition: (oaa, st) => oaa.dims.social !== null && oaa.dims.mental !== null && oaa.dims.mental - oaa.dims.social > 4,
+        text: 'Tu capacidad mental excede significativamente tu actividad social. Esto no es necesariamente un problema. Pero el Sistema observa que esta configuración tiende a ser insostenible después de 6 meses.',
+      },
+      // Para cuando completa muchas mazmorras
+      {
+        id: 'dungeon_master',
+        condition: (oaa, st) => st.bosses.filter(b => b.completed).length >= 5,
+        text: 'Has completado suficientes mazmorras para que el Sistema detecte tu patrón de construcción. Observación: tus mazmorras completadas se concentran en áreas donde ya sos fuerte. Las que abandonás tienden a estar en tus dimensiones más débiles.',
+      },
+      // Para cuando el OAA cayó bruscamente
+      {
+        id: 'sharp_decline',
+        condition: (oaa, st) => {
+          const hist = st.oaa_history || [];
+          if (hist.length < 14) return false;
+          const twoWeeksAgo = hist[hist.length - 14];
+          return twoWeeksAgo && oaa.total < twoWeeksAgo.total - 3;
+        },
+        text: 'El Sistema detectó una caída significativa en tu evaluación general. No emite juicio. Solo registra que este tipo de caídas tienen dos trayectorias posibles: recuperación dentro de 14 días o estabilización en el nuevo nivel. La diferencia, según los datos, está en las primeras 48 horas.',
+      },
+      // Para cuando lleva mucho tiempo en la app
+      {
+        id: 'veteran',
+        condition: (oaa, st) => daysSinceCreated() >= 180,
+        text: 'Has usado este sistema por más de 180 días. El Sistema no puede medir la persona que eras antes de empezar. Solo puede medir la diferencia entre quien eras hace 90 días y quien sos hoy. Esa diferencia existe.',
+      },
+      // Para cuando tiene el OAA perfectamente balanceado
+      {
+        id: 'balanced',
+        condition: (oaa, st) => {
+          const dims = Object.values(oaa.dims).filter(d => d !== null);
+          if (dims.length < 5) return false;
+          const max = Math.max(...dims);
+          const min = Math.min(...dims);
+          return max - min < 2;
+        },
+        text: 'Tu perfil está inusualmente balanceado. La mayoría de los Hunters muestran picos y valles pronunciados. Un perfil plano a este nivel sugiere una de dos cosas: disciplina consciente en todas las áreas, o evasión de la especialización. Solo vos sabés cuál.',
+      },
+      // Para cuando Disciplina es la dim más alta
+      {
+        id: 'discipline_dominant',
+        condition: (oaa, st) => {
+          const dims = oaa.dims;
+          if (!dims.mental) return false;
+          return dims.mental >= 12 && dims.mental > (dims.social || 0) && dims.mental > (dims.identidad || 0);
+        },
+        text: 'Tu dimensión dominante es Mental. El Sistema observa que los Hunters con este perfil tienden a confundir disciplina con progreso. La disciplina es el vehículo, no el destino. ¿Hacia dónde estás conduciendo?',
+      },
+      // Genérico: progreso sostenido
+      {
+        id: 'sustained_progress',
+        condition: (oaa, st) => oaa.total >= 10 && st.streaks.daily_log.current >= 21,
+        text: 'Tu comportamiento en los últimos 90 días sugiere capacidad para sostener tu clase actual. Tu progreso reciente está calibrado por debajo de tu límite operativo estimado. El Sistema continuará monitoreando.',
+      },
+      // Para cuando tiene streak largo pero OAA mediocre
+      {
+        id: 'streak_vs_quality',
+        condition: (oaa, st) => st.streaks.daily_log.current >= 30 && oaa.total < 9,
+        text: 'Tenés un streak impresionante pero tu OAA no lo refleja. El Sistema detecta que tu actividad es consistente pero superficial. Estás marcando presencia sin profundidad. La pregunta es si lo sabés.',
+      },
+      // Para el primer mensaje (temprano)
+      {
+        id: 'first_message',
+        condition: (oaa, st) => daysSinceCreated() >= 90 && st.ayanokoji.messages.length === 0,
+        text: 'El Sistema ha completado su primera evaluación trimestral de patrón profundo. Tus datos iniciales están registrados. Lo que importa no es dónde empezaste — es la dirección del vector. El Sistema continuará observando.',
+      },
+    ];
+
+    function maybeAyanokojiMessage() {
+      const daysSince = daysSinceCreated();
+      if (daysSince < 90) return;
+
+      // Cada 90 días
+      const lastMsg = state.ayanokoji.lastMessage;
+      if (lastMsg) {
+        const daysSinceLast = Math.floor((new Date() - new Date(lastMsg)) / (1000 * 60 * 60 * 24));
+        if (daysSinceLast < 90) return;
+      }
+
+      // No mostrar si ya se mostró hoy
+      if (state.uiState.ayanokoji_shown_today === todayKey()) return;
+
+      const oaa = getCurrentOAA();
+      if (!oaa || oaa.total === null) return;
+
+      // Filtrar mensajes ya mostrados
+      const shownIds = state.ayanokoji.messages.map(m => m.id);
+      const candidates = AYANOKOJI_MESSAGES.filter(m => !shownIds.includes(m.id));
+      if (candidates.length === 0) return;
+
+      // Evaluar condiciones
+      const matching = candidates.filter(m => {
+        try { return m.condition(oaa, state); }
+        catch (e) { return false; }
+      });
+
+      if (matching.length === 0) return;
+
+      // Elegir uno (priorizar los más específicos — últimos en la lista)
+      const chosen = matching[matching.length - 1];
+
+      state.ayanokoji.lastMessage = todayKey();
+      state.ayanokoji.messages.push({ id: chosen.id, date: todayKey() });
+      state.uiState.ayanokoji_shown_today = todayKey();
+      persist();
+
+      // Mostrar después de un delay
+      setTimeout(() => showAyanokojiMessage(chosen), 3000);
+    }
+
+    function showAyanokojiMessage(msg) {
+      const ov = document.createElement('div');
+      ov.className = 'levelup show';
+      ov.innerHTML = `
+      <div class="rankup-content" style="max-width:340px;padding:28px 22px;box-shadow:0 0 60px var(--sys-glow);">
+        <div class="sysnotif-corner tl"></div>
+        <div class="sysnotif-corner tr"></div>
+        <div class="sysnotif-corner bl"></div>
+        <div class="sysnotif-corner br"></div>
+        <div class="mono" style="font-size:9px;color:var(--sys2);letter-spacing:.35em;margin-bottom:18px;">OBSERVACIÓN INTERNA · CLASIFICADA</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7;text-align:left;font-family:var(--font-body);">${msg.text}</div>
+        <button class="btn btn-ghost btn-block" style="margin-top:20px;" onclick="this.closest('.levelup').remove()">Cerrar</button>
+      </div>
+    `;
+      document.body.appendChild(ov);
+    }
+
+    // ============================================================
+    // V3.3 — MENTOR QUESTION (50 PP)
+    // ============================================================
+
+    function modalMentor() {
+      if (!ppEnabled()) {
+        return `
+        <div class="modal-handle"></div>
+        <div class="modal-tag">MENTOR QUESTION</div>
+        <div class="modal-title">Bloqueado</div>
+        <div class="modal-sub">Requiere Clase B con Private Points activos.</div>
+      `;
+      }
+
+      // Generar pregunta basada en estado actual
+      const oaa = getCurrentOAA();
+      const question = generateMentorQuestion(oaa);
+
+      return `
+      <div class="modal-handle"></div>
+      <div class="modal-tag">MENTOR QUESTION · 50 PP</div>
+      <div class="modal-title">Diagnóstico</div>
+      <div class="modal-sub">El Sistema analiza un patrón específico y te devuelve una pregunta.</div>
+
+      <div style="border:1px solid var(--sys);padding:16px;border-radius:var(--radius);margin:16px 0;background:var(--bg);position:relative;">
+        <div class="sysnotif-corner tl"></div>
+        <div class="sysnotif-corner tr"></div>
+        <div class="sysnotif-corner bl"></div>
+        <div class="sysnotif-corner br"></div>
+        <div class="mono" style="font-size:9px;color:var(--sys2);letter-spacing:.2em;margin-bottom:8px;">${escapeHtml(question.area)}</div>
+        <div style="font-size:14px;color:var(--ink);line-height:1.6;">${escapeHtml(question.question)}</div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:8px;line-height:1.5;">${escapeHtml(question.context)}</div>
+      </div>
+
+      <button class="btn btn-block" onclick="if(spendPP('mentor_question')){ closeModal(); openModal('mentor'); }">
+        Generar nueva pregunta · 50 PP
+      </button>
+      <div style="text-align:center;margin-top:8px;font-family:var(--font-mono);font-size:9px;color:var(--ink4);letter-spacing:.15em;">Saldo: ${state.pp} PP</div>
+    `;
+    }
+
+    function generateMentorQuestion(oaa) {
+      const questions = [];
+
+      if (oaa?.dims?.mental !== null && oaa.dims.mental < 9) {
+        questions.push({
+          area: 'DIMENSIÓN: MENTAL',
+          question: '¿Estás rechazando las quests del Sistema porque no encajan con tu día, o porque te incomodan?',
+          context: 'Tu OAA Mental está en ' + numToLetter(oaa.dims.mental) + '. La diferencia entre ambas respuestas define si el problema es logístico o emocional.',
+        });
+      }
+
+      if (oaa?.dims?.social !== null && oaa.dims.social < 8) {
+        questions.push({
+          area: 'DIMENSIÓN: SOCIAL',
+          question: '¿Cuándo fue la última vez que alguien te vio vulnerable?',
+          context: 'Tu actividad social registrada es baja. Esto puede ser una elección o un patrón. Solo vos sabés.',
+        });
+      }
+
+      if (oaa?.dims?.fisico !== null && oaa.dims.fisico < 9) {
+        questions.push({
+          area: 'DIMENSIÓN: FÍSICO',
+          question: '¿Tu cuerpo está siendo un vehículo o un obstáculo esta semana?',
+          context: 'Tu OAA Físico cayó. La pregunta no es si entrenaste — es si estás tratando tu cuerpo como herramienta.',
+        });
+      }
+
+      if (oaa?.dims?.identidad !== null && oaa.dims.identidad < 9) {
+        questions.push({
+          area: 'DIMENSIÓN: IDENTIDAD',
+          question: '¿Qué harías mañana si no existiera esta app?',
+          context: 'Tu Identidad mide coherencia entre declaraciones y acciones. Si la respuesta a esta pregunta es "lo mismo", vas bien.',
+        });
+      }
+
+      if (oaa?.dims?.academico !== null && oaa.dims.academico >= 12) {
+        questions.push({
+          area: 'DIMENSIÓN: ACADÉMICO',
+          question: '¿Estás aprendiendo para aplicar o para acumular?',
+          context: 'Tu input intelectual es alto. El Sistema pregunta si la salida es proporcional a la entrada.',
+        });
+      }
+
+      const streak = state.streaks.daily_log.current;
+      if (streak >= 14) {
+        questions.push({
+          area: 'PATRÓN: CONSISTENCIA',
+          question: '¿Seguís haciendo esto porque te importa o porque no querés romper el streak?',
+          context: `Llevás ${streak} días consecutivos. La inercia positiva es real, pero puede enmascarar agotamiento.`,
+        });
+      }
+
+      if (state.bosses.filter(b => !b.completed).length >= 2) {
+        questions.push({
+          area: 'PATRÓN: MAZMORRAS',
+          question: '¿Estás forjando mazmorras que realmente querés completar, o las que creés que deberías?',
+          context: 'Tenés ' + state.bosses.filter(b => !b.completed).length + ' mazmorras abiertas. El Sistema nota la diferencia entre ambición y deseo.',
+        });
+      }
+
+      // Default
+      questions.push({
+        area: 'PATRÓN: GENERAL',
+        question: '¿Si pudieras cambiar una sola cosa de cómo estás usando este sistema, cuál sería?',
+        context: 'A veces la pregunta más simple es la más útil. No la respondas rápido.',
+      });
+
+      // Elegir una aleatoria del pool
+      return questions[Math.floor(Math.random() * questions.length)];
+    }
+
     function renderHeatmap() {
       const $hm = document.getElementById('heatmap');
       if (!$hm) return;
@@ -4496,6 +6017,109 @@
       $hm.innerHTML = html;
     }
 
+    let oaaLineChart = null;
+    function renderOAALine() {
+      const canvas = document.getElementById('oaaLineChart');
+      if (!canvas) return;
+      const hist = (state.oaa_history || []).filter(h => h.total !== null);
+      if (hist.length < 7) return;
+
+      // Agrupar por semana (tomar el último de cada semana)
+      const weeks = [];
+      for (let i = 0; i < hist.length; i += 7) {
+        const chunk = hist.slice(i, i + 7);
+        const last = chunk[chunk.length - 1];
+        weeks.push(last);
+      }
+      const recent = weeks.slice(-12);
+      const labels = recent.map(h => h.date.slice(5));
+      const data = recent.map(h => h.total);
+
+      const isLight = document.body.dataset.theme === 'light';
+      const gridColor = isLight ? 'rgba(0,0,0,.06)' : 'rgba(139,92,246,.12)';
+
+      if (oaaLineChart) oaaLineChart.destroy();
+      oaaLineChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            borderColor: '#8B5CF6',
+            backgroundColor: 'rgba(139,92,246,.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointBackgroundColor: '#A78BFA',
+            borderWidth: 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: gridColor }, ticks: { color: isLight ? '#76728F' : '#6A6483', font: { size: 9, family: 'JetBrains Mono' } } },
+            y: { min: 0, max: 14, grid: { color: gridColor }, ticks: { color: isLight ? '#76728F' : '#6A6483', font: { size: 9, family: 'JetBrains Mono' }, callback: (v) => ['E−', 'E', 'E+', 'D−', 'D', 'D+', 'C−', 'C', 'C+', 'B−', 'B', 'B+', 'A−', 'A', 'A+'][v] || '' } },
+          },
+        },
+      });
+    }
+
+    let xpStackChart = null;
+    function renderXPStack() {
+      const canvas = document.getElementById('xpStackChart');
+      if (!canvas) return;
+
+      const days = 14;
+      const labels = [];
+      const datasets = {};
+      Object.keys(STATS).forEach(k => { datasets[k] = []; });
+
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        labels.push(key.slice(5));
+        const dayLog = load(K.log(key), null);
+        Object.keys(STATS).forEach(k => {
+          datasets[k].push(dayLog ? (dayLog.xp_gained?.[k] || 0) : 0);
+        });
+      }
+
+      const isLight = document.body.dataset.theme === 'light';
+      const gridColor = isLight ? 'rgba(0,0,0,.06)' : 'rgba(139,92,246,.12)';
+
+      const colors = {
+        fuerza: '#FF4444', sabiduria: '#FFB020', disciplina: '#4ADE80',
+        alma: '#60A5FA', vinculo: '#F472B6', juego: '#C084FC',
+      };
+
+      if (xpStackChart) xpStackChart.destroy();
+      xpStackChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: Object.keys(STATS).map(k => ({
+            label: STATS[k].name,
+            data: datasets[k],
+            backgroundColor: colors[k] + '88',
+            borderColor: colors[k],
+            borderWidth: 1,
+          })),
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { stacked: true, grid: { display: false }, ticks: { color: isLight ? '#76728F' : '#6A6483', font: { size: 8, family: 'JetBrains Mono' } } },
+            y: { stacked: true, grid: { color: gridColor }, ticks: { color: isLight ? '#76728F' : '#6A6483', font: { size: 9 } } },
+          },
+        },
+      });
+    }
+
     // ============================================================
     // MODALS
     // ============================================================
@@ -4511,6 +6135,11 @@
         case 'reflection': html = modalReflection(); break;
         case 'export': html = modalExport(); break;
         case 'pp': html = modalPP(); break;
+        case 'report': html = modalReport(args[0]); break;
+        case 'report_history': html = modalReportHistory(); break;
+        case 'mentor': html = modalMentor(); break;
+        case '__custom': html = ''; break; // placeholder, content set externally
+        case 'final_exam': html = modalFinalExam(); break;
       }
       const ov = document.createElement('div');
       ov.className = 'modal-ov show';
@@ -4695,6 +6324,22 @@
       <div class="switch ${state.user.theme === 'light' ? 'on' : ''}" onclick="toggleTheme(this)"></div>
     </div>
 
+    <div class="setting-row" onclick="closeModal(); openModal('report')" style="cursor:pointer;">
+      <div>
+        <div class="setting-name">Informe semanal</div>
+        <div class="setting-sub">${state.weeklyReports.length ? 'Último: sem ' + getLatestReport()?.weekNumber : 'Pendiente'}</div>
+      </div>
+      <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
+    <div class="setting-row" onclick="closeModal(); openModal('report_history')" style="cursor:pointer;">
+      <div>
+        <div class="setting-name">Informes históricos</div>
+        <div class="setting-sub">${state.weeklyReports.length} archivados</div>
+      </div>
+      <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
     <div class="setting-row" onclick="closeModal(); openModal('reflection')" style="cursor:pointer;">
       <div>
         <div class="setting-name">Cerrar el día</div>
@@ -4707,6 +6352,14 @@
       <div>
         <div class="setting-name">Private Points</div>
         <div class="setting-sub">${ppEnabled() ? state.pp + ' PP' : 'Clase B requerida'}</div>
+      </div>
+      <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
+    <div class="setting-row" onclick="closeModal(); openModal('mentor')" style="cursor:pointer;">
+      <div>
+        <div class="setting-name">Mentor Question</div>
+        <div class="setting-sub">${ppEnabled() ? '50 PP · diagnóstico del Sistema' : 'Clase B requerida'}</div>
       </div>
       <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
     </div>
@@ -5519,6 +7172,12 @@
         }
         applyTheme();
         maybeRemindReflection();
+        // V3.3: Informe semanal
+        maybeGenerateReport();
+        // V3.3: Layer Ayanokoji
+        maybeAyanokojiMessage();
+        // V3.4: Final Exam anual
+        maybeShowFinalExam();
         // V3.1: API integrations (async, non-blocking)
         if (state.user?.settings?.chess?.username) autoLogChess();
         fetchDailyQuote();
@@ -5600,6 +7259,7 @@
         case 'stats': return `<div class="page active">${renderStats()}</div>`;
         case 'focus': return `<div class="page active">${renderFocus()}</div>`;
         case 'character': return `<div class="page active">${renderCharacter()}</div>`;
+        case 'calendar': return `<div class="page active">${renderCalendar()}</div>`;
         default: return `<div class="page active">${renderHome()}</div>`;
       }
     }
@@ -5628,6 +7288,11 @@
             </div>
           </div>
         `;
+      }
+
+      // SPECIAL EXAM banner
+      if (state.specialExam) {
+        html += renderSpecialExam();
       }
 
       // SYSTEM QUEST CARD — la pieza central
@@ -5716,6 +7381,23 @@
         </div>
       `;
         }
+      }
+
+      // Smart Suggestion
+      const suggestion = getSmartSuggestion();
+      if (suggestion) {
+        html += `
+          <div class="card" style="border-left:2px solid var(--info);">
+            <div class="card-title"><span class="card-title-text" style="color:var(--info);">Patrón detectado</span></div>
+            <div style="font-size:12px;color:var(--ink2);line-height:1.5;margin-bottom:10px;font-family:var(--font-mono);letter-spacing:.04em;">
+              ${escapeHtml(suggestion.message)}
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-sm" onclick="logHabit('${suggestion.habit}', event); dismissSmartSuggestion();">Marcar</button>
+              <button class="btn btn-sm btn-ghost" onclick="dismissSmartSuggestion()">Ignorar</button>
+            </div>
+          </div>
+        `;
       }
 
       // Daily Intent
@@ -5974,6 +7656,7 @@
 
     ${renderOAACard()}
     ${renderPPCard()}
+    ${renderActiveTalentsBadge()}
 
     <div class="card">
       <div class="card-title"><span class="card-title-text">Build</span></div>
@@ -5981,7 +7664,20 @@
     </div>
 
     <div class="card">
-      <div class="card-title"><span class="card-title-text">Consistencia · 35d</span></div>
+      <div class="card-title"><span class="card-title-text">OAA · Evolución semanal</span></div>
+      <div style="height:200px;padding:4px;"><canvas id="oaaLineChart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="card-title-text">XP · Distribución diaria (14d)</span></div>
+      <div style="height:200px;padding:4px;"><canvas id="xpStackChart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span class="card-title-text">Consistencia · 35d</span>
+        <span class="card-action" onclick="goPage('calendar')">Calendario</span>
+      </div>
       <div class="heatmap" id="heatmap"></div>
     </div>
 
@@ -6059,7 +7755,115 @@
     `;
       }
 
+      // Notas recientes
+      html += renderRecentNotes();
+
       return html;
+    }
+
+    function renderRecentNotes() {
+      let notes = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        const dayLog = load(K.log(key), null);
+        if (dayLog && dayLog.habit_notes) {
+          Object.entries(dayLog.habit_notes).forEach(([hId, note]) => {
+            const h = findHabit(hId);
+            if (h) notes.push({ date: key, label: h.label, note: note, color: STATS[h.stat].color });
+          });
+        }
+      }
+      if (notes.length === 0) return '';
+      return `
+        <div class="card">
+          <div class="card-title"><span class="card-title-text">Notas recientes</span></div>
+          ${notes.map(n => `
+            <div style="padding:8px 0;border-bottom:1px solid var(--border);">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
+                <span style="font-size:11px;color:${n.color};">${n.label}</span>
+                <span class="mono" style="font-size:9px;color:var(--ink3);">${n.date.slice(5)}</span>
+              </div>
+              <div style="font-size:12px;color:var(--ink);font-style:italic;">"${escapeHtml(n.note)}"</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // ============================================================
+    // V3.4 — FINAL EXAM & WIDGET
+    // ============================================================
+
+    function maybeShowFinalExam() {
+      if (!state.creationDate) return;
+      const today = new Date();
+      const creation = new Date(state.creationDate);
+      const diffDays = Math.floor((today - creation) / (1000 * 60 * 60 * 24));
+
+      // Solo mostrar en aniversarios exactos de 365 días (con margen de 3 días)
+      if (diffDays > 0 && diffDays % 365 <= 3) {
+        const year = Math.floor(diffDays / 365);
+        const examKey = `final_exam_y${year}`;
+        if (!state.achievements.find(a => a.id === examKey)) {
+          // Grant achievement to not show again
+          state.achievements.push({ id: examKey, date: todayKey() });
+          persist();
+          setTimeout(() => openModal('final_exam'), 2000);
+        }
+      }
+    }
+
+    function modalFinalExam() {
+      const activeDays = state.streaks.daily_log.longest || 0; // Aproximación
+      const xpTotal = Object.values(state.xp).reduce((a, b) => a + b, 0);
+      const rank = currentRank().rank;
+      const bossCount = state.bosses.filter(b => b.completed).length;
+
+      return `
+        <div class="modal-handle"></div>
+        <div class="modal-tag" style="color:var(--sys);">EVALUACIÓN ANUAL</div>
+        <div class="modal-title">Final Exam</div>
+        <div style="font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.5;">
+          Ha pasado un año desde que iniciaste el Sistema. Un ciclo orbital completo.<br><br>
+          En este tiempo, no te has limitado a marcar casillas. Has acumulado <span style="color:var(--sys2);">${xpTotal} XP</span>,
+          alcanzado el Rango <span style="color:var(--sys2);">${rank}</span>, y conquistado ${bossCount} mazmorras.<br><br>
+          La consistencia es la única métrica que no miente. El Sistema ha registrado tu evolución y validado tus resultados.
+          Avanza al siguiente ciclo con intención.
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--sys-glow);border-radius:var(--rsm);margin-bottom:16px;">
+          <div class="mono" style="font-size:10px;color:var(--sys2);letter-spacing:.2em;">ESTATUS ACTUAL</div>
+          <div class="display" style="font-size:32px;color:var(--sys);">${state.user.class || 'D'}</div>
+        </div>
+        <button class="btn btn-block" onclick="closeModal()">Recibido</button>
+      `;
+    }
+
+    async function exportStatusWidget() {
+      // Usar html2canvas para capturar la ventana de Character (app container)
+      // Como no tenemos la librería cargada por defecto, usamos un fallback básico
+      // (En una PWA real, cargaríamos html2canvas dinámicamente)
+      toast('Generando widget...', 'neutral');
+      try {
+        if (!window.html2canvas) {
+          const script = document.createElement('script');
+          script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+          document.body.appendChild(script);
+          await new Promise(r => script.onload = r);
+        }
+        const el = document.getElementById('app');
+        const canvas = await window.html2canvas(el, { backgroundColor: document.body.dataset.theme === 'light' ? '#F8F9FA' : '#0D0E15', scale: 2 });
+        const dataUrl = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `MomentumOS_Status_${todayKey()}.png`;
+        a.click();
+        toast('Widget exportado exitosamente', 'positive');
+      } catch (e) {
+        toast('Error al generar widget', 'negative');
+        console.error(e);
+      }
     }
 
     function renderCharacter() {
@@ -6117,9 +7921,214 @@
       }).join('')}
     </div>
 
-    <button class="btn btn-block btn-ghost" onclick="openModal('export')">${svgIcon('download', 'icon')} Exportar / importar</button>
+    ${renderTalentsSection()}
+    ${renderExamHistory()}
+
+    <div style="display:flex;gap:6px;margin-top:8px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="openModal('export')">${svgIcon('download', 'icon')} Backup</button>
+      <button class="btn btn-ghost" style="flex:1;" onclick="exportStatusWidget()">${svgIcon('hexagon', 'icon')} Widget PNG</button>
+    </div>
   `;
       return html;
+    }
+
+    // ============================================================
+    // V3.4 — CALENDAR VIEW
+    // ============================================================
+
+    function renderCalendar() {
+      const now = new Date();
+      const viewMonth = state.calendarMonth || now.getMonth();
+      const viewYear = state.calendarYear || now.getFullYear();
+      const firstDay = new Date(viewYear, viewMonth, 1);
+      const lastDay = new Date(viewYear, viewMonth + 1, 0);
+      const startPad = (firstDay.getDay() + 6) % 7; // lunes = 0
+      const totalDays = lastDay.getDate();
+      const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const today = todayKey();
+
+      let html = `
+        <div class="card">
+          <div class="card-title">
+            <span class="card-action" onclick="calendarNav(-1)">◂</span>
+            <span class="card-title-text">${monthNames[viewMonth]} ${viewYear}</span>
+            <span class="card-action" onclick="calendarNav(1)">▸</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
+            ${['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(d => `<div style="text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--ink4);padding:4px 0;letter-spacing:.1em;">${d}</div>`).join('')}
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">
+      `;
+
+      // Padding
+      for (let i = 0; i < startPad; i++) {
+        html += `<div style="aspect-ratio:1;"></div>`;
+      }
+
+      // Days
+      for (let d = 1; d <= totalDays; d++) {
+        const key = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dayLog = load(K.log(key), null);
+        const habitCount = dayLog ? dayLog.habits.filter(h => h !== '__touched').length : 0;
+        const isToday = key === today;
+        const hasSysQ = dayLog?.sysquest_status || null;
+        const mood = dayLog?.reflection?.mood;
+
+        // Intensidad de color por actividad
+        let bg = 'var(--surface)';
+        let border = 'transparent';
+        if (habitCount >= 1) bg = 'rgba(139, 92, 246, .15)';
+        if (habitCount >= 3) bg = 'rgba(139, 92, 246, .3)';
+        if (habitCount >= 5) bg = 'rgba(139, 92, 246, .5)';
+        if (habitCount >= 8) bg = 'rgba(139, 92, 246, .7)';
+        if (isToday) border = 'var(--sys)';
+
+        // Sysquest indicator
+        let indicator = '';
+        if (dayLog) {
+          const sq = state.sysquest_history.find(q => q.date === key);
+          if (sq) {
+            indicator = sq.status === 'completed' ? '<span style="color:var(--positive);font-size:7px;">✓</span>' :
+              sq.status === 'rejected' || sq.status === 'failed' ? '<span style="color:var(--negative);font-size:7px;">✗</span>' : '';
+          }
+        }
+
+        // Mood dot
+        let moodDot = '';
+        if (mood) {
+          const moodColors = ['', 'var(--negative)', 'var(--warning)', 'var(--ink3)', 'var(--positive)', 'var(--sys)'];
+          moodDot = `<span style="display:block;width:4px;height:4px;border-radius:50%;background:${moodColors[mood]};margin:1px auto 0;"></span>`;
+        }
+
+        html += `
+          <div onclick="showDayDetail('${key}')" style="aspect-ratio:1;background:${bg};border:1px solid ${border};border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .15s var(--ease);">
+            <span style="font-family:var(--font-mono);font-size:${isToday ? '11' : '10'}px;font-weight:${isToday ? '700' : '500'};color:${habitCount > 0 ? 'var(--ink)' : 'var(--ink3)'};">${d}</span>
+            ${indicator}
+            ${moodDot}
+          </div>
+        `;
+      }
+
+      html += `</div></div>`;
+
+      // Resumen del mes
+      let monthHabits = 0, monthDays = 0;
+      for (let d = 1; d <= totalDays; d++) {
+        const key = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dayLog = load(K.log(key), null);
+        if (dayLog && dayLog.habits.filter(h => h !== '__touched').length > 0) {
+          monthDays++;
+          monthHabits += dayLog.habits.filter(h => h !== '__touched').length;
+        }
+      }
+
+      html += `
+        <div class="card">
+          <div class="card-title"><span class="card-title-text">Resumen · ${monthNames[viewMonth]}</span></div>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;text-align:center;">
+              <div class="display" style="font-size:28px;color:var(--sys2);">${monthDays}</div>
+              <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.15em;">DÍAS ACTIVOS</div>
+            </div>
+            <div style="flex:1;text-align:center;">
+              <div class="display" style="font-size:28px;color:var(--sys2);">${monthHabits}</div>
+              <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.15em;">HÁBITOS</div>
+            </div>
+            <div style="flex:1;text-align:center;">
+              <div class="display" style="font-size:28px;color:var(--sys2);">${monthDays > 0 ? Math.round(monthHabits / monthDays) : 0}</div>
+              <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.15em;">PROMEDIO/DÍA</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      return html;
+    }
+
+    function calendarNav(delta) {
+      const now = new Date();
+      state.calendarMonth = (state.calendarMonth ?? now.getMonth()) + delta;
+      state.calendarYear = state.calendarYear ?? now.getFullYear();
+      if (state.calendarMonth < 0) { state.calendarMonth = 11; state.calendarYear--; }
+      if (state.calendarMonth > 11) { state.calendarMonth = 0; state.calendarYear++; }
+      render();
+    }
+
+    function showDayDetail(dateKey) {
+      const dayLog = load(K.log(dateKey), null);
+      if (!dayLog || dayLog.habits.filter(h => h !== '__touched').length === 0) {
+        toast('Sin actividad · ' + dateKey.slice(5));
+        return;
+      }
+
+      const habits = dayLog.habits.filter(h => h !== '__touched');
+      const xpTotal = Object.values(dayLog.xp_gained).reduce((a, b) => a + b, 0);
+      const sq = state.sysquest_history.find(q => q.date === dateKey);
+
+      let html = `
+        <div class="modal-handle"></div>
+        <div class="modal-tag">LOG · ${dateKey}</div>
+        <div class="modal-title">${habits.length} hábitos · +${xpTotal} XP</div>
+      `;
+
+      // XP por stat
+      html += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">`;
+      Object.keys(STATS).forEach(k => {
+        if (dayLog.xp_gained[k] > 0) {
+          html += `<span class="mono" style="font-size:10px;padding:3px 8px;background:${STATS[k].color}22;border:1px solid ${STATS[k].color}44;border-radius:var(--rsm);color:${STATS[k].color};">+${dayLog.xp_gained[k]} ${STATS[k].name}</span>`;
+        }
+      });
+      html += `</div>`;
+
+      // Hábitos
+      html += `<div class="modal-label">Hábitos</div>`;
+      habits.forEach(hId => {
+        const h = findHabit(hId);
+        if (h) {
+          const note = dayLog.habit_notes?.[hId];
+          html += `
+            <div style="padding:6px 0;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+              <span style="color:${STATS[h.stat]?.color || 'var(--ink2)'};display:flex;">${svgIcon(h.icon || 'plus', 'icon icon-sm')}</span>
+              <span style="font-size:12px;flex:1;">${h.label}</span>
+              <span class="mono" style="font-size:9px;color:var(--ink3);">+${h.xp}</span>
+            </div>
+            ${note ? `<div style="padding:2px 0 6px 26px;font-size:11px;color:var(--ink3);font-style:italic;">"${escapeHtml(note)}"</div>` : ''}
+          `;
+        }
+      });
+
+      // Sysquest del día
+      if (sq) {
+        const sqColor = sq.status === 'completed' ? 'var(--positive)' : 'var(--negative)';
+        html += `
+          <div class="modal-label" style="margin-top:12px;">Quest del Sistema</div>
+          <div style="padding:8px;border-left:2px solid ${sqColor};font-size:12px;">
+            <span style="color:${sqColor};font-weight:600;">${sq.status.toUpperCase()}</span> · ${escapeHtml(sq.title)}
+          </div>
+        `;
+      }
+
+      // Reflection
+      if (dayLog.reflection?.closed) {
+        const r = dayLog.reflection;
+        html += `<div class="modal-label" style="margin-top:12px;">Reflection</div>`;
+        if (r.journal) html += `<div style="font-size:12px;color:var(--ink2);font-style:italic;margin-bottom:6px;">"${escapeHtml(r.journal)}"</div>`;
+        html += `<div class="mono" style="font-size:10px;color:var(--ink3);">Mood: ${r.mood}/5 · Scroll: ${r.scroll}hs</div>`;
+        if (r.voiceNote) html += `<div class="mono" style="font-size:10px;color:var(--info);margin-top:4px;">🎤 Voice note guardada</div>`;
+      }
+
+      // Intent
+      if (dayLog.daily_intent?.items?.length > 0) {
+        html += `<div class="modal-label" style="margin-top:12px;">Intención</div>`;
+        dayLog.daily_intent.items.forEach((item, i) => {
+          const done = dayLog.daily_intent.completed?.[i];
+          html += `<div style="font-size:12px;color:${done ? 'var(--positive)' : 'var(--ink3)'};padding:3px 0;">${done ? '✓' : '○'} ${escapeHtml(item)}</div>`;
+        });
+      }
+
+      openModal('__custom');
+      const ov = document.getElementById('modalOv');
+      if (ov) ov.querySelector('.modal').innerHTML = html;
     }
 
     function renderFocus() {
@@ -6188,7 +8197,7 @@
       state.page = p;
       render();
       if (p === 'stats') {
-        setTimeout(() => { renderRadar(); renderHeatmap(); }, 60);
+        setTimeout(() => { renderRadar(); renderHeatmap(); renderOAALine(); renderXPStack(); }, 60);
       }
       if (p === 'focus') {
         setTimeout(updateTimerUI, 60);
