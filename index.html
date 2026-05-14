@@ -63,6 +63,15 @@
       --warning: #F59E0B;
       --info: #22D3EE;
       --radius: 4px;
+      --radius-sm: 2px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, .4);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, .5);
+      --shadow-glow: 0 0 16px var(--sys-glow);
+      --shadow-glow-lg: 0 0 32px var(--sys-glow);
       --rsm: 2px;
       --ease: cubic-bezier(.32, .72, 0, 1);
       --font-mono: 'JetBrains Mono', monospace;
@@ -1159,36 +1168,7 @@
     }
 
     /* === MODAL === */
-    .modal-ov {
-      position: fixed;
-      inset: 0;
-      background: rgba(5, 4, 10, .85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      z-index: 200;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      animation: fadeIn .25s var(--ease);
-    }
-
-    .modal-ov.show {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--bg2);
-      border-top: 1px solid var(--sys);
-      border-top-left-radius: var(--radius);
-      border-top-right-radius: var(--radius);
-      width: 100%;
-      max-width: 500px;
-      max-height: 92vh;
-      overflow-y: auto;
-      padding: 20px 18px calc(36px + env(safe-area-inset-bottom));
-      animation: slideUp .35s var(--ease);
-      position: relative;
-    }
+    /* Modals redefined above */
 
     .modal::before {
       content: '';
@@ -2172,30 +2152,37 @@
       right: 0;
       max-width: 500px;
       margin: 0 auto;
-      padding: 8px 20px calc(8px + env(safe-area-inset-bottom));
-      background: linear-gradient(180deg, transparent 0%, var(--bg) 35%);
+      padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+      background: var(--bg);
+      border-top: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-around;
       z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     .nav-tab {
       background: none;
       border: 0;
-      color: var(--ink3);
+      color: var(--ink4);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
-      padding: 8px 14px;
+      gap: 2px;
+      padding: 6px 0;
       cursor: pointer;
       font-family: var(--font-mono);
       font-size: 9px;
       font-weight: 600;
-      letter-spacing: .15em;
+      letter-spacing: .08em;
       text-transform: uppercase;
       transition: color .2s var(--ease);
+      min-width: 52px;
+      min-height: 44px;
+      justify-content: center;
+      position: relative;
     }
 
     .nav-tab svg {
@@ -2203,6 +2190,11 @@
       height: 20px;
       stroke-width: 1.5;
       fill: none;
+      transition: all .2s var(--ease);
+    }
+
+    .nav-tab span {
+      transition: all .2s var(--ease);
     }
 
     .nav-tab.active {
@@ -2213,39 +2205,53 @@
       filter: drop-shadow(0 0 6px var(--sys-glow));
     }
 
+    .nav-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      background: var(--sys);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--sys-glow);
+    }
+
     .nav-tab-fab {
       background: var(--sys);
-      border: 1px solid var(--sys);
-      width: 56px;
-      height: 56px;
+      border: 0;
+      width: 48px;
+      height: 48px;
       border-radius: var(--radius);
       color: #fff;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 24px rgba(139, 92, 246, .4), 0 0 16px var(--sys-glow);
+      box-shadow: 0 4px 16px rgba(139, 92, 246, .4), 0 0 12px var(--sys-glow);
       transition: all .25s var(--ease);
-      margin-top: -16px;
+      margin-top: -12px;
       position: relative;
+      flex-shrink: 0;
     }
 
     .nav-tab-fab::before {
       content: '';
       position: absolute;
-      inset: -3px;
+      inset: -2px;
       border: 1px solid var(--sys);
       border-radius: var(--radius);
-      opacity: .4;
+      opacity: .3;
     }
 
     .nav-tab-fab:active {
-      transform: scale(.92) rotate(45deg);
+      transform: scale(.9) rotate(45deg);
     }
 
     .nav-tab-fab svg {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       stroke-width: 2;
       fill: none;
     }
@@ -2335,6 +2341,1047 @@
       text-transform: uppercase;
       padding-top: 10px;
       border-top: 1px solid var(--border2);
+    }
+
+    /* UX: Overhaul Fixes */
+    .header-btn-back svg {
+      transform: rotate(180deg);
+    }
+
+    .habit-chip,
+    .intent-item,
+    .mood-btn,
+    .select-opt,
+    .nav-tab,
+    .header-btn,
+    .boss-step-del {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    .card-action {
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .setting-row {
+      min-height: 52px;
+    }
+
+    .modal {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    .app {
+      overscroll-behavior: none;
+    }
+
+    .async-loading {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 1.5px solid var(--ink4);
+      border-top-color: var(--sys);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .nav-tab.active {
+      color: var(--sys2);
+      position: relative;
+    }
+
+    .nav-tab.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      background: var(--sys);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--sys-glow);
+    }
+
+    /* === V3.6: Utility classes === */
+
+    /* Typography */
+    .text-xs {
+      font-size: 9px;
+    }
+
+    .text-sm {
+      font-size: 10px;
+    }
+
+    .text-md {
+      font-size: 11px;
+    }
+
+    .text-base {
+      font-size: 12px;
+    }
+
+    .text-lg {
+      font-size: 13px;
+    }
+
+    .text-xl {
+      font-size: 14px;
+    }
+
+    .text-2xl {
+      font-size: 16px;
+    }
+
+    .text-3xl {
+      font-size: 20px;
+    }
+
+    .text-4xl {
+      font-size: 28px;
+    }
+
+    .text-5xl {
+      font-size: 36px;
+    }
+
+    .text-6xl {
+      font-size: 48px;
+    }
+
+    .text-7xl {
+      font-size: 72px;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    .font-semibold {
+      font-weight: 600;
+    }
+
+    .font-medium {
+      font-weight: 500;
+    }
+
+    .tracking-wide {
+      letter-spacing: .1em;
+    }
+
+    .tracking-wider {
+      letter-spacing: .15em;
+    }
+
+    .tracking-widest {
+      letter-spacing: .25em;
+    }
+
+    .tracking-tight {
+      letter-spacing: .04em;
+    }
+
+    .uppercase {
+      text-transform: uppercase;
+    }
+
+    .italic {
+      font-style: italic;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .line-snug {
+      line-height: 1.25;
+    }
+
+    .line-normal {
+      line-height: 1.5;
+    }
+
+    .line-relaxed {
+      line-height: 1.6;
+    }
+
+    /* Colors */
+    .text-ink {
+      color: var(--ink);
+    }
+
+    .text-ink2 {
+      color: var(--ink2);
+    }
+
+    .text-ink3 {
+      color: var(--ink3);
+    }
+
+    .text-ink4 {
+      color: var(--ink4);
+    }
+
+    .text-sys {
+      color: var(--sys2);
+    }
+
+    .text-positive {
+      color: var(--positive);
+    }
+
+    .text-negative {
+      color: var(--negative);
+    }
+
+    .text-warning {
+      color: var(--warning);
+    }
+
+    .text-info {
+      color: var(--info);
+    }
+
+    /* Spacing */
+    .mt-0 {
+      margin-top: 0;
+    }
+
+    .mt-1 {
+      margin-top: 4px;
+    }
+
+    .mt-2 {
+      margin-top: 8px;
+    }
+
+    .mt-3 {
+      margin-top: 12px;
+    }
+
+    .mt-4 {
+      margin-top: 16px;
+    }
+
+    .mt-5 {
+      margin-top: 20px;
+    }
+
+    .mt-6 {
+      margin-top: 24px;
+    }
+
+    .mb-0 {
+      margin-bottom: 0;
+    }
+
+    .mb-1 {
+      margin-bottom: 4px;
+    }
+
+    .mb-2 {
+      margin-bottom: 8px;
+    }
+
+    .mb-3 {
+      margin-bottom: 12px;
+    }
+
+    .mb-4 {
+      margin-bottom: 16px;
+    }
+
+    .p-0 {
+      padding: 0;
+    }
+
+    .p-2 {
+      padding: 8px;
+    }
+
+    .p-3 {
+      padding: 12px;
+    }
+
+    .p-4 {
+      padding: 16px;
+    }
+
+    .px-2 {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    .py-2 {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    /* Layout */
+    .flex {
+      display: flex;
+    }
+
+    .flex-col {
+      flex-direction: column;
+    }
+
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .items-baseline {
+      align-items: baseline;
+    }
+
+    .justify-center {
+      justify-content: center;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .gap-1 {
+      gap: 4px;
+    }
+
+    .gap-2 {
+      gap: 8px;
+    }
+
+    .gap-3 {
+      gap: 12px;
+    }
+
+    .gap-4 {
+      gap: 16px;
+    }
+
+    .flex-1 {
+      flex: 1;
+    }
+
+    .w-full {
+      width: 100%;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    /* Borders */
+    .border-t {
+      border-top: 1px solid var(--border);
+    }
+
+    .border-b {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .border-l-sys {
+      border-left: 2px solid var(--sys);
+    }
+
+    .border-l-positive {
+      border-left: 2px solid var(--positive);
+    }
+
+    .border-l-negative {
+      border-left: 2px solid var(--negative);
+    }
+
+    .border-l-warning {
+      border-left: 2px solid var(--warning);
+    }
+
+    .border-l-info {
+      border-left: 2px solid var(--info);
+    }
+
+    .border-l-rank-a {
+      border-left: 2px solid var(--rank-a);
+    }
+
+    /* Common component patterns */
+    .stat-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      padding: 5px 10px;
+      border-radius: var(--radius);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-badge-sys {
+      background: var(--sys-dim);
+      border: 1px solid var(--sys);
+      color: var(--sys2);
+    }
+
+    .stat-badge-rank {
+      border: 1px solid var(--rank-a);
+      color: var(--rank-a);
+    }
+
+    .data-cell {
+      background: var(--bg);
+      padding: 10px;
+      border-radius: var(--radius-lg);
+    }
+
+    .data-cell-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink3);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .data-cell-value {
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: .04em;
+    }
+
+    .section-divider {
+      border-top: 1px solid var(--border2);
+      padding-top: 10px;
+      margin-top: 10px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink3);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+
+    .log-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .log-row:first-child {
+      border-top: 0;
+    }
+
+    .log-date {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink3);
+    }
+
+    .big-number {
+      font-family: var(--font-display);
+      color: var(--sys2);
+      text-shadow: none;
+      letter-spacing: .04em;
+      line-height: 1;
+    }
+
+    .big-number-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink3);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .big-number-sub {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink4);
+      margin-top: 3px;
+    }
+
+    /* System frame (used in OAA, status window, exam, etc) */
+    .sys-frame {
+      border: 1px solid var(--sys);
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      background: var(--bg);
+      position: relative;
+    }
+
+    .sys-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--sys), transparent);
+    }
+
+    /* Exam frame (golden variant) */
+    .exam-frame {
+      border-color: var(--rank-a);
+      box-shadow: 0 0 24px rgba(245, 158, 11, .2);
+    }
+
+    .exam-frame::before {
+      background: linear-gradient(90deg, transparent, var(--rank-a), transparent);
+    }
+
+    .sysnotif.exam-variant {
+      border-color: var(--rank-a);
+      box-shadow: 0 0 30px rgba(245, 158, 11, .3);
+    }
+
+    .sysnotif.exam-variant .sysnotif-corner { border-color: var(--rank-a); }
+    .sysnotif.exam-variant .sysnotif-icon { color: var(--rank-a); }
+    .sysnotif.exam-variant .sysnotif-tag { color: var(--rank-a); }
+    .sysnotif.exam-variant .quest-progress { color: var(--rank-a); }
+    .sysnotif.exam-variant .quest-fill { background: var(--rank-a); }
+
+    .btn-exam {
+      background: var(--rank-a);
+      border-color: var(--rank-a);
+    }
+
+    .talent-row {
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .talent-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .talent-name {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .1em;
+    }
+
+    .talent-badge {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 9px;
+    }
+
+    .talent-desc {
+      font-size: 11px;
+      color: var(--ink2);
+      margin-top: 4px;
+      padding-left: 22px;
+    }
+
+    .talent-date {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink3);
+      margin-top: 3px;
+      padding-left: 22px;
+    }
+
+    .talent-locked {
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      opacity: 0.5;
+    }
+
+    .talent-hint {
+      font-size: 10px;
+      color: var(--ink4);
+      margin-top: 3px;
+      padding-left: 22px;
+      font-style: italic;
+    }
+
+    .report-dim-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: baseline;
+      gap: 12px;
+      padding: 6px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .report-obs {
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .report-obs-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--sys2);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .report-obs-text {
+      font-size: 12px;
+      color: var(--ink2);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .report-rec {
+      padding: 8px 10px;
+      background: var(--bg);
+      border-left: 2px solid var(--sys);
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    /* Quote card */
+    .quote-card {
+      border-left: 2px solid var(--sys);
+    }
+
+    .quote-text {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    .quote-author {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink3);
+      margin-top: 6px;
+      letter-spacing: .1em;
+    }
+
+    /* Condition check row (used in exams) */
+    .condition-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 0;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+    }
+
+    .condition-met {
+      color: var(--positive);
+    }
+
+    .condition-pending {
+      color: var(--ink2);
+    }
+
+    /* Cursor pointer for interactive elements */
+    .clickable {
+      cursor: pointer;
+    }
+
+    .clickable:active {
+      transform: scale(.98);
+    }
+
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Auto dark/light based on system preference */
+    @media (prefers-color-scheme: light) {
+      body:not([data-theme="dark"]):not([data-theme="light"]) {
+        /* Default to system preference */
+      }
+    }
+
+    /* Selection styling */
+    ::selection {
+      background: rgba(139, 92, 246, .3);
+      color: var(--ink);
+    }
+
+    ::-moz-selection {
+      background: rgba(139, 92, 246, .3);
+      color: var(--ink);
+    }
+
+    /* Focus visible for keyboard users */
+    :focus-visible {
+      outline: 2px solid var(--sys);
+      outline-offset: 2px;
+    }
+
+    button:focus:not(:focus-visible) {
+      outline: none;
+    }
+
+    /* Better input styling */
+    .input:focus-visible {
+      outline: none;
+      border-color: var(--sys);
+      box-shadow: 0 0 0 3px var(--sys-dim);
+    }
+
+    .modal-ov {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 4, 10, .85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .2s var(--ease);
+    }
+
+    .modal-ov.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal {
+      background: var(--bg2);
+      border-top: 1px solid var(--sys);
+      border-top-left-radius: var(--radius-lg);
+      border-top-right-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 500px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 20px 18px calc(36px + env(safe-area-inset-bottom));
+      transform: translateY(0);
+      transition: transform .3s var(--ease);
+      position: relative;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Modal enter animation */
+    .modal-ov.show .modal {
+      animation: modalSlideUp .35s var(--ease);
+    }
+
+    @keyframes modalSlideUp {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+    }
+
+    .card:active {
+      border-color: var(--border);
+    }
+
+    /* Clickable cards get subtle hover */
+    .card.clickable:active {
+      border-color: var(--sys);
+      box-shadow: 0 0 12px var(--sys-dim);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px 10px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(5, 4, 10, .8);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    body[data-theme="light"] .header {
+      background: rgba(245, 243, 248, .85);
+    }
+
+    .onb-frame {
+      flex: 1;
+      border: 1px solid rgba(139, 92, 246, .3);
+      border-radius: var(--radius-lg);
+      position: relative;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: rgba(10, 8, 20, .6);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      box-shadow:
+        0 0 40px var(--sys-glow),
+        inset 0 0 24px rgba(139, 92, 246, .04),
+        inset 0 1px 0 rgba(255, 255, 255, .05);
+      overflow: hidden;
+    }
+
+    .habit-chip {
+      transform: translateY(0);
+      transition: all .2s var(--ease), transform .15s var(--ease);
+    }
+
+    .habit-chip:active {
+      transform: scale(.95) translateY(1px);
+    }
+
+    .habit-chip.done {
+      background: var(--sys-dim);
+      border-color: var(--sys);
+      animation: chipDone .4s var(--ease);
+    }
+
+    @keyframes chipDone {
+      0% {
+        transform: scale(1);
+      }
+
+      30% {
+        transform: scale(.92);
+      }
+
+      60% {
+        transform: scale(1.03);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .stat-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+          transparent 0%,
+          rgba(255, 255, 255, .15) 50%,
+          transparent 100%);
+      animation: shimmer 3s ease-in-out infinite;
+      width: 200%;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(50%);
+      }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 110px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg2);
+      border: 1px solid var(--sys);
+      padding: 12px 18px;
+      border-radius: var(--radius-lg);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      z-index: 250;
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+      opacity: 0;
+      transition: all .3s var(--ease);
+      pointer-events: none;
+      max-width: 90vw;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    body[data-theme="light"] {
+      --bg: #F8F7FC;
+      --bg2: #FFFFFF;
+      --bg3: #FAF9FE;
+      --card: #FFFFFF;
+      --card2: #F5F4FA;
+      --surface: #EEEDF5;
+      --ink: #1A1730;
+      --ink2: #4A4665;
+      --ink3: #76728F;
+      --ink4: #B5B1CC;
+      --border: #E8E5F3;
+      --border2: #DBD8EB;
+      --sys-dim: rgba(139, 92, 246, .06);
+      --sys-glow: rgba(139, 92, 246, .15);
+    }
+
+    body[data-theme="light"] .card {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+    }
+
+    body[data-theme="light"] .sysnotif {
+      box-shadow: 0 2px 8px rgba(139, 92, 246, .12);
+    }
+
+    body[data-theme="light"] .bottom-nav {
+      background: rgba(255, 255, 255, .9);
+      border-top-color: var(--border);
+    }
+
+    body[data-theme="light"] .header {
+      border-bottom-color: var(--border);
+    }
+
+    body[data-theme="light"] .status-window {
+      box-shadow: 0 2px 12px rgba(139, 92, 246, .08);
+    }
+
+    body[data-theme="light"] .nav-tab-fab {
+      box-shadow: 0 4px 16px rgba(139, 92, 246, .25);
+    }
+
+    body[data-theme="light"] .modal-ov {
+      background: rgba(248, 247, 252, .8);
+    }
+
+    body[data-theme="light"]::before {
+      opacity: .015;
+    }
+
+    body[data-theme="light"]::after {
+      background-image:
+        linear-gradient(rgba(139, 92, 246, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 92, 246, .03) 1px, transparent 1px);
+    }
+
+    body[data-theme="light"] .big-number {
+      text-shadow: none;
+    }
+
+    .btn {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), rgba(255, 255, 255, .3) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .4s;
+    }
+
+    .btn:active::after {
+      opacity: 1;
+      transition: opacity 0s;
+    }
+
+    .skeleton {
+      background: var(--surface);
+      border-radius: var(--radius);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(139, 92, 246, .05), transparent);
+      animation: skeletonPulse 1.5s infinite;
+    }
+
+    @keyframes skeletonPulse {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(100%);
+      }
     }
   </style>
 </head>
@@ -2919,7 +3966,7 @@
       for (let i = 0; i < days; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0, 10);
+        const key = dateToKey(d);
         const l = load(K.log(key), null);
         if (l) logs.push({ ...l, daysAgo: i });
       }
@@ -2984,7 +4031,7 @@
       for (let i = 0; i < 14; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0, 10);
+        const key = dateToKey(d);
         const l = load(K.log(key), null);
         const hasSabid = l && l.habits.some(h => sabidIds.includes(h));
         if (!hasSabid) { dryStreak++; maxDryStreak = Math.max(maxDryStreak, dryStreak); }
@@ -3044,7 +4091,7 @@
       for (let i = 0; i < 14; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0, 10);
+        const key = dateToKey(d);
         const l = load(K.log(key), null);
         if (!l || !l.habits.includes('gym')) gymDryStreak++;
         else break;
@@ -3387,7 +4434,7 @@
 
       const uses = (limits[key] || []).filter(ts => {
         const d = new Date(ts);
-        if (item.limit === '1/day') return d.toISOString().slice(0, 10) === todayKey();
+        if (item.limit === '1/day') return dateToKey(d) === todayKey();
         if (item.limit === '1/week') {
           const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
           return d > weekAgo;
@@ -3665,7 +4712,7 @@
       state.specialExam.endDate = (() => {
         const d = new Date();
         d.setDate(d.getDate() + 7);
-        return d.toISOString().slice(0, 10);
+        return dateToKey(d);
       })();
       persist();
       render();
@@ -3674,13 +4721,15 @@
 
     function rejectExam() {
       if (!state.specialExam) return;
-      if (!confirm('¿Rechazar el Special Exam? Cooldown de 14 días para el próximo.')) return;
-      state.specialExam.status = 'rejected';
-      state.examHistory.push({ ...state.specialExam });
-      state.specialExam = null;
-      persist();
-      render();
-      sysToast('SPECIAL EXAM RECHAZADO', 'danger');
+      customConfirm('¿Rechazar el Special Exam? Cooldown de 14 días para el próximo.', () => {
+        state.specialExam.status = 'rejected';
+        state.examHistory.push({ ...state.specialExam });
+        state.specialExam = null;
+        persist();
+        render();
+        haptic('error');
+        sysToast('SPECIAL EXAM RECHAZADO', 'danger');
+      });
     }
 
     function checkExamExpiry() {
@@ -3777,7 +4826,7 @@
         for (let i = 0; i < template.duration; i++) {
           const d = new Date(exam.startDate);
           d.setDate(d.getDate() + i);
-          const key = d.toISOString().slice(0, 10);
+          const key = dateToKey(d);
           const dayLog = load(K.log(key), null);
           if (dayLog) {
             totalCount += dayLog.habits.filter(h => cond.habitIds.includes(h)).length;
@@ -3826,7 +4875,7 @@
         for (let i = 0; i < dayNumber; i++) {
           const d = new Date(exam.startDate);
           d.setDate(d.getDate() + i);
-          const key = d.toISOString().slice(0, 10);
+          const key = dateToKey(d);
           const dayLog = load(K.log(key), null);
           if (dayLog) count += dayLog.habits.filter(h => cond.habitIds.includes(h)).length;
         }
@@ -3945,7 +4994,7 @@
       const today = todayKey();
       const todayGames = data.games.filter(g => {
         const d = new Date(g.end_time * 1000);
-        return d.toISOString().slice(0, 10) === today;
+        return dateToKey(d) === today;
       });
 
       return todayGames.map(g => {
@@ -4334,8 +5383,13 @@
       catch (e) { console.error('save failed', key, e); }
     }
 
+    function dateToKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
     function todayKey() {
-      return new Date().toISOString().slice(0, 10);
+      const d = new Date();
+      return dateToKey(d);
     }
 
     // ============================================================
@@ -4543,6 +5597,28 @@
       if (habitId === 'stars') showAPOD();
     }
 
+
+    function showUndoToast(habitId) {
+      let $t = document.getElementById('toast');
+      if (!$t) { $t = document.createElement('div'); $t.id = 'toast'; document.body.appendChild($t); }
+      $t.className = 'toast positive show';
+      $t.innerHTML = `Marcado · <span onclick="undoHabit('${habitId}')" class="text-sys" style="text-decoration:underline;cursor:pointer">DESHACER</span>`;
+      clearTimeout(window._toastT);
+      window._toastT = setTimeout(() => $t.classList.remove('show'), 3500);
+    }
+
+    function undoHabit(habitId) {
+      const h = findHabit(habitId);
+      if (!h) return;
+      log.habits = log.habits.filter(id => id !== habitId);
+      log.xp_gained[h.stat] = Math.max(0, log.xp_gained[h.stat] - h.xp);
+      state.xp[h.stat] = Math.max(0, state.xp[h.stat] - h.xp);
+      saveLog(log);
+      persist();
+      render();
+      toast('Deshecho');
+    }
+
     function promptHabitNote(habitId) {
       // Solo preguntar si no es la primera vez (no molestar en el primer uso)
       if (countAllHabits() < 10) return;
@@ -4557,9 +5633,9 @@
       el.style.cssText = 'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--sys);padding:12px 16px;border-radius:var(--radius);z-index:260;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:90vw;width:320px;animation:fadeIn .25s var(--ease);';
       el.id = 'habitNotePrompt';
       el.innerHTML = `
-        <div class="mono" style="font-size:9px;color:var(--sys2);letter-spacing:.2em;margin-bottom:6px;">NOTA · ${escapeHtml(h.label)}</div>
-        <input class="input" id="habitNoteInput" placeholder="Opcional: peso, sensación, detalle..." maxlength="140" style="font-size:12px;padding:8px 10px;">
-        <div style="display:flex;gap:6px;margin-top:8px;">
+        <div class="mono text-xs tracking-widest text-sys mb-1">NOTA · ${escapeHtml(h.label)}</div>
+        <input class="input" id="habitNoteInput" placeholder="Opcional: peso, sensación, detalle..." maxlength="140" class="text-base p-2" style="10px">
+        <div class="mt-2 flex gap-1">
           <button class="btn btn-sm" onclick="saveHabitNote('${habitId}')">Guardar</button>
           <button class="btn btn-sm btn-ghost" onclick="document.getElementById('habitNotePrompt')?.remove()">Skip</button>
         </div>
@@ -4623,7 +5699,7 @@
       if (s.last === today) return;
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const ykey = yesterday.toISOString().slice(0, 10);
+      const ykey = dateToKey(yesterday);
       if (s.last === ykey) s.current++;
       else s.current = 1;
       if (s.current > s.longest) s.longest = s.current;
@@ -4685,8 +5761,11 @@
           if (recent.length === 3 && recent.every(q => q.status === 'failed' || q.status === 'rejected')) {
             const until = new Date();
             until.setDate(until.getDate() + 7);
-            state.uiState.sysquest_suspended_until = until.toISOString();
-            setTimeout(() => sysToast('EVALUACIÓN SUSPENDIDA · 7 días', 'danger'), 1000);
+            state.uiState.sysquest_suspended_until = dateToKey(until);
+            setTimeout(() => {
+              haptic('error');
+              sysToast('EVALUACIÓN SUSPENDIDA · 7 días', 'danger');
+            }, 1000);
           }
         } else if (old.status === 'completed' || old.status === 'rejected') {
           state.sysquest_history.push(old);
@@ -4711,56 +5790,60 @@
       persist();
       render();
       sysToast('QUEST ACEPTADA');
+      haptic('medium');
     }
 
     function rejectSysQuest() {
-      if (!state.sysquest) return;
-      if (!confirm('¿Rechazar la quest del Sistema?\n\nSe aplicará la penalización. Tres rechazos seguidos suspenden la evaluación.')) return;
-      state.sysquest.status = 'rejected';
-      const p = state.sysquest.penalty;
-      state.xp[p.stat] = Math.max(0, state.xp[p.stat] - p.xp);
-      state.sysquest_history.push(state.sysquest);
-      state.sysquest = null;
-      // Check 3 rechazos seguidos
-      const recent = state.sysquest_history.slice(-3);
-      if (recent.length === 3 && recent.every(q => q.status === 'failed' || q.status === 'rejected')) {
-        const until = new Date();
-        until.setDate(until.getDate() + 7);
-        state.uiState.sysquest_suspended_until = until.toISOString();
-        setTimeout(() => sysToast('EVALUACIÓN SUSPENDIDA · 7 días', 'danger'), 1000);
-      }
-      persist();
-      render();
-      sysToast('QUEST RECHAZADA', 'danger');
-      floatXP(`-${p.xp}`, 'var(--negative)', null);
+      customConfirm('¿Rechazar la quest del Sistema?<br><br>Se aplicará la penalización. Tres rechazos seguidos suspenden la evaluación.', () => {
+        if (!state.sysquest) return;
+        state.sysquest.status = 'rejected';
+        const p = state.sysquest.penalty;
+        state.xp[p.stat] = Math.max(0, state.xp[p.stat] - p.xp);
+        state.sysquest_history.push(state.sysquest);
+        state.sysquest = null;
+        // Check 3 rechazos seguidos
+        const recent = state.sysquest_history.slice(-3);
+        if (recent.length === 3 && recent.every(q => q.status === 'failed' || q.status === 'rejected')) {
+          const until = new Date();
+          until.setDate(until.getDate() + 7);
+          state.uiState.sysquest_suspended_until = dateToKey(until);
+          haptic('error');
+          sysToast('EVALUACIÓN SUSPENDIDA · 7 días', 'danger');
+        }
+        persist();
+        render();
+        sysToast('QUEST RECHAZADA', 'danger');
+        floatXP(`-${p.xp}`, 'var(--negative)', null);
+      });
     }
 
     function completeSysQuest() {
-      if (!state.sysquest || state.sysquest.status !== 'accepted') return;
-      if (!confirm('¿Completaste la quest? Solo vos sabés la verdad.\n\nEl Sistema confía en tu honestidad.')) return;
+      customConfirm('¿Completaste la quest? Solo vos sabés la verdad.<br><br>El Sistema confía en tu honestidad.', () => {
+        if (!state.sysquest || state.sysquest.status !== 'accepted') return;
+        state.sysquest.status = 'completed';
+        state.sysquest.completedAt = todayKey();
 
-      state.sysquest.status = 'completed';
-      state.sysquest.completedAt = new Date().toISOString();
+        const r = state.sysquest.reward;
+        const prevLevel = levelFromXP(state.xp[r.stat]);
+        const prevRank = currentRank().rank;
+        state.xp[r.stat] += r.xp;
+        const newLevel = levelFromXP(state.xp[r.stat]);
+        const newRank = currentRank().rank;
 
-      const r = state.sysquest.reward;
-      const prevLevel = levelFromXP(state.xp[r.stat]);
-      const prevRank = currentRank().rank;
-      state.xp[r.stat] += r.xp;
-      const newLevel = levelFromXP(state.xp[r.stat]);
-      const newRank = currentRank().rank;
+        floatXP(`+${r.xp}`, STATS[r.stat].color, null);
+        state.sysquest_history.push(state.sysquest);
 
-      floatXP(`+${r.xp}`, STATS[r.stat].color, null);
-      state.sysquest_history.push(state.sysquest);
+        if (newLevel > prevLevel) setTimeout(() => showLevelUp(r.stat, newLevel), 400);
+        if (newRank !== prevRank) setTimeout(() => showRankUp(newRank), newLevel > prevLevel ? 2500 : 400);
 
-      if (newLevel > prevLevel) setTimeout(() => showLevelUp(r.stat, newLevel), 400);
-      if (newRank !== prevRank) setTimeout(() => showRankUp(newRank), newLevel > prevLevel ? 2500 : 400);
-
-      ppOnSysquestComplete(state.sysquest);
-      checkAchievements();
-      state.sysquest = null;
-      persist();
-      render();
-      sysToast('QUEST COMPLETADA', 'positive');
+        ppOnSysquestComplete(state.sysquest);
+        checkAchievements();
+        state.sysquest = null;
+        persist();
+        render();
+        sysToast('QUEST COMPLETADA', 'positive');
+        haptic('success');
+      });
     }
 
     // ============================================================
@@ -4792,8 +5875,10 @@
     function weekKey() {
       const d = new Date();
       d.setHours(0, 0, 0, 0);
-      d.setDate(d.getDate() - d.getDay() + 1);
-      return d.toISOString().slice(0, 10);
+      const day = d.getDay();
+      const diff = (day === 0 ? -6 : 1 - day); // lunes = 0 offset
+      d.setDate(d.getDate() + diff);
+      return dateToKey(d);
     }
 
     function monthKey() { return new Date().toISOString().slice(0, 7); }
@@ -4912,7 +5997,7 @@
       for (let i = 1; i <= 14; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0, 10);
+        const key = dateToKey(d);
         const l = load(K.log(key), null);
         if (!l || l.habits.length === 0) count++;
         else break;
@@ -4920,7 +6005,11 @@
       return count;
     }
 
+    const PAGE_ORDER = ["home", "stats", "focus", "character", "calendar"];
     function goPage(p) {
+      const oldIdx = PAGE_ORDER.indexOf(state.page);
+      const newIdx = PAGE_ORDER.indexOf(p);
+      state.pageDirection = newIdx > oldIdx ? "right" : "left";
       state.page = p;
       render();
       if (p === 'stats') {
@@ -4929,7 +6018,7 @@
       if (p === 'focus') {
         setTimeout(updateTimerUI, 60);
       }
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     // ============================================================
@@ -5037,7 +6126,7 @@
         <div class="card oaa-card">
           <div class="card-title">
             <span class="card-title-text">OAA Evaluation</span>
-            <span class="card-action mono" style="border:0;padding:0;">CL ${clsCode}</span>
+            <span class="card-action mono p-0" style="border:0">CL ${clsCode}</span>
           </div>
           <div class="oaa-grade">
             <div class="oaa-grade-letter">${totalLetter}</div>
@@ -5059,14 +6148,14 @@
       if (!ppEnabled()) return '';
       const weekEarned = state.ppLog.filter(l => l.type === 'earn' && daysSince(l.date) <= 7).reduce((s, l) => s + l.amount, 0);
       return `
-        <div class="card" onclick="openModal('pp')" style="cursor:pointer;">
+        <div class="card" onclick="openModal('pp')" class="clickable">
           <div class="card-title">
             <span class="card-title-text">Private Points</span>
             <span class="card-action">ver</span>
           </div>
-          <div style="display:flex;align-items:baseline;gap:12px;">
-            <div class="display" style="font-size:40px;color:var(--sys2);text-shadow:0 0 8px var(--sys-glow);">${state.pp}</div>
-            <div class="mono" style="font-size:10px;color:var(--positive);letter-spacing:.1em;">+${weekEarned} esta semana</div>
+          <div class="flex items-baseline gap-3">
+            <div class="display big-number text-5xl">${state.pp}</div>
+            <div class="mono text-sm tracking-wide text-positive">+${weekEarned} esta semana</div>
           </div>
         </div>
       `;
@@ -5086,14 +6175,14 @@
         const deadline = new Date(exam.acceptDeadline);
         const hoursLeft = Math.max(0, Math.ceil((deadline - new Date()) / (1000 * 60 * 60)));
         return `
-          <div class="sysnotif" style="border-color:var(--rank-a);box-shadow:0 0 30px rgba(245,158,11,.3);">
-            <div class="sysnotif-corner tl" style="border-color:var(--rank-a)"></div>
-            <div class="sysnotif-corner tr" style="border-color:var(--rank-a)"></div>
-            <div class="sysnotif-corner bl" style="border-color:var(--rank-a)"></div>
-            <div class="sysnotif-corner br" style="border-color:var(--rank-a)"></div>
+          <div class="sysnotif exam-variant">
+            <div class="sysnotif-corner tl"></div>
+            <div class="sysnotif-corner tr"></div>
+            <div class="sysnotif-corner bl"></div>
+            <div class="sysnotif-corner br"></div>
             <div class="sysnotif-head">
-              <span class="sysnotif-icon" style="color:var(--rank-a)">${svgIcon('trophy', 'icon')}</span>
-              <span class="sysnotif-tag" style="color:var(--rank-a)">SPECIAL EXAM DISPONIBLE</span>
+              <span class="sysnotif-icon">${svgIcon('trophy', 'icon')}</span>
+              <span class="sysnotif-tag">SPECIAL EXAM DISPONIBLE</span>
               <span class="sysnotif-rank">${hoursLeft}H PARA ACEPTAR</span>
             </div>
             <div class="sysnotif-body">
@@ -5112,17 +6201,17 @@
                   <div class="sysnotif-stat-label">Duración</div>
                   <div class="sysnotif-stat-val">${template.duration} días</div>
                 </div>
-                <div class="sysnotif-stat" style="border-left-color:var(--info);">
+                <div class="sysnotif-stat border-l-info">
                   <div class="sysnotif-stat-label">Dificultad</div>
-                  <div class="sysnotif-stat-val" style="color:var(--info);">${template.difficulty.toUpperCase()}</div>
+                  <div class="sysnotif-stat-val text-info">${template.difficulty.toUpperCase()}</div>
                 </div>
               </div>
-              <div style="font-family:var(--font-mono);font-size:10px;color:var(--ink3);letter-spacing:.08em;margin-bottom:12px;padding:0 6px;">
+              <div class="mono text-sm text-ink3 tracking-wide mb-3 px-2">
                 ${template.conditions.map(c => '◇ ' + c.label).join('<br>')}
               </div>
             </div>
             <div class="sysnotif-actions">
-              <button class="btn btn-block" style="background:var(--rank-a);border-color:var(--rank-a);" onclick="acceptExam()">Aceptar examen</button>
+              <button class="btn btn-block btn-exam" onclick="acceptExam()">Aceptar examen</button>
               <button class="btn btn-ghost btn-sm" onclick="rejectExam()">Rechazar</button>
             </div>
           </div>
@@ -5133,30 +6222,30 @@
         const progress = getExamProgress();
         if (!progress) return '';
         return `
-          <div class="sysnotif" style="border-color:var(--rank-a);box-shadow:0 0 24px rgba(245,158,11,.25);">
-            <div class="sysnotif-corner tl" style="border-color:var(--rank-a)"></div>
-            <div class="sysnotif-corner tr" style="border-color:var(--rank-a)"></div>
-            <div class="sysnotif-corner bl" style="border-color:var(--rank-a)"></div>
-            <div class="sysnotif-corner br" style="border-color:var(--rank-a)"></div>
+          <div class="sysnotif exam-variant">
+            <div class="sysnotif-corner tl"></div>
+            <div class="sysnotif-corner tr"></div>
+            <div class="sysnotif-corner bl"></div>
+            <div class="sysnotif-corner br"></div>
             <div class="sysnotif-head">
-              <span class="sysnotif-icon" style="color:var(--rank-a)">${svgIcon('trophy', 'icon')}</span>
-              <span class="sysnotif-tag" style="color:var(--rank-a)">SPECIAL EXAM · DÍA ${progress.dayNumber}/${progress.totalDays}</span>
+              <span class="sysnotif-icon">${svgIcon('trophy', 'icon')}</span>
+              <span class="sysnotif-tag">SPECIAL EXAM · DÍA ${progress.dayNumber}/${progress.totalDays}</span>
             </div>
             <div class="sysnotif-body">
               <div class="sysnotif-title">${escapeHtml(template.name)}</div>
-              <div style="margin-bottom:12px;">
-                <div class="quest-bar" style="height:6px;"><div class="quest-fill" style="width:${progress.pct}%;background:var(--rank-a);"></div></div>
-                <div class="quest-progress" style="color:var(--rank-a);">${progress.passedDays}/${progress.totalDays} días completados</div>
+              <div class="mb-3">
+                <div class="quest-bar" style="height:6px;"><div class="quest-fill" style="width:${progress.pct}%"></div></div>
+                <div class="quest-progress">${progress.passedDays}/${progress.totalDays} días completados</div>
               </div>
-              <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;padding:0 6px;">
+              <div class="mono text-sm tracking-wide px-2">
                 ${progress.todayConditions.map(c => `
-                  <div style="display:flex;align-items:center;gap:6px;padding:4px 0;color:${c.met ? 'var(--positive)' : 'var(--ink2)'};">
+                  <div class="condition-row ${c.met ? 'condition-met' : 'condition-pending'}">
                     <span>${c.met ? '✓' : '○'}</span>
                     <span>${c.label}</span>
                   </div>
                 `).join('')}
                 ${Object.entries(progress.totalProgress).map(([label, p]) => `
-                  <div style="display:flex;align-items:center;gap:6px;padding:4px 0;color:${p.current >= p.target ? 'var(--positive)' : 'var(--ink2)'};">
+                  <div class="condition-row ${p.current >= p.target ? 'condition-met' : 'condition-pending'}">
                     <span>${p.current >= p.target ? '✓' : '○'}</span>
                     <span>${label}: ${p.current}/${p.target}</span>
                   </div>
@@ -5190,14 +6279,14 @@
       } else {
         active.forEach(t => {
           html += `
-            <div style="padding:10px 0;border-top:1px solid var(--border);">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <span style="color:var(--rank-a);font-size:14px;">◆</span>
-                <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.1em;">${t.name}</span>
-                ${!t.permanent ? '<span class="mono" style="font-size:9px;color:var(--ink3);margin-left:auto;">PUEDE DECAER</span>' : '<span class="mono" style="font-size:9px;color:var(--positive);margin-left:auto;">PERMANENTE</span>'}
+            <div class="border-t" style="padding:10px 0">
+              <div class="flex items-center gap-2">
+                <span class="text-xl" style="color:var(--rank-a)">◆</span>
+                <span class="text-base font-bold tracking-wide mono">${t.name}</span>
+                ${!t.permanent ? '<span class="mono text-xs text-ink3" style="margin-left:auto">PUEDE DECAER</span>' : '<span class="mono text-xs text-positive" style="margin-left:auto">PERMANENTE</span>'}
               </div>
-              <div style="font-size:11px;color:var(--ink2);margin-top:4px;padding-left:22px;">${t.desc}</div>
-              <div class="mono" style="font-size:9px;color:var(--ink3);margin-top:3px;padding-left:22px;">Desbloqueado: ${t.unlockedAt}</div>
+              <div class="text-md text-ink2 mt-1" style="padding-left:22px">${t.desc}</div>
+              <div class="mono text-xs text-ink3" style="margin-top:3px;padding-left:22px">Desbloqueado: ${t.unlockedAt}</div>
             </div>
           `;
         });
@@ -5205,17 +6294,17 @@
         if (showLocked) {
           const locked = allTalents.filter(t => !t.active);
           if (locked.length > 0) {
-            html += `<div class="modal-label" style="margin-top:12px;">Patrones en observación · ${locked.length}</div>`;
+            html += `<div class="modal-label mt-3">Patrones en observación · ${locked.length}</div>`;
             locked.forEach(t => {
               const wasLost = t.lostAt;
               html += `
-                <div style="padding:8px 0;border-top:1px solid var(--border);opacity:0.5;">
-                  <div style="display:flex;align-items:center;gap:8px;">
-                    <span style="color:var(--ink4);font-size:14px;">◇</span>
-                    <span style="font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--ink3);">???</span>
-                    ${wasLost ? '<span class="mono" style="font-size:9px;color:var(--negative);margin-left:auto;">PERDIDO</span>' : ''}
+                <div class="p-2 border-t" style="0;opacity:0.5">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl text-ink4">◇</span>
+                    <span class="text-md font-semibold text-ink3 mono" style="letter-spacing:.08em">???</span>
+                    ${wasLost ? '<span class="mono text-xs text-negative" style="margin-left:auto">PERDIDO</span>' : ''}
                   </div>
-                  <div style="font-size:10px;color:var(--ink4);margin-top:3px;padding-left:22px;font-style:italic;">${t.hint}</div>
+                  <div class="text-sm italic text-ink4" style="margin-top:3px;padding-left:22px">${t.hint}</div>
                 </div>
               `;
             });
@@ -5238,9 +6327,9 @@
         html += `
           <div class="card">
             <div class="card-title"><span class="card-title-text">Títulos · ${titles.length}</span></div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <div class="flex flex-wrap gap-1">
               ${titles.map(t => `
-                <span style="font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.15em;padding:6px 12px;border:1px solid var(--rank-a);color:var(--rank-a);border-radius:var(--radius);">"${t}"</span>
+                <span class="text-sm font-bold tracking-wider mono" style="padding:6px 12px;border:1px solid var(--rank-a);color:var(--rank-a);border-radius:var(--radius)">"${t}"</span>
               `).join('')}
             </div>
           </div>
@@ -5256,10 +6345,10 @@
           const color = e.status === 'passed' ? 'var(--positive)' : e.status === 'failed' ? 'var(--negative)' : 'var(--ink3)';
           const icon = e.status === 'passed' ? 'check' : 'x';
           return `
-                <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border);font-size:12px;">
+                <div class="log-row">
                   <span style="color:${color}">${svgIcon(icon, 'icon icon-sm')}</span>
-                  <span style="flex:1;">${tpl ? escapeHtml(tpl.name) : e.examId}</span>
-                  <span class="mono" style="font-size:9px;color:var(--ink3);">${e.status} · ${(e.completedAt || e.offeredDate || '').slice(5)}</span>
+                  <span class="flex-1">${tpl ? escapeHtml(tpl.name) : e.examId}</span>
+                  <span class="mono log-date">${e.status} · ${(e.completedAt || e.offeredDate || '').slice(5)}</span>
                 </div>
               `;
         }).join('')}
@@ -5274,16 +6363,16 @@
       const active = getActiveTalents();
       if (active.length === 0) return '';
       return `
-        <div class="card" onclick="goPage('character')" style="cursor:pointer;">
+        <div class="card" onclick="goPage('character')" class="clickable">
           <div class="card-title">
             <span class="card-title-text">Talents activos · ${active.length}</span>
             <span class="card-action">ver</span>
           </div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <div class="flex flex-wrap gap-1">
             ${active.map(t => {
         const tpl = TALENTS.find(x => x.id === t.id);
         return `
-                <span style="font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.1em;padding:5px 10px;background:var(--sys-dim);border:1px solid var(--sys);border-radius:var(--radius);color:var(--sys2);">◆ ${tpl?.name || t.id}</span>
+                <span class="text-sm font-bold tracking-wide text-sys mono" style="padding:5px 10px;background:var(--sys-dim);border:1px solid var(--sys);border-radius:var(--radius)">◆ ${tpl?.name || t.id}</span>
               `;
       }).join('')}
           </div>
@@ -5537,77 +6626,77 @@
       let html = `
       <div class="modal-handle"></div>
       <div class="modal-tag">INFORME DE EVALUACIÓN SEMANAL</div>
-      <div class="modal-sub" style="margin-bottom:4px;">Semana ${report.weekNumber} · ${report.year}</div>
+      <div class="modal-sub mb-1">Semana ${report.weekNumber} · ${report.year}</div>
 
-      <div style="border:1px solid var(--sys);padding:14px;border-radius:var(--radius);margin-bottom:16px;background:var(--bg);">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
-          <span class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.15em;">CLASIFICACIÓN ACTUAL</span>
+      <div class="mb-4" style="border:1px solid var(--sys);padding:14px;border-radius:var(--radius);background:var(--bg)">
+        <div class="flex items-baseline justify-between" style="margin-bottom:10px">
+          <span class="mono data-cell-label">CLASIFICACIÓN ACTUAL</span>
         </div>
-        <div style="font-size:12px;color:var(--ink2);font-family:var(--font-mono);letter-spacing:.08em;">
+        <div class="text-base text-ink2 mono" style="letter-spacing:.08em">
           Rank ${report.rank} · Clase ${report.class} · Lv. ${report.level}
         </div>
-        <div style="display:flex;align-items:baseline;gap:12px;margin-top:8px;">
-          <span class="display" style="font-size:42px;color:var(--sys2);text-shadow:0 0 10px var(--sys-glow);">${report.oaa.totalLetter}</span>
-          <span class="mono" style="font-size:10px;color:${colorFor(report.oaa.totalChange)};letter-spacing:.1em;">${report.oaa.totalChange > 0 ? '+' : ''}${report.oaa.totalChange.toFixed(1)} vs semana anterior</span>
+        <div class="mt-2 flex items-baseline gap-3">
+          <span class="display text-sys" style="font-size:42px;text-shadow:0 0 10px var(--sys-glow)">${report.oaa.totalLetter}</span>
+          <span class="mono text-sm tracking-wide" style="color:${colorFor(report.oaa.totalChange)}">${report.oaa.totalChange > 0 ? '+' : ''}${report.oaa.totalChange.toFixed(1)} vs semana anterior</span>
         </div>
       </div>
 
       <div class="modal-label">Dimensiones</div>
-      <div style="margin-bottom:16px;">
+      <div class="mb-4">
         ${['academico', 'fisico', 'mental', 'social', 'identidad'].map(d => {
         const dim = report.oaa.dims[d];
         const name = { academico: 'Académico', fisico: 'Físico', mental: 'Mental', social: 'Social', identidad: 'Identidad' }[d];
         return `
-            <div style="display:grid;grid-template-columns:1fr auto auto;align-items:baseline;gap:12px;padding:6px 0;border-top:1px solid var(--border);">
-              <span class="mono" style="font-size:11px;font-weight:600;letter-spacing:.12em;">${name}</span>
-              <span class="display" style="font-size:18px;color:var(--sys2);">${dim.letter}</span>
-              <span class="mono" style="font-size:12px;font-weight:700;color:${colorFor(dim.change)};width:16px;text-align:center;">${arrowFor(dim.change)}</span>
+            <div class="items-baseline gap-3 border-t" style="display:grid;grid-template-columns:1fr auto auto;padding:6px 0">
+              <span class="mono text-md font-semibold" style="letter-spacing:.12em">${name}</span>
+              <span class="display text-sys" style="font-size:18px">${dim.letter}</span>
+              <span class="mono text-base font-bold text-center" style="color:${colorFor(dim.change)};width:16px">${arrowFor(dim.change)}</span>
             </div>
           `;
       }).join('')}
-        <div style="text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--ink3);letter-spacing:.15em;padding-top:8px;border-top:1px solid var(--border2);">Tendencia 4 semanas: ${trendText}</div>
+        <div class="text-xs tracking-wider text-center text-ink3 mono" style="padding-top:8px;border-top:1px solid var(--border2)">Tendencia 4 semanas: ${trendText}</div>
       </div>
 
       <div class="modal-label">Observaciones</div>
-      <div style="margin-bottom:16px;">
+      <div class="mb-4">
         ${report.observations.map((obs, i) => `
-          <div style="padding:8px 0;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;">
-            <span class="mono" style="font-size:10px;color:var(--sys2);flex-shrink:0;margin-top:2px;">[${i + 1}]</span>
-            <span style="font-size:12px;color:var(--ink2);line-height:1.55;flex:1;">${escapeHtml(obs)}</span>
+          <div class="p-2 flex gap-2 border-t" style="0;align-items:flex-start">
+            <span class="mono text-sm text-sys" style="flex-shrink:0;margin-top:2px">[${i + 1}]</span>
+            <span class="text-base text-ink2 flex-1" style="line-height:1.55">${escapeHtml(obs)}</span>
           </div>
         `).join('')}
-        ${report.observations.length === 0 ? '<div style="font-size:12px;color:var(--ink3);padding:8px 0;">Sin observaciones significativas esta semana.</div>' : ''}
+        ${report.observations.length === 0 ? '<div class="text-base text-ink3 p-2" style="0">Sin observaciones significativas esta semana.</div>' : ''}
       </div>
 
       <div class="modal-label">Recomendación operativa</div>
-      <div style="margin-bottom:16px;">
+      <div class="mb-4">
         ${report.recommendations.map((rec, i) => `
-          <div style="padding:8px 10px;background:var(--bg);border-left:2px solid var(--sys);margin-bottom:6px;font-size:12px;color:var(--ink);line-height:1.5;">${escapeHtml(rec)}</div>
+          <div class="text-base text-ink mb-1 p-2 border-l-sys" style="10px;background:var(--bg);line-height:1.5">${escapeHtml(rec)}</div>
         `).join('')}
       </div>
 
       ${ppEnabled() ? `
         <div class="modal-label">Private Points</div>
-        <div style="margin-bottom:16px;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;">
+        <div class="text-md mb-4 mono" style="letter-spacing:.06em">
           <div>Saldo: ${report.pp.balance} PP</div>
-          <div style="color:var(--positive);">+${report.pp.earned} esta semana</div>
-          <div style="color:var(--negative);">−${report.pp.spent} esta semana</div>
+          <div class="text-positive">+${report.pp.earned} esta semana</div>
+          <div class="text-negative">−${report.pp.spent} esta semana</div>
         </div>
       ` : ''}
 
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink);margin-bottom:8px;letter-spacing:.1em;">¿Alguna observación te resonó?</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+      <div class="text-md tracking-wide text-ink mb-2 mono">¿Alguna observación te resonó?</div>
+      <div class="mb-4 flex flex-wrap gap-1">
         ${report.observations.map((_, i) => `
-          <button class="btn btn-sm ${report.resonatedObs?.includes(i) ? '' : 'btn-ghost'}" onclick="markReportFeedback(${i})" style="font-size:10px;">
+          <button class="btn btn-sm ${report.resonatedObs?.includes(i) ? '' : 'btn-ghost'}" onclick="markReportFeedback(${i})" class="text-sm">
             #${i + 1} ${report.resonatedObs?.includes(i) ? '✓' : ''}
           </button>
         `).join('')}
         ${report.observations.length === 0 ? '' : `
-          <button class="btn btn-sm btn-ghost" onclick="closeModal()" style="font-size:10px;">Ninguna</button>
+          <button class="btn btn-sm btn-ghost" onclick="closeModal()" class="text-sm">Ninguna</button>
         `}
       </div>
 
-      <div style="text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--ink4);letter-spacing:.2em;text-transform:uppercase;">
+      <div class="text-xs tracking-widest uppercase text-center text-ink4 mono">
         Generado: ${report.generatedAt.slice(0, 16).replace('T', ' ')}
       </div>
     `;
@@ -5634,12 +6723,12 @@
         const realIdx = state.weeklyReports.length - 1 - idx;
         const color = r.oaa.totalChange > 0.3 ? 'var(--positive)' : r.oaa.totalChange < -0.3 ? 'var(--negative)' : 'var(--ink3)';
         html += `
-        <div class="setting-row" onclick="closeModal(); openModal('report', ${realIdx})" style="cursor:pointer;">
+        <div class="setting-row" onclick="closeModal(); openModal('report', ${realIdx})" class="clickable">
           <div>
             <div class="setting-name">Semana ${r.weekNumber} · ${r.oaa.totalLetter}</div>
             <div class="setting-sub" style="color:${color}">${r.oaa.totalChange > 0 ? '+' : ''}${r.oaa.totalChange.toFixed(1)} · ${r.observations.length} obs</div>
           </div>
-          <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+          <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
         </div>
       `;
       });
@@ -5877,9 +6966,9 @@
         <div class="sysnotif-corner tr"></div>
         <div class="sysnotif-corner bl"></div>
         <div class="sysnotif-corner br"></div>
-        <div class="mono" style="font-size:9px;color:var(--sys2);letter-spacing:.35em;margin-bottom:18px;">OBSERVACIÓN INTERNA · CLASIFICADA</div>
-        <div style="font-size:13px;color:var(--ink2);line-height:1.7;text-align:left;font-family:var(--font-body);">${msg.text}</div>
-        <button class="btn btn-ghost btn-block" style="margin-top:20px;" onclick="this.closest('.levelup').remove()">Cerrar</button>
+        <div class="mono text-xs text-sys" style="letter-spacing:.35em;margin-bottom:18px">OBSERVACIÓN INTERNA · CLASIFICADA</div>
+        <div class="text-lg text-ink2" style="line-height:1.7;text-align:left;font-family:var(--font-body)">${msg.text}</div>
+        <button class="btn btn-ghost btn-block mt-5" onclick="this.closest('.levelup').remove()">Cerrar</button>
       </div>
     `;
       document.body.appendChild(ov);
@@ -5909,20 +6998,20 @@
       <div class="modal-title">Diagnóstico</div>
       <div class="modal-sub">El Sistema analiza un patrón específico y te devuelve una pregunta.</div>
 
-      <div style="border:1px solid var(--sys);padding:16px;border-radius:var(--radius);margin:16px 0;background:var(--bg);position:relative;">
+      <div class="p-4" style="border:1px solid var(--sys);border-radius:var(--radius);margin:16px 0;background:var(--bg);position:relative">
         <div class="sysnotif-corner tl"></div>
         <div class="sysnotif-corner tr"></div>
         <div class="sysnotif-corner bl"></div>
         <div class="sysnotif-corner br"></div>
-        <div class="mono" style="font-size:9px;color:var(--sys2);letter-spacing:.2em;margin-bottom:8px;">${escapeHtml(question.area)}</div>
-        <div style="font-size:14px;color:var(--ink);line-height:1.6;">${escapeHtml(question.question)}</div>
-        <div style="font-size:11px;color:var(--ink3);margin-top:8px;line-height:1.5;">${escapeHtml(question.context)}</div>
+        <div class="mono text-xs tracking-widest text-sys mb-2">${escapeHtml(question.area)}</div>
+        <div class="text-xl text-ink" style="line-height:1.6">${escapeHtml(question.question)}</div>
+        <div class="text-md text-ink3 mt-2" style="line-height:1.5">${escapeHtml(question.context)}</div>
       </div>
 
       <button class="btn btn-block" onclick="if(spendPP('mentor_question')){ closeModal(); openModal('mentor'); }">
         Generar nueva pregunta · 50 PP
       </button>
-      <div style="text-align:center;margin-top:8px;font-family:var(--font-mono);font-size:9px;color:var(--ink4);letter-spacing:.15em;">Saldo: ${state.pp} PP</div>
+      <div class="text-xs tracking-wider text-center text-ink4 mt-2 mono">Saldo: ${state.pp} PP</div>
     `;
     }
 
@@ -6004,7 +7093,7 @@
       for (let i = 34; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0, 10);
+        const key = dateToKey(d);
         const l = load(K.log(key), null);
         const count = l ? l.habits.filter(h => h !== '__touched').length : 0;
         let lvl = 0;
@@ -6079,7 +7168,7 @@
       for (let i = days - 1; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0, 10);
+        const key = dateToKey(d);
         labels.push(key.slice(5));
         const dayLog = load(K.log(key), null);
         Object.keys(STATS).forEach(k => {
@@ -6243,13 +7332,13 @@
     </div>
     <button class="btn btn-block" onclick="saveCustomHabit()">Crear hábito</button>
     ${state.custom.length ? `
-      <div style="margin-top:20px;">
+      <div class="mt-5">
         <div class="modal-label">Tus customs</div>
         ${state.custom.map(c => `
-          <div style="display:flex;align-items:center;padding:10px 0;border-top:1px solid var(--border);">
-            <span style="font-size:14px;margin-right:10px;color:${STATS[c.stat].color}">${svgIcon('plus', 'icon icon-sm')}</span>
-            <span style="flex:1;font-size:12px;">${escapeHtml(c.label)}</span>
-            <span class="mono" style="font-size:9px;color:var(--ink3);margin-right:10px;letter-spacing:.05em;">+${c.xp} ${STATS[c.stat].name}</span>
+          <div class="flex items-center border-t" style="padding:10px 0">
+            <span class="text-xl" style="margin-right:10px;color:${STATS[c.stat].color}">${svgIcon('plus', 'icon icon-sm')}</span>
+            <span class="text-base flex-1">${escapeHtml(c.label)}</span>
+            <span class="mono text-xs tracking-tight text-ink3" style="margin-right:10px">+${c.xp} ${STATS[c.stat].name}</span>
             <button class="boss-step-del" onclick="deleteCustom('${c.id}')">${svgIcon('trash', 'icon icon-sm')}</button>
           </div>
         `).join('')}
@@ -6324,55 +7413,55 @@
       <div class="switch ${state.user.theme === 'light' ? 'on' : ''}" onclick="toggleTheme(this)"></div>
     </div>
 
-    <div class="setting-row" onclick="closeModal(); openModal('report')" style="cursor:pointer;">
+    <div class="setting-row" onclick="closeModal(); openModal('report')" class="clickable">
       <div>
         <div class="setting-name">Informe semanal</div>
         <div class="setting-sub">${state.weeklyReports.length ? 'Último: sem ' + getLatestReport()?.weekNumber : 'Pendiente'}</div>
       </div>
-      <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
     </div>
 
-    <div class="setting-row" onclick="closeModal(); openModal('report_history')" style="cursor:pointer;">
+    <div class="setting-row" onclick="closeModal(); openModal('report_history')" class="clickable">
       <div>
         <div class="setting-name">Informes históricos</div>
         <div class="setting-sub">${state.weeklyReports.length} archivados</div>
       </div>
-      <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
     </div>
 
-    <div class="setting-row" onclick="closeModal(); openModal('reflection')" style="cursor:pointer;">
+    <div class="setting-row" onclick="closeModal(); openModal('reflection')" class="clickable">
       <div>
         <div class="setting-name">Cerrar el día</div>
         <div class="setting-sub">Reflection nocturna</div>
       </div>
-      <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
     </div>
 
-    <div class="setting-row" onclick="closeModal(); openModal('pp')" style="cursor:pointer;">
+    <div class="setting-row" onclick="closeModal(); openModal('pp')" class="clickable">
       <div>
         <div class="setting-name">Private Points</div>
         <div class="setting-sub">${ppEnabled() ? state.pp + ' PP' : 'Clase B requerida'}</div>
       </div>
-      <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
     </div>
 
-    <div class="setting-row" onclick="closeModal(); openModal('mentor')" style="cursor:pointer;">
+    <div class="setting-row" onclick="closeModal(); openModal('mentor')" class="clickable">
       <div>
         <div class="setting-name">Mentor Question</div>
         <div class="setting-sub">${ppEnabled() ? '50 PP · diagnóstico del Sistema' : 'Clase B requerida'}</div>
       </div>
-      <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
     </div>
 
-    <div class="setting-row" onclick="closeModal(); openModal('export')" style="cursor:pointer;">
+    <div class="setting-row" onclick="closeModal(); openModal('export')" class="clickable">
       <div>
         <div class="setting-name">Exportar / importar</div>
         <div class="setting-sub">Backup JSON</div>
       </div>
-      <span style="color:var(--ink3)">${svgIcon('chevron', 'icon')}</span>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
     </div>
 
-    <div class="modal-label" style="margin-top:16px;">Integraciones (opcional)</div>
+    <div class="modal-label mt-4">Integraciones (opcional)</div>
 
     <div class="setting-row">
       <div>
@@ -6400,13 +7489,13 @@
 
     <div class="setting-row" style="border-bottom:0;">
       <div>
-        <div class="setting-name" style="color:var(--negative);">Reset total</div>
+        <div class="setting-name text-negative">Reset total</div>
         <div class="setting-sub">Borrar todo</div>
       </div>
       <button class="btn btn-sm btn-danger" onclick="resetAll()">Reset</button>
     </div>
 
-    <div style="margin-top:24px;text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--ink3);letter-spacing:.2em;text-transform:uppercase;">
+    <div class="text-xs tracking-widest uppercase text-center text-ink3 mt-6 mono">
       Momentum OS · v3.1 · Economy
     </div>
   `;
@@ -6433,23 +7522,25 @@
     }
 
     function renameUser() {
-      const name = prompt('Nuevo nombre:', state.user.name);
-      if (name && name.trim()) {
-        state.user.name = name.trim().slice(0, 30);
+      customPrompt('Nuevo nombre:', state.user.name, state.user.name, (val) => {
+        if (!val || val.trim() === '') return;
+        state.user.name = val.trim();
         persist();
         closeModal();
         render();
-      }
+      });
     }
 
     function resetAll() {
-      if (!confirm('Esto borra TODO. ¿Seguro?')) return;
-      if (!confirm('No hay vuelta atrás. ¿Confirmás?')) return;
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const k = localStorage.key(i);
-        if (k.startsWith('mo_')) localStorage.removeItem(k);
-      }
-      location.reload();
+      customConfirm('Esto borra TODO. ¿Seguro?', () => {
+        customConfirm('No hay vuelta atrás. ¿Confirmás?', () => {
+          for (let i = localStorage.length - 1; i >= 0; i--) {
+            const k = localStorage.key(i);
+            if (k.startsWith('mo_')) localStorage.removeItem(k);
+          }
+          location.reload();
+        });
+      });
     }
 
     function modalDungeonCreate() {
@@ -6479,7 +7570,7 @@
     <div class="modal-section">
       <div class="modal-label">Etapas (2-5)</div>
       <div id="bossSteps"></div>
-      <button class="btn btn-sm btn-ghost" onclick="addBossStep()" style="margin-top:4px;">+ etapa</button>
+      <button class="btn btn-sm btn-ghost" onclick="addBossStep()" class="mt-1">+ etapa</button>
     </div>
 
     <div class="modal-section">
@@ -6552,11 +7643,11 @@
     ${b.reward ? `
       <div class="modal-section" style="background:var(--sys-dim);padding:14px;border-radius:var(--radius);border-left:3px solid var(--sys);">
         <div class="modal-label">Recompensa real</div>
-        <div style="font-size:13px;font-weight:600;">◆ ${escapeHtml(b.reward)}</div>
+        <div class="text-lg font-semibold">◆ ${escapeHtml(b.reward)}</div>
       </div>
     ` : ''}
 
-    <button class="btn btn-block btn-danger" onclick="if(confirm('¿Borrar esta mazmorra?')) { deleteBoss('${b.id}'); closeModal(); }">Eliminar</button>
+    <button class="btn btn-block btn-danger" onclick="customConfirm('¿Borrar esta mazmorra?', () => { deleteBoss('${b.id}'); closeModal(); })">Eliminar</button>
   `;
     }
 
@@ -6651,9 +7742,9 @@
           <div class="modal-tag">PRIVATE POINTS</div>
           <div class="modal-title">Bloqueados</div>
           <div class="modal-sub">Los Private Points se desbloquean al llegar a Clase B. Seguí subiendo tu OAA.</div>
-          <div style="text-align:center;padding:20px 0;">
-            <div class="display" style="font-size:48px;color:var(--ink4);">🔒</div>
-            <div class="mono" style="font-size:10px;color:var(--ink3);letter-spacing:.2em;margin-top:8px;">CLASE B REQUERIDA</div>
+          <div class="text-center" style="padding:20px 0">
+            <div class="display text-6xl text-ink4">🔒</div>
+            <div class="mono text-sm tracking-widest text-ink3 mt-2">CLASE B REQUERIDA</div>
           </div>
         `;
       }
@@ -6661,7 +7752,7 @@
       let html = `
         <div class="modal-handle"></div>
         <div class="modal-tag">PRIVATE POINTS</div>
-        <div class="modal-title" style="display:flex;align-items:baseline;gap:12px;">
+        <div class="modal-title flex items-baseline gap-3">
           <span>${state.pp} PP</span>
         </div>
         <div class="modal-sub">+${weekEarned} ganados · −${weekSpent} gastados esta semana</div>
@@ -6697,15 +7788,15 @@
 
       const recent = state.ppLog.slice(-10).reverse();
       if (recent.length) {
-        html += `<div class="modal-label" style="margin-top:16px;">Historial reciente</div>`;
+        html += `<div class="modal-label mt-4">Historial reciente</div>`;
         recent.forEach(l => {
           const color = l.type === 'earn' ? 'var(--positive)' : 'var(--negative)';
           const sign = l.type === 'earn' ? '+' : '';
           html += `
-            <div style="display:flex;align-items:center;padding:6px 0;border-top:1px solid var(--border);font-size:11px;">
-              <span class="mono" style="color:${color};width:60px;font-weight:700;">${sign}${l.amount}</span>
-              <span style="flex:1;color:var(--ink2);">${l.reason}</span>
-              <span class="mono" style="font-size:9px;color:var(--ink3);">${l.date.slice(5)}</span>
+            <div class="text-md flex items-center border-t" style="padding:6px 0">
+              <span class="mono font-bold" style="color:${color};width:60px">${sign}${l.amount}</span>
+              <span class="text-ink2 flex-1">${l.reason}</span>
+              <span class="mono log-date">${l.date.slice(5)}</span>
             </div>
           `;
         });
@@ -6720,53 +7811,58 @@
         ppDoubleDungeon(active[0].id);
       } else if (active.length > 1) {
         const names = active.map(b => b.name).join(', ');
-        const choice = prompt('¿A qué mazmorra? (' + names + ')');
-        const match = active.find(b => b.name.toLowerCase().includes((choice || '').toLowerCase()));
-        if (match) ppDoubleDungeon(match.id);
+        customPrompt('¿A qué mazmorra? (' + names + ')', 'Nombre de la mazmorra', '', (val) => {
+          const match = active.find(b => b.name.toLowerCase().includes((val || '').toLowerCase()));
+          if (match) ppDoubleDungeon(match.id);
+        });
       }
     }
 
     function configChess() {
-      const username = prompt('Tu username de Chess.com:', state.user.settings.chess?.username || '');
-      if (username !== null) {
-        if (!state.user.settings.chess) state.user.settings.chess = {};
-        state.user.settings.chess.username = username.trim();
-        persist();
-        closeModal();
-        openModal('settings');
-        if (username.trim()) sysToast('CHESS.COM CONECTADO');
-      }
+      customPrompt('Tu username de Chess.com:', '', state.user.settings.chess?.username || '', (val) => {
+        if (val !== null) {
+          if (!state.user.settings.chess) state.user.settings.chess = {};
+          state.user.settings.chess.username = val.trim();
+          persist();
+          closeModal();
+          openModal('settings');
+          if (val.trim()) sysToast('CHESS.COM CONECTADO');
+          autoLogChess();
+        }
+      });
     }
 
     function configWeather() {
-      const key = prompt('API key de OpenWeatherMap (gratis en openweathermap.org):', state.user.settings.weather?.key || '');
-      if (key !== null) {
-        if (!state.user.settings.weather) state.user.settings.weather = {};
-        state.user.settings.weather.key = key.trim();
-        state.user.settings.weather.enabled = !!key.trim();
-        state.user.settings.weather.lat = -34.6037;
-        state.user.settings.weather.lon = -58.3816;
-        persist();
-        closeModal();
-        openModal('settings');
-        if (key.trim()) sysToast('WEATHER CONECTADO');
-      }
+      customPrompt('API key de OpenWeatherMap (gratis en openweathermap.org):', '', state.user.settings.weather?.key || '', (val) => {
+        if (val !== null) {
+          if (!state.user.settings.weather) state.user.settings.weather = {};
+          state.user.settings.weather.key = val.trim();
+          state.user.settings.weather.enabled = !!val.trim();
+          state.user.settings.weather.lat = -34.6037;
+          state.user.settings.weather.lon = -58.3816;
+          persist();
+          closeModal();
+          openModal('settings');
+          if (val.trim()) sysToast('WEATHER CONECTADO');
+        }
+      });
     }
 
     function configGist() {
-      const token = prompt('GitHub Personal Access Token (scope: gist):', state.user.settings.gist?.token ? '••••' : '');
-      if (token !== null && token !== '••••') {
-        if (!state.user.settings.gist) state.user.settings.gist = {};
-        state.user.settings.gist.token = token.trim();
-        state.user.settings.gist.enabled = !!token.trim();
-        persist();
-        closeModal();
-        openModal('settings');
-        if (token.trim()) {
-          sysToast('GIST BACKUP CONECTADO');
-          gistBackup();
+      customPrompt('GitHub Personal Access Token (scope: gist):', '', state.user.settings.gist?.token ? '••••' : '', (val) => {
+        if (val !== null && val !== '••••') {
+          if (!state.user.settings.gist) state.user.settings.gist = {};
+          state.user.settings.gist.token = val.trim();
+          state.user.settings.gist.enabled = !!val.trim();
+          persist();
+          closeModal();
+          openModal('settings');
+          if (val.trim()) {
+            sysToast('GIST BACKUP CONECTADO');
+            gistBackup();
+          }
         }
-      }
+      });
     }
 
     function modalExport() {
@@ -6778,11 +7874,11 @@
 
     <button class="btn btn-block" onclick="exportData()">${svgIcon('download', 'icon')} Exportar JSON</button>
 
-    <div style="margin:14px 0;text-align:center;color:var(--ink3);font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;">o</div>
+    <div class="text-sm tracking-widest text-center text-ink3 mono" style="margin:14px 0">o</div>
 
     <div class="modal-section">
       <div class="modal-label">Importar (pegar JSON)</div>
-      <textarea class="input" id="importJSON" placeholder='{"mo_user":...}' style="min-height:110px;font-family:var(--font-mono);font-size:11px;"></textarea>
+      <textarea class="input" id="importJSON" placeholder='{"mo_user":...}' class="text-md mono" style="min-height:110px"></textarea>
     </div>
     <button class="btn btn-block btn-ghost" onclick="importData()">Importar</button>
   `;
@@ -6809,11 +7905,12 @@
       if (!txt) return;
       try {
         const data = JSON.parse(txt);
-        if (!confirm('Esto reemplaza tus datos actuales. ¿Continuar?')) return;
-        Object.keys(data).forEach(k => {
-          if (k.startsWith('mo_')) localStorage.setItem(k, data[k]);
+        customConfirm('Esto reemplaza tus datos actuales. ¿Continuar?', () => {
+          Object.keys(data).forEach(k => {
+            if (k.startsWith('mo_')) localStorage.setItem(k, data[k]);
+          });
+          location.reload();
         });
-        location.reload();
       } catch (e) {
         toast('JSON inválido', 'danger');
       }
@@ -6912,7 +8009,23 @@
     // ============================================================
     // ANIMATIONS: levelup, rankup, toast, xpfloat
     // ============================================================
+    function animateNumber(element, target, duration = 800) {
+      const start = parseInt(element.textContent) || 0;
+      const diff = target - start;
+      if (diff === 0) return;
+      const startTime = performance.now();
+      function tick(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+        element.textContent = Math.round(start + diff * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
     function showLevelUp(stat, level, big = false) {
+      haptic('heavy');
       const ov = document.createElement('div');
       ov.className = 'levelup show';
       ov.innerHTML = `
@@ -6932,6 +8045,7 @@
     }
 
     function showRankUp(rankCode) {
+      haptic('heavy');
       const rank = RANKS.find(r => r.rank === rankCode);
       if (!rank) return;
       const ov = document.createElement('div');
@@ -7035,7 +8149,7 @@
         <div class="onb-frame">
           <div class="onb-step">
             <div class="onb-icon">${svgIcon(s.icon)}</div>
-            <div class="mono" style="font-size:9px;color:var(--sys2);letter-spacing:.25em;margin-bottom:14px;text-transform:uppercase;">${s.tag}</div>
+            <div class="mono text-xs tracking-widest uppercase text-sys mb-3">${s.tag}</div>
             <div class="onb-title">${s.title}</div>
             <div class="onb-text" style="white-space:pre-line">${s.text}</div>
           </div>
@@ -7044,7 +8158,7 @@
             <div class="onb-dot ${onbStep === ONB_STEPS.length ? 'active' : ''}"></div>
           </div>
         </div>
-        <div style="margin-top:16px;">
+        <div class="mt-4">
           <button class="btn btn-block" onclick="onbNext()">${onbStep === ONB_STEPS.length - 1 ? 'Iniciar registro' : 'Continuar'}</button>
         </div>
       </div>
@@ -7056,15 +8170,15 @@
         <div class="onb-frame">
           <div class="onb-step">
             <div class="onb-icon">${svgIcon('hexagon')}</div>
-            <div class="mono" style="font-size:9px;color:var(--sys2);letter-spacing:.25em;margin-bottom:14px;text-transform:uppercase;">IDENTIFICACIÓN</div>
+            <div class="mono text-xs tracking-widest uppercase text-sys mb-3">IDENTIFICACIÓN</div>
             <div class="onb-title">¿Cómo te llamás?</div>
             <div class="onb-text" style="margin-bottom:20px;">Nombre para registro en el Sistema.</div>
             <div style="max-width:320px;margin:0 auto;">
-              <input class="input" id="onbName" placeholder="Tu nombre" maxlength="30" style="text-align:center;font-size:16px;letter-spacing:.05em;font-family:var(--font-mono);">
+              <input class="input" id="onbName" placeholder="Tu nombre" maxlength="30" class="text-2xl tracking-tight text-center mono">
             </div>
           </div>
         </div>
-        <div style="margin-top:16px;">
+        <div class="mt-4">
           <button class="btn btn-block" onclick="finishOnb()">Activar Hunter</button>
         </div>
       </div>
@@ -7146,6 +8260,124 @@
         state.uiState.reflection_reminded_today = null;
         persist();
       }
+    }
+
+
+    // ============================================================
+    // UX: Custom confirm/prompt dialogs
+    // ============================================================
+    function customConfirm(message, onConfirm, onCancel) {
+      const ov = document.createElement('div');
+      ov.className = 'modal-ov show';
+      ov.id = 'confirmOv';
+      ov.innerHTML = `
+        <div class="modal" onclick="event.stopPropagation()" style="max-width:360px;padding:24px 20px 20px;">
+          <div class="modal-handle"></div>
+          <div class="text-xl text-center text-ink" style="line-height:1.6;margin-bottom:18px">${message}</div>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost btn-block" id="confirmNo">Cancelar</button>
+            <button class="btn btn-block" id="confirmYes">Confirmar</button>
+          </div>
+        </div>
+      `;
+      ov.onclick = () => { ov.remove(); onCancel?.(); };
+      document.body.appendChild(ov);
+      document.getElementById('confirmYes').onclick = () => { ov.remove(); onConfirm(); };
+      document.getElementById('confirmNo').onclick = () => { ov.remove(); onCancel?.(); };
+    }
+
+    function customPrompt(title, placeholder, defaultVal, onSubmit) {
+      const ov = document.createElement('div');
+      ov.className = 'modal-ov show';
+      ov.id = 'promptOv';
+      ov.innerHTML = `
+        <div class="modal" onclick="event.stopPropagation()" style="max-width:360px;padding:24px 20px 20px;">
+          <div class="modal-handle"></div>
+          <div class="modal-label">${title}</div>
+          <input class="input" id="promptInput" placeholder="${placeholder}" value="${escapeHtml(defaultVal || '')}" class="mb-3">
+          <div class="flex gap-2">
+            <button class="btn btn-ghost btn-block" onclick="document.getElementById('promptOv')?.remove()">Cancelar</button>
+            <button class="btn btn-block" onclick="const v=document.getElementById('promptInput').value; document.getElementById('promptOv')?.remove(); (${onSubmit.toString()})(v);">OK</button>
+          </div>
+        </div>
+      `;
+      ov.onclick = () => ov.remove();
+      document.body.appendChild(ov);
+      setTimeout(() => document.getElementById('promptInput')?.focus(), 100);
+    }
+
+    // ============================================================
+    // UX: Modal dismiss — Escape key + swipe down
+    // ============================================================
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    document.addEventListener("touchstart", (e) => {
+      const modal = document.querySelector(".modal-ov.show .modal");
+      if (!modal) return;
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+    }, { passive: true });
+
+    document.addEventListener("touchend", (e) => {
+      const modal = document.querySelector(".modal-ov.show .modal");
+      if (!modal) return;
+      const deltaY = e.changedTouches[0].clientY - touchStartY;
+      const deltaTime = Date.now() - touchStartTime;
+      if (deltaY > 80 && deltaTime < 300 && modal.scrollTop <= 0) {
+        closeModal();
+      }
+    }, { passive: true });
+
+    // Pull to refresh
+    let pullStartY = 0;
+    let pulling = false;
+    document.addEventListener("touchstart", (e) => {
+      if (window.scrollY === 0 && !document.querySelector(".modal-ov.show")) {
+        pullStartY = e.touches[0].clientY;
+        pulling = true;
+      }
+    }, { passive: true });
+
+    document.addEventListener("touchmove", (e) => {
+      if (!pulling) return;
+      const delta = e.touches[0].clientY - pullStartY;
+      if (delta > 80 && window.scrollY === 0) {
+        pulling = false;
+        render();
+        sysToast("ACTUALIZADO");
+        haptic("light");
+      }
+    }, { passive: true });
+
+    document.addEventListener("touchend", () => { pulling = false; }, { passive: true });
+
+    // Haptic
+    function haptic(style = "light") {
+      if (!navigator.vibrate) return;
+      switch (style) {
+        case "light": navigator.vibrate(10); break;
+        case "medium": navigator.vibrate(25); break;
+        case "heavy": navigator.vibrate([30, 10, 30]); break;
+        case "success": navigator.vibrate([15, 30, 15]); break;
+        case "error": navigator.vibrate([50, 30, 50]); break;
+      }
+    }
+
+    // Date formatting
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + "T12:00:00");
+      const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+      return `${d.getDate()} ${months[d.getMonth()]}`;
+    }
+
+    function formatDateFull(dateStr) {
+      const d = new Date(dateStr + "T12:00:00");
+      const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+      return `${d.getDate()} de ${months[d.getMonth()]} de ${d.getFullYear()}`;
     }
 
     // ============================================================
@@ -7238,7 +8470,8 @@
       const clsCode = classCode(cls);
       return `
     <div class="header">
-      <div class="avatar" onclick="goPage('character')">${init}</div>
+            ${state.page !== "home" ? `<button class="header-btn header-btn-back" onclick="goPage("home")">${svgIcon("chevron", "icon")}</button>` : ""}
+      <div class="avatar" onclick="goPage("character")">${init}</div>
       <div class="header-info">
         <div class="header-tag">${rank.name}</div>
         <div class="header-title">
@@ -7255,12 +8488,12 @@
 
     function renderPage() {
       switch (state.page) {
-        case 'home': return `<div class="page active">${renderHome()}</div>`;
-        case 'stats': return `<div class="page active">${renderStats()}</div>`;
-        case 'focus': return `<div class="page active">${renderFocus()}</div>`;
-        case 'character': return `<div class="page active">${renderCharacter()}</div>`;
-        case 'calendar': return `<div class="page active">${renderCalendar()}</div>`;
-        default: return `<div class="page active">${renderHome()}</div>`;
+        case 'home': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderHome()}</div>`;
+        case 'stats': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderStats()}</div>`;
+        case 'focus': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderFocus()}</div>`;
+        case 'character': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderCharacter()}</div>`;
+        case 'calendar': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderCalendar()}</div>`;
+        default: return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderHome()}</div>`;
       }
     }
 
@@ -7273,14 +8506,14 @@
         const pauseEnd = new Date(state.pause.until);
         const hoursLeft = Math.max(0, Math.ceil((pauseEnd - new Date()) / (1000 * 60 * 60)));
         html += `
-          <div class="sysnotif" style="border-color:var(--info);box-shadow:0 0 24px var(--cyan-dim);">
+          <div class="sysnotif text-info" style="border-;box-shadow:0 0 24px var(--cyan-dim)">
             <div class="sysnotif-corner tl"></div>
             <div class="sysnotif-corner tr"></div>
             <div class="sysnotif-corner bl"></div>
             <div class="sysnotif-corner br"></div>
             <div class="sysnotif-head">
-              <span class="sysnotif-icon" style="color:var(--info)">${svgIcon('moon', 'icon')}</span>
-              <span class="sysnotif-tag" style="color:var(--info)">PAUSE MODE ACTIVO</span>
+              <span class="sysnotif-icon text-info">${svgIcon('moon', 'icon')}</span>
+              <span class="sysnotif-tag text-info">PAUSE MODE ACTIVO</span>
               <span class="sysnotif-rank">${hoursLeft}H RESTANTES</span>
             </div>
             <div class="sysnotif-body">
@@ -7388,11 +8621,11 @@
       if (suggestion) {
         html += `
           <div class="card" style="border-left:2px solid var(--info);">
-            <div class="card-title"><span class="card-title-text" style="color:var(--info);">Patrón detectado</span></div>
-            <div style="font-size:12px;color:var(--ink2);line-height:1.5;margin-bottom:10px;font-family:var(--font-mono);letter-spacing:.04em;">
+            <div class="card-title"><span class="card-title-text text-info">Patrón detectado</span></div>
+            <div class="text-base tracking-tight text-ink2 mono" style="line-height:1.5;margin-bottom:10px">
               ${escapeHtml(suggestion.message)}
             </div>
-            <div style="display:flex;gap:6px;">
+            <div class="flex gap-1">
               <button class="btn btn-sm" onclick="logHabit('${suggestion.habit}', event); dismissSmartSuggestion();">Marcar</button>
               <button class="btn btn-sm btn-ghost" onclick="dismissSmartSuggestion()">Ignorar</button>
             </div>
@@ -7452,16 +8685,16 @@
       const quote = load('mo_daily_quote', null);
       if (quote && quote.date === todayKey()) {
         html += `
-          <div class="card" style="border-left:2px solid var(--sys);">
+          <div class="card border-l-sys">
             <div class="card-title"><span class="card-title-text">Transmisión del Sistema</span></div>
-            <div style="font-size:13px;color:var(--ink2);line-height:1.6;font-style:italic;">"${escapeHtml(quote.text)}"</div>
-            <div style="font-family:var(--font-mono);font-size:10px;color:var(--ink3);margin-top:6px;letter-spacing:.1em;">— ${escapeHtml(quote.author)}</div>
+            <div class="quote-text">"${escapeHtml(quote.text)}"</div>
+            <div class="quote-author">— ${escapeHtml(quote.author)}</div>
           </div>
         `;
       }
 
       html += `
-    <button class="btn btn-block btn-ghost" onclick="goPage('focus')" style="margin-top:6px;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;">
+    <button class="btn btn-block btn-ghost" onclick="goPage('focus')" class="flex items-center justify-center gap-2" style="margin-top:6px;padding:14px">
       ${svgIcon('timer', 'icon')}
       Iniciar focus
     </button>
@@ -7651,7 +8884,7 @@
           <div class="status-row-v">${state.streaks.daily_log.current}</div>
         </div>
       </div>
-      <div style="text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--ink3);letter-spacing:.15em;text-transform:uppercase;padding-top:10px;border-top:1px solid var(--border2)">${rank.name}</div>
+      <div class="text-sm tracking-wider uppercase text-center text-ink3 mono" style="padding-top:10px;border-top:1px solid var(--border2)">${rank.name}</div>
     </div>
 
     ${renderOAACard()}
@@ -7699,16 +8932,16 @@
 
     <div class="card">
       <div class="card-title"><span class="card-title-text">Streaks</span></div>
-      <div style="display:flex;gap:12px;">
-        <div style="flex:1;text-align:center;">
-          <div class="display" style="font-size:34px;color:var(--sys2);text-shadow:0 0 6px var(--sys-glow);">${state.streaks.daily_log.current}</div>
-          <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.2em;text-transform:uppercase;">DÍAS ACTIVOS</div>
-          <div class="mono" style="font-size:9px;color:var(--ink4);margin-top:3px;">récord ${state.streaks.daily_log.longest}</div>
+      <div class="flex gap-3">
+        <div class="text-center flex-1">
+          <div class="display big-number text-5xl">${state.streaks.daily_log.current}</div>
+          <div class="mono data-cell-label">DÍAS ACTIVOS</div>
+          <div class="mono big-number-sub">récord ${state.streaks.daily_log.longest}</div>
         </div>
-        <div style="flex:1;text-align:center;">
-          <div class="display" style="font-size:34px;color:var(--sys2);text-shadow:0 0 6px var(--sys-glow);">${state.streaks.no_scroll_am.current}</div>
-          <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.2em;text-transform:uppercase;">MAÑANAS LIMPIAS</div>
-          <div class="mono" style="font-size:9px;color:var(--ink4);margin-top:3px;">récord ${state.streaks.no_scroll_am.longest}</div>
+        <div class="text-center flex-1">
+          <div class="display big-number text-5xl">${state.streaks.no_scroll_am.current}</div>
+          <div class="mono data-cell-label">MAÑANAS LIMPIAS</div>
+          <div class="mono big-number-sub">récord ${state.streaks.no_scroll_am.longest}</div>
         </div>
       </div>
     </div>
@@ -7724,7 +8957,7 @@
           <div class="quest dungeon completed">
             <div class="quest-head">
               <div class="quest-name">${svgIcon('trophy', 'icon icon-sm')} ${escapeHtml(b.name)}</div>
-              <div class="quest-xp" style="font-size:11px;color:var(--ink3);font-family:var(--font-mono);">${b.completedAt}</div>
+              <div class="quest-xp text-md text-ink3 mono">${b.completedAt}</div>
             </div>
             <div class="quest-progress">${STATS[b.stat].name} · +800 XP</div>
             ${b.reward ? `<div class="quest-reward">◆ ${escapeHtml(b.reward)}</div>` : ''}
@@ -7744,10 +8977,10 @@
           const ic = q.status === 'completed' ? 'check' : 'x';
           const cl = q.status === 'completed' ? 'var(--positive)' : 'var(--negative)';
           return `
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border);font-size:12px;">
+            <div class="log-row">
               <span style="color:${cl}">${svgIcon(ic, 'icon icon-sm')}</span>
-              <span style="flex:1;">${escapeHtml(q.title)}</span>
-              <span class="mono" style="font-size:9px;color:var(--ink3);">${q.date.slice(5)}</span>
+              <span class="flex-1">${escapeHtml(q.title)}</span>
+              <span class="mono log-date">${formatDate(q.date)}</span>
             </div>
           `;
         }).join('')}
@@ -7766,7 +8999,7 @@
       for (let i = 0; i < 7; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0, 10);
+        const key = dateToKey(d);
         const dayLog = load(K.log(key), null);
         if (dayLog && dayLog.habit_notes) {
           Object.entries(dayLog.habit_notes).forEach(([hId, note]) => {
@@ -7780,12 +9013,12 @@
         <div class="card">
           <div class="card-title"><span class="card-title-text">Notas recientes</span></div>
           ${notes.map(n => `
-            <div style="padding:8px 0;border-bottom:1px solid var(--border);">
-              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
-                <span style="font-size:11px;color:${n.color};">${n.label}</span>
-                <span class="mono" style="font-size:9px;color:var(--ink3);">${n.date.slice(5)}</span>
+            <div class="p-2 border-b" style="0">
+              <div class="flex items-baseline justify-between" style="margin-bottom:2px">
+                <span class="text-md" style="color:${n.color}">${n.label}</span>
+                <span class="mono log-date">${formatDate(n.date)}</span>
               </div>
-              <div style="font-size:12px;color:var(--ink);font-style:italic;">"${escapeHtml(n.note)}"</div>
+              <div class="text-base italic text-ink">"${escapeHtml(n.note)}"</div>
             </div>
           `).join('')}
         </div>
@@ -7823,18 +9056,18 @@
 
       return `
         <div class="modal-handle"></div>
-        <div class="modal-tag" style="color:var(--sys);">EVALUACIÓN ANUAL</div>
+        <div class="modal-tag text-sys">EVALUACIÓN ANUAL</div>
         <div class="modal-title">Final Exam</div>
-        <div style="font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.5;">
+        <div class="text-lg text-ink2 mb-4" style="line-height:1.5">
           Ha pasado un año desde que iniciaste el Sistema. Un ciclo orbital completo.<br><br>
-          En este tiempo, no te has limitado a marcar casillas. Has acumulado <span style="color:var(--sys2);">${xpTotal} XP</span>,
-          alcanzado el Rango <span style="color:var(--sys2);">${rank}</span>, y conquistado ${bossCount} mazmorras.<br><br>
+          En este tiempo, no te has limitado a marcar casillas. Has acumulado <span class="text-sys">${xpTotal} XP</span>,
+          alcanzado el Rango <span class="text-sys">${rank}</span>, y conquistado ${bossCount} mazmorras.<br><br>
           La consistencia es la única métrica que no miente. El Sistema ha registrado tu evolución y validado tus resultados.
           Avanza al siguiente ciclo con intención.
         </div>
-        <div style="text-align:center;padding:16px;background:var(--sys-glow);border-radius:var(--rsm);margin-bottom:16px;">
-          <div class="mono" style="font-size:10px;color:var(--sys2);letter-spacing:.2em;">ESTATUS ACTUAL</div>
-          <div class="display" style="font-size:32px;color:var(--sys);">${state.user.class || 'D'}</div>
+        <div class="text-center mb-4 p-4" style="background:var(--sys-glow);border-radius:var(--rsm)">
+          <div class="mono text-sm tracking-widest text-sys">ESTATUS ACTUAL</div>
+          <div class="display text-sys" style="font-size:32px">${state.user.class || 'D'}</div>
         </div>
         <button class="btn btn-block" onclick="closeModal()">Recibido</button>
       `;
@@ -7874,10 +9107,10 @@
       let html = `
     <div class="status-window">
       <div class="status-title">▸ CHARACTER SHEET</div>
-      <div style="text-align:center;margin-bottom:18px;">
-        <div class="mono" style="font-size:10px;color:var(--ink3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px;">${rank.name}</div>
-        <div class="display" style="font-size:48px;color:${rank.color};text-shadow:0 0 12px currentColor;line-height:1;">${escapeHtml(state.user.name)}</div>
-        <div class="mono" style="font-size:11px;color:var(--sys2);letter-spacing:.2em;margin-top:6px;">RANK ${rank.rank} · LV ${totalLevel()}</div>
+      <div class="text-center" style="margin-bottom:18px">
+        <div class="mono text-sm tracking-widest uppercase text-ink3 mb-1">${rank.name}</div>
+        <div class="display text-6xl" style="color:${rank.color};text-shadow:0 0 12px currentColor;line-height:1">${escapeHtml(state.user.name)}</div>
+        <div class="mono text-md tracking-widest text-sys" style="margin-top:6px">RANK ${rank.rank} · LV ${totalLevel()}</div>
       </div>
       <div class="status-grid">
         <div>
@@ -7924,9 +9157,9 @@
     ${renderTalentsSection()}
     ${renderExamHistory()}
 
-    <div style="display:flex;gap:6px;margin-top:8px;">
-      <button class="btn btn-ghost" style="flex:1;" onclick="openModal('export')">${svgIcon('download', 'icon')} Backup</button>
-      <button class="btn btn-ghost" style="flex:1;" onclick="exportStatusWidget()">${svgIcon('hexagon', 'icon')} Widget PNG</button>
+    <div class="mt-2 flex gap-1">
+      <button class="btn btn-ghost flex-1" onclick="openModal('export')">${svgIcon('download', 'icon')} Backup</button>
+      <button class="btn btn-ghost flex-1" onclick="exportStatusWidget()">${svgIcon('hexagon', 'icon')} Widget PNG</button>
     </div>
   `;
       return html;
@@ -7954,8 +9187,8 @@
             <span class="card-title-text">${monthNames[viewMonth]} ${viewYear}</span>
             <span class="card-action" onclick="calendarNav(1)">▸</span>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
-            ${['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(d => `<div style="text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--ink4);padding:4px 0;letter-spacing:.1em;">${d}</div>`).join('')}
+          <div class="mb-1" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
+            ${['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(d => `<div class="text-xs tracking-wide text-center text-ink4 mono" style="padding:4px 0">${d}</div>`).join('')}
           </div>
           <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">
       `;
@@ -7988,8 +9221,8 @@
         if (dayLog) {
           const sq = state.sysquest_history.find(q => q.date === key);
           if (sq) {
-            indicator = sq.status === 'completed' ? '<span style="color:var(--positive);font-size:7px;">✓</span>' :
-              sq.status === 'rejected' || sq.status === 'failed' ? '<span style="color:var(--negative);font-size:7px;">✗</span>' : '';
+            indicator = sq.status === 'completed' ? '<span class="text-positive" style="font-size:7px">✓</span>' :
+              sq.status === 'rejected' || sq.status === 'failed' ? '<span class="text-negative" style="font-size:7px">✗</span>' : '';
           }
         }
 
@@ -8001,12 +9234,19 @@
         }
 
         html += `
-          <div onclick="showDayDetail('${key}')" style="aspect-ratio:1;background:${bg};border:1px solid ${border};border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .15s var(--ease);">
-            <span style="font-family:var(--font-mono);font-size:${isToday ? '11' : '10'}px;font-weight:${isToday ? '700' : '500'};color:${habitCount > 0 ? 'var(--ink)' : 'var(--ink3)'};">${d}</span>
+          <div onclick="showDayDetail('${key}')" class="flex flex-col items-center justify-center" style="aspect-ratio:1;background:${bg};border:1px solid ${border};border-radius:var(--rsm);cursor:pointer;position:relative;transition:all .15s var(--ease)">
+            <span class="mono" style="font-size:${isToday ? '11' : '10'}px;font-weight:${isToday ? '700' : '500'};color:${habitCount > 0 ? 'var(--ink)' : 'var(--ink3)'}">${d}</span>
             ${indicator}
             ${moodDot}
           </div>
         `;
+      }
+
+      // Padding final para completar la última fila
+      const totalCells = startPad + totalDays;
+      const remaining = (7 - (totalCells % 7)) % 7;
+      for (let i = 0; i < remaining; i++) {
+        html += '<div style="aspect-ratio:1;"></div>';
       }
 
       html += `</div></div>`;
@@ -8025,18 +9265,18 @@
       html += `
         <div class="card">
           <div class="card-title"><span class="card-title-text">Resumen · ${monthNames[viewMonth]}</span></div>
-          <div style="display:flex;gap:12px;">
-            <div style="flex:1;text-align:center;">
-              <div class="display" style="font-size:28px;color:var(--sys2);">${monthDays}</div>
-              <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.15em;">DÍAS ACTIVOS</div>
+          <div class="flex gap-3">
+            <div class="text-center flex-1">
+              <div class="display big-number text-4xl">${monthDays}</div>
+              <div class="mono data-cell-label">DÍAS ACTIVOS</div>
             </div>
-            <div style="flex:1;text-align:center;">
-              <div class="display" style="font-size:28px;color:var(--sys2);">${monthHabits}</div>
-              <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.15em;">HÁBITOS</div>
+            <div class="text-center flex-1">
+              <div class="display big-number text-4xl">${monthHabits}</div>
+              <div class="mono data-cell-label">HÁBITOS</div>
             </div>
-            <div style="flex:1;text-align:center;">
-              <div class="display" style="font-size:28px;color:var(--sys2);">${monthDays > 0 ? Math.round(monthHabits / monthDays) : 0}</div>
-              <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.15em;">PROMEDIO/DÍA</div>
+            <div class="text-center flex-1">
+              <div class="display big-number text-4xl">${monthDays > 0 ? Math.round(monthHabits / monthDays) : 0}</div>
+              <div class="mono data-cell-label">PROMEDIO/DÍA</div>
             </div>
           </div>
         </div>
@@ -8057,7 +9297,7 @@
     function showDayDetail(dateKey) {
       const dayLog = load(K.log(dateKey), null);
       if (!dayLog || dayLog.habits.filter(h => h !== '__touched').length === 0) {
-        toast('Sin actividad · ' + dateKey.slice(5));
+        toast('Sin actividad · ' + formatDate(dateKey));
         return;
       }
 
@@ -8072,10 +9312,10 @@
       `;
 
       // XP por stat
-      html += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">`;
+      html += `<div class="mb-3 flex flex-wrap gap-1">`;
       Object.keys(STATS).forEach(k => {
         if (dayLog.xp_gained[k] > 0) {
-          html += `<span class="mono" style="font-size:10px;padding:3px 8px;background:${STATS[k].color}22;border:1px solid ${STATS[k].color}44;border-radius:var(--rsm);color:${STATS[k].color};">+${dayLog.xp_gained[k]} ${STATS[k].name}</span>`;
+          html += `<span class="mono text-sm" style="padding:3px 8px;background:${STATS[k].color}22;border:1px solid ${STATS[k].color}44;border-radius:var(--rsm);color:${STATS[k].color}">+${dayLog.xp_gained[k]} ${STATS[k].name}</span>`;
         }
       });
       html += `</div>`;
@@ -8087,12 +9327,12 @@
         if (h) {
           const note = dayLog.habit_notes?.[hId];
           html += `
-            <div style="padding:6px 0;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;">
-              <span style="color:${STATS[h.stat]?.color || 'var(--ink2)'};display:flex;">${svgIcon(h.icon || 'plus', 'icon icon-sm')}</span>
-              <span style="font-size:12px;flex:1;">${h.label}</span>
-              <span class="mono" style="font-size:9px;color:var(--ink3);">+${h.xp}</span>
+            <div class="flex items-center gap-2 border-t" style="padding:6px 0">
+              <span class="flex" style="color:${STATS[h.stat]?.color || 'var(--ink2)'}">${svgIcon(h.icon || 'plus', 'icon icon-sm')}</span>
+              <span class="text-base flex-1">${h.label}</span>
+              <span class="mono log-date">+${h.xp}</span>
             </div>
-            ${note ? `<div style="padding:2px 0 6px 26px;font-size:11px;color:var(--ink3);font-style:italic;">"${escapeHtml(note)}"</div>` : ''}
+            ${note ? `<div class="text-md italic text-ink3" style="padding:2px 0 6px 26px">"${escapeHtml(note)}"</div>` : ''}
           `;
         }
       });
@@ -8101,9 +9341,9 @@
       if (sq) {
         const sqColor = sq.status === 'completed' ? 'var(--positive)' : 'var(--negative)';
         html += `
-          <div class="modal-label" style="margin-top:12px;">Quest del Sistema</div>
-          <div style="padding:8px;border-left:2px solid ${sqColor};font-size:12px;">
-            <span style="color:${sqColor};font-weight:600;">${sq.status.toUpperCase()}</span> · ${escapeHtml(sq.title)}
+          <div class="modal-label mt-3">Quest del Sistema</div>
+          <div class="text-base p-2" style="border-left:2px solid ${sqColor}">
+            <span class="font-semibold" style="color:${sqColor}">${sq.status.toUpperCase()}</span> · ${escapeHtml(sq.title)}
           </div>
         `;
       }
@@ -8111,18 +9351,18 @@
       // Reflection
       if (dayLog.reflection?.closed) {
         const r = dayLog.reflection;
-        html += `<div class="modal-label" style="margin-top:12px;">Reflection</div>`;
-        if (r.journal) html += `<div style="font-size:12px;color:var(--ink2);font-style:italic;margin-bottom:6px;">"${escapeHtml(r.journal)}"</div>`;
-        html += `<div class="mono" style="font-size:10px;color:var(--ink3);">Mood: ${r.mood}/5 · Scroll: ${r.scroll}hs</div>`;
-        if (r.voiceNote) html += `<div class="mono" style="font-size:10px;color:var(--info);margin-top:4px;">🎤 Voice note guardada</div>`;
+        html += `<div class="modal-label mt-3">Reflection</div>`;
+        if (r.journal) html += `<div class="text-base italic text-ink2 mb-1">"${escapeHtml(r.journal)}"</div>`;
+        html += `<div class="mono text-sm text-ink3">Mood: ${r.mood}/5 · Scroll: ${r.scroll}hs</div>`;
+        if (r.voiceNote) html += `<div class="mono text-sm text-info mt-1">🎤 Voice note guardada</div>`;
       }
 
       // Intent
       if (dayLog.daily_intent?.items?.length > 0) {
-        html += `<div class="modal-label" style="margin-top:12px;">Intención</div>`;
+        html += `<div class="modal-label mt-3">Intención</div>`;
         dayLog.daily_intent.items.forEach((item, i) => {
           const done = dayLog.daily_intent.completed?.[i];
-          html += `<div style="font-size:12px;color:${done ? 'var(--positive)' : 'var(--ink3)'};padding:3px 0;">${done ? '✓' : '○'} ${escapeHtml(item)}</div>`;
+          html += `<div class="text-base" style="color:${done ? 'var(--positive)' : 'var(--ink3)'};padding:3px 0">${done ? '✓' : '○'} ${escapeHtml(item)}</div>`;
         });
       }
 
@@ -8149,11 +9389,11 @@
           <button class="btn btn-ghost btn-sm" onclick="setTimerMode(50)">50min</button>
           <button class="btn btn-ghost btn-sm" onclick="setTimerMode(90)">90min</button>
         </div>
-        <div style="margin-top:14px;display:flex;gap:6px;justify-content:center;">
+        <div class="flex justify-center gap-1" style="margin-top:14px">
           <button class="btn" id="timerStartBtn" onclick="toggleTimer()">▶ Iniciar</button>
           <button class="btn btn-ghost" onclick="resetTimer()">Reset</button>
         </div>
-        <div style="margin-top:24px;font-size:12px;color:var(--ink2);max-width:320px;margin-left:auto;margin-right:auto;line-height:1.6;font-family:var(--font-mono);letter-spacing:.04em;">
+        <div class="text-base tracking-tight text-ink2 mt-6 mono" style="max-width:320px;margin-left:auto;margin-right:auto;line-height:1.6">
           Antes de iniciar: el celu boca abajo, otra mesa, otra habitación. No es resistir tentaciones — es no tenerlas.
         </div>
       </div>
@@ -8161,14 +9401,14 @@
 
     <div class="card">
       <div class="card-title"><span class="card-title-text">Sesiones · hoy</span></div>
-      <div style="display:flex;gap:12px;">
-        <div style="flex:1;text-align:center;">
-          <div class="display" style="font-size:36px;color:var(--sys2);">${log.habits.filter(h => h === 'pomo').length}</div>
-          <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.2em;text-transform:uppercase;">POMODOROS</div>
+      <div class="flex gap-3">
+        <div class="text-center flex-1">
+          <div class="display big-number text-5xl">${log.habits.filter(h => h === 'pomo').length}</div>
+          <div class="mono data-cell-label">POMODOROS</div>
         </div>
-        <div style="flex:1;text-align:center;">
-          <div class="display" style="font-size:36px;color:var(--sys2);">${log.habits.filter(h => h === 'deep_work').length}</div>
-          <div class="mono" style="font-size:9px;color:var(--ink3);letter-spacing:.2em;text-transform:uppercase;">DEEP WORK</div>
+        <div class="text-center flex-1">
+          <div class="display big-number text-5xl">${log.habits.filter(h => h === 'deep_work').length}</div>
+          <div class="mono data-cell-label">DEEP WORK</div>
         </div>
       </div>
     </div>
@@ -8176,35 +9416,34 @@
     }
 
     function renderNav() {
+      const p = state.page;
       return `
-    <div class="bottom-nav">
-      <button class="nav-tab ${state.page === 'home' ? 'active' : ''}" onclick="goPage('home')">
-        ${svgIcon('home')}
-        Home
-      </button>
-      <button class="nav-tab-fab" onclick="openModal('quick')">
-        ${svgIcon('plus')}
-      </button>
-      <button class="nav-tab ${state.page === 'stats' ? 'active' : ''}" onclick="goPage('stats')">
-        ${svgIcon('chart')}
-        Status
-      </button>
-    </div>
-  `;
+        <div class="bottom-nav">
+          <button class="nav-tab ${p === 'home' ? 'active' : ''}" onclick="goPage('home')">
+            ${svgIcon('home')}
+            <span>Home</span>
+          </button>
+          <button class="nav-tab ${p === 'stats' || p === 'calendar' ? 'active' : ''}" onclick="goPage('stats')">
+            ${svgIcon('chart')}
+            <span>Status</span>
+          </button>
+          <button class="nav-tab-fab" onclick="openModal('quick')">
+            ${svgIcon('plus')}
+          </button>
+          <button class="nav-tab ${p === 'focus' ? 'active' : ''}" onclick="goPage('focus')">
+            ${svgIcon('timer')}
+            <span>Focus</span>
+          </button>
+          <button class="nav-tab ${p === 'character' ? 'active' : ''}" onclick="goPage('character')">
+            ${svgIcon('hexagon')}
+            <span>Profile</span>
+          </button>
+        </div>
+      `;
     }
 
-    function goPage(p) {
-      state.page = p;
-      render();
-      if (p === 'stats') {
-        setTimeout(() => { renderRadar(); renderHeatmap(); renderOAALine(); renderXPStack(); }, 60);
-      }
-      if (p === 'focus') {
-        setTimeout(updateTimerUI, 60);
-      }
-      window.scrollTo(0, 0);
-    }
+
   </script>
 </body>
 
-</html> 
+</html>
