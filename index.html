@@ -2885,11 +2885,25 @@
       box-shadow: 0 0 30px rgba(245, 158, 11, .3);
     }
 
-    .sysnotif.exam-variant .sysnotif-corner { border-color: var(--rank-a); }
-    .sysnotif.exam-variant .sysnotif-icon { color: var(--rank-a); }
-    .sysnotif.exam-variant .sysnotif-tag { color: var(--rank-a); }
-    .sysnotif.exam-variant .quest-progress { color: var(--rank-a); }
-    .sysnotif.exam-variant .quest-fill { background: var(--rank-a); }
+    .sysnotif.exam-variant .sysnotif-corner {
+      border-color: var(--rank-a);
+    }
+
+    .sysnotif.exam-variant .sysnotif-icon {
+      color: var(--rank-a);
+    }
+
+    .sysnotif.exam-variant .sysnotif-tag {
+      color: var(--rank-a);
+    }
+
+    .sysnotif.exam-variant .quest-progress {
+      color: var(--rank-a);
+    }
+
+    .sysnotif.exam-variant .quest-fill {
+      background: var(--rank-a);
+    }
 
     .btn-exam {
       background: var(--rank-a);
@@ -3051,12 +3065,7 @@
       }
     }
 
-    /* Auto dark/light based on system preference */
-    @media (prefers-color-scheme: light) {
-      body:not([data-theme="dark"]):not([data-theme="light"]) {
-        /* Default to system preference */
-      }
-    }
+    /* Auto dark/light based on system preference is handled by default vars */
 
     /* Selection styling */
     ::selection {
@@ -3573,6 +3582,12 @@
       { id: 'social_butterfly', name: 'Tejedor', desc: 'Vínculo lvl 10', icon: 'ach_wings' },
       { id: 'first_sysquest', name: 'Obediente', desc: '1ra Daily Quest', icon: 'ach_eye' },
       { id: 'sysquest_7', name: 'Disciplinado', desc: '7 Daily Quests', icon: 'ach_sword' },
+      { id: 'combo_master', name: 'Combo Master', desc: 'Combo ×6 en un día', icon: 'ach_fire' },
+      { id: 'streak_50', name: 'Medio centurión', desc: 'Streak de 50 días', icon: 'ach_crown' },
+      { id: 'streak_100', name: 'Centurión', desc: 'Streak de 100 días', icon: 'ach_sword' },
+      { id: 'quest_master', name: 'Quest Master', desc: '30 sysquests completadas', icon: 'ach_scroll' },
+      { id: 'ecosystem', name: 'Ecosistema', desc: 'Conectar 2+ apps', icon: 'ach_balance' },
+      { id: 'pp_millionaire', name: 'Millonario', desc: '5000 PP acumulados', icon: 'ach_crown' },
     ];
 
     // ============================================================
@@ -5153,68 +5168,131 @@
     const QUEST_TEMPLATES = {
       ruptura: [
         {
-          title: 'Ruptura del Patrón',
-          desc: 'Realizá 30 minutos de actividad física que NUNCA hayas hecho. No gym, no caminata habitual. Algo nuevo. Bicicleta, sprints, natación, lo que sea — pero distinto.',
-          reward: { stat: 'fuerza', xp: 50 },
-          penalty: { stat: 'disciplina', xp: 25 },
-          tag: 'FÍSICO',
+          title: 'Ruta no tomada',
+          desc: 'Hoy tenés que tomar una ruta diferente para ir a algún lado. Al trabajo, a tu casa, al gym. Caminá por calles nuevas. Salí del piloto automático.',
+          reward: { stat: 'sabiduria', xp: 40 },
+          penalty: { stat: 'sabiduria', xp: 20 },
+          tag: 'EXPLORACIÓN',
         },
         {
-          title: 'Comida desconocida',
-          desc: 'Cociná o pedí un plato que jamás hayas probado. Ingrediente, cocina o técnica nueva. Documentá qué sentiste.',
-          reward: { stat: 'alma', xp: 40 },
+          title: 'Día al revés',
+          desc: 'Hacé tu rutina en orden inverso. Si normalmente entrenás de noche, hacelo a la mañana. Si leés de noche, leé al mediodía. Rompé la secuencia.',
+          reward: { stat: 'disciplina', xp: 40 },
           penalty: { stat: 'disciplina', xp: 20 },
           tag: 'EXPLORACIÓN',
         },
         {
-          title: 'Ruta no tomada',
-          desc: 'Caminá por una calle de tu barrio en la que jamás hayas estado. Sin auriculares. Mirá los detalles. 20+ minutos.',
+          title: 'Conversación con un desconocido',
+          desc: 'Hablá con alguien que no conozcas. El cajero, alguien en el gym, un vecino. Más de 3 frases. Sin objetivo, solo conexión.',
+          reward: { stat: 'vinculo', xp: 45 },
+          penalty: { stat: 'vinculo', xp: 20 },
+          tag: 'VÍNCULO',
+        },
+        {
+          title: 'Contenido opuesto',
+          desc: 'Leé/mirá/escuchá algo que normalmente no consumirías. Si sos de tech, un artículo de filosofía. Si sos de deporte, un podcast de arte. 30 min mínimo.',
+          reward: { stat: 'sabiduria', xp: 35 },
+          penalty: { stat: 'sabiduria', xp: 15 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Desconexión digital diurna',
+          desc: 'Apagá el celular durante 3 horas completas durante el día. No en modo avión: apagado. Notá los impulsos de agarrarlo.',
+          reward: { stat: 'disciplina', xp: 45 },
+          penalty: { stat: 'disciplina', xp: 20 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Comida sin pantallas',
+          desc: 'Hacé tus comidas de hoy sin mirar el celular, la tele ni la compu. Comé mirando a la nada o hablando con alguien. No escapes del momento.',
           reward: { stat: 'alma', xp: 35 },
-          penalty: { stat: 'disciplina', xp: 15 },
+          penalty: { stat: 'alma', xp: 15 },
           tag: 'EXPLORACIÓN',
         },
       ],
       confrontacion: [
         {
-          title: 'Reconexión olvidada',
-          desc: 'Llamá o escribile (que no sea un like, escribile algo real) a alguien con quien hace 3+ meses no hablás. No esperes respuesta. La acción es la victoria.',
-          reward: { stat: 'vinculo', xp: 50 },
-          penalty: { stat: 'vinculo', xp: 25 },
-          tag: 'VÍNCULO',
-        },
-        {
-          title: 'La conversación pendiente',
-          desc: 'Tenés algo trabado con alguien. Lo sabés. Escribilo, llamalo, o decilo cara a cara hoy. La incomodidad es el portal.',
+          title: 'La charla difícil',
+          desc: 'Hay algo que tenés que decirle a alguien y lo venís pateando. Hoy es el día. Llamá o hablá en persona. Sin vueltas.',
           reward: { stat: 'vinculo', xp: 60 },
-          penalty: { stat: 'disciplina', xp: 30 },
-          tag: 'VÍNCULO',
+          penalty: { stat: 'vinculo', xp: 30 },
+          tag: 'INTERNO',
         },
         {
           title: 'Mostrate',
-          desc: 'Compartí algo que estés haciendo (proyecto, idea, dibujo, código, lo que sea) con al menos una persona. No para validación. Para existir.',
-          reward: { stat: 'vinculo', xp: 35 },
-          penalty: { stat: 'alma', xp: 15 },
-          tag: 'VÍNCULO',
+          desc: 'Publicá o compartí algo tuyo (trabajo, arte, pensamiento) de lo que estés orgulloso pero que te dé vergüenza mostrar. Que el mundo te vea.',
+          reward: { stat: 'alma', xp: 50 },
+          penalty: { stat: 'alma', xp: 25 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Pedí feedback real',
+          desc: 'Preguntale a alguien de confianza qué es lo que más te limita. No "qué hago bien" — qué te frena. Escuchá sin defenderte.',
+          reward: { stat: 'alma', xp: 55 },
+          penalty: { stat: 'alma', xp: 25 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Decí que no',
+          desc: 'Hoy rechazá algo que normalmente aceptarías por inercia o por quedar bien. Un plan, un favor, una invitación. Decí no con respeto y sin excusas.',
+          reward: { stat: 'disciplina', xp: 40 },
+          penalty: { stat: 'disciplina', xp: 20 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Opinión impopular',
+          desc: 'En una conversación, expresá una opinión genuina que sabés que no va a ser popular. No para provocar — para ser honesto. La autenticidad incomoda.',
+          reward: { stat: 'alma', xp: 45 },
+          penalty: { stat: 'alma', xp: 20 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Contacto visual sostenido',
+          desc: 'Hoy, cuando hables con alguien, mantené el contacto visual un poco más de lo que resulta cómodo. No bajes la mirada primero.',
+          reward: { stat: 'fuerza', xp: 40 },
+          penalty: { stat: 'fuerza', xp: 15 },
+          tag: 'INTERNO',
         },
       ],
       disciplina_pura: [
         {
-          title: 'Silencio digital',
-          desc: '90 minutos sin tocar el celular. Ni para chequear la hora. Ponelo en otra habitación. No es resistir tentaciones, es no tenerlas.',
-          reward: { stat: 'disciplina', xp: 55 },
-          penalty: { stat: 'disciplina', xp: 30 },
-          tag: 'DISCIPLINA',
-        },
-        {
-          title: 'La primera hora',
-          desc: 'La primera hora después de despertarte: sin celular, sin redes, sin pantallas. Solo vos. Café, ducha, mirar la ventana. Reclamala.',
-          reward: { stat: 'disciplina', xp: 50 },
+          title: 'Ducha fría obligatoria',
+          desc: 'Los últimos 60 segundos de tu ducha tienen que ser con el agua lo más fría posible. No podés moverte. Respirá hondo y controlá la reacción.',
+          reward: { stat: 'disciplina', xp: 45 },
           penalty: { stat: 'disciplina', xp: 25 },
           tag: 'DISCIPLINA',
         },
         {
           title: 'Sesión profunda',
-          desc: 'Una sesión de deep work de 90 min sin interrupciones en lo que más estés procrastinando. Timer arrancado. Cero distracciones.',
+          desc: 'Hacé una sesión de Deep Work de 90 minutos ininterrumpidos. Celular en otra habitación, wifi apagado si no lo necesitás. Solo vos y la tarea.',
+          reward: { stat: 'disciplina', xp: 50 },
+          penalty: { stat: 'disciplina', xp: 25 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Inbox zero',
+          desc: 'Vaciá completamente tu inbox de mail, mensajes pendientes, y notificaciones. Todo: respondido, archivado o eliminado. Sin dejar nada para después.',
+          reward: { stat: 'disciplina', xp: 45 },
+          penalty: { stat: 'disciplina', xp: 20 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Plan escrito',
+          desc: 'Antes de empezar el día, escribí un plan hora por hora de las próximas 8 horas. Después seguilo. No importa si se desvía — importa que existió.',
+          reward: { stat: 'disciplina', xp: 50 },
+          penalty: { stat: 'disciplina', xp: 25 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Orden físico',
+          desc: 'Ordená un espacio que estés ignorando. El escritorio, un cajón, el placard. Limpieza profunda, no superficial. El orden externo ordena adentro.',
+          reward: { stat: 'alma', xp: 35 },
+          penalty: { stat: 'disciplina', xp: 15 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Ayunar de dopamina',
+          desc: 'Cero redes sociales, YouTube o entretenimiento digital en todo el día. Cero. Aburrite.',
           reward: { stat: 'disciplina', xp: 60 },
           penalty: { stat: 'disciplina', xp: 30 },
           tag: 'DISCIPLINA',
@@ -5222,70 +5300,133 @@
       ],
       curiosidad: [
         {
-          title: 'Profundizá un rabbit hole',
-          desc: 'Elegí UN tema que te genere curiosidad y dedicale 45 minutos serios. Wikipedia, papers, videos. Tomá 5 notas mínimo.',
+          title: 'Lectura larga',
+          desc: 'Leé un artículo, ensayo o capítulo de libro largo (mínimo 30 min de lectura) sobre un tema complejo que no domines. No resúmenes.',
           reward: { stat: 'sabiduria', xp: 45 },
           penalty: { stat: 'sabiduria', xp: 20 },
           tag: 'EXPLORACIÓN',
         },
         {
-          title: 'Una pregunta incómoda',
-          desc: 'Investigá durante 30 min algo que te incomoda no saber. Una pregunta que evitás. Buscá respuestas reales, no resúmenes.',
+          title: 'Aprendé un skill mínimo',
+          desc: 'Hoy tenés que aprender a hacer algo nuevo que tome menos de 30 minutos. Ej: hacer malabares con 3 pelotas, unas palabras en italiano, atar un nudo complejo.',
           reward: { stat: 'sabiduria', xp: 40 },
           penalty: { stat: 'sabiduria', xp: 20 },
           tag: 'EXPLORACIÓN',
         },
         {
-          title: 'Aprendé un skill mínimo',
-          desc: 'Hoy aprendé algo nuevo y concreto. Un atajo de teclado. Una palabra en italiano. Un acorde. Una receta. Lo que sea — pero aplicalo antes de dormir.',
-          reward: { stat: 'sabiduria', xp: 35 },
-          penalty: { stat: 'sabiduria', xp: 15 },
+          title: 'Enseñale a alguien',
+          desc: 'Algo que sabés bien. Explicalo desde cero a otra persona. 15+ minutos. No importa el tema — el acto de enseñar te fuerza a entenderlo mejor.',
+          reward: { stat: 'sabiduria', xp: 45 },
+          penalty: { stat: 'sabiduria', xp: 20 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Reverse-engineer algo',
+          desc: 'Elegí una app, un diseño, un edificio, una estrategia de negocio. Desarmalo mentalmente: ¿por qué funciona? ¿qué decisiones tomaron? Escribí tus conclusiones.',
+          reward: { stat: 'sabiduria', xp: 50 },
+          penalty: { stat: 'sabiduria', xp: 25 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Documentá tu proceso',
+          desc: 'Hoy, mientras hacés cualquier tarea, documentala como si fuera un tutorial para otra persona. Screenshots, notas, pasos. El meta-trabajo aclara el trabajo.',
+          reward: { stat: 'sabiduria', xp: 40 },
+          penalty: { stat: 'sabiduria', xp: 20 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Investigación obsesiva',
+          desc: 'Elegí un tema hiper específico (ej: la caída del imperio bizantino, cómo funciona un motor de 4 tiempos). Dedicale 45 minutos a investigarlo a fondo.',
+          reward: { stat: 'sabiduria', xp: 50 },
+          penalty: { stat: 'sabiduria', xp: 20 },
           tag: 'EXPLORACIÓN',
         },
       ],
       vulnerabilidad: [
         {
-          title: 'La página difícil',
-          desc: 'Escribí una página entera (mínimo) sobre algo que te asusta, te avergüenza o te confunde. Nadie tiene que leerla. Vos sí.',
-          reward: { stat: 'alma', xp: 55 },
-          penalty: { stat: 'alma', xp: 25 },
-          tag: 'INTERNO',
-        },
-        {
-          title: 'Inventario honesto',
-          desc: 'Hacé una lista de 5 cosas que estás postergando porque te dan miedo. Anotalas literal. Una al lado de la otra. Sin actuar todavía.',
+          title: 'Diario sin filtros',
+          desc: 'Escribí 2 páginas en un cuaderno vaciando tu cabeza. Literalmente lo que venga, sin corregir, sin pensar si suena bien. Que salga la basura.',
           reward: { stat: 'alma', xp: 40 },
           penalty: { stat: 'alma', xp: 20 },
           tag: 'INTERNO',
         },
         {
           title: 'El cumplido pendiente',
-          desc: 'Decile algo genuino a alguien que admirás. No "qué bueno lo que hacés". Específico. Por qué te importa. Hoy.',
+          desc: 'Pensá en alguien que aprecies pero que hace mucho no se lo decís. Escribile un mensaje honesto, sin ironía ni excusas. Solo aprecio real.',
           reward: { stat: 'vinculo', xp: 45 },
           penalty: { stat: 'vinculo', xp: 20 },
           tag: 'VÍNCULO',
         },
+        {
+          title: 'Carta no enviada',
+          desc: 'Escribí una carta a alguien importante. Decile todo lo que nunca dijiste. No la envíes (o sí, eso es tu decisión). El acto de escribirla es la quest.',
+          reward: { stat: 'alma', xp: 50 },
+          penalty: { stat: 'alma', xp: 25 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Reconocé un error',
+          desc: 'Pensá en algo que hiciste mal esta semana. Admitilo internamente sin justificarte. Si involucra a alguien más, considerá decírselo.',
+          reward: { stat: 'vinculo', xp: 40 },
+          penalty: { stat: 'vinculo', xp: 20 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Sentate con la incomodidad',
+          desc: '15 minutos en silencio. Sin celular, sin música, sin nada. Solo vos y lo que aparezca. No medites — solo estate ahí. Lo que querías evitar va a aparecer.',
+          reward: { stat: 'alma', xp: 45 },
+          penalty: { stat: 'alma', xp: 20 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Perdoná una deuda',
+          desc: 'Perdoná a alguien mentalmente por algo que te hizo. Soltá el resentimiento, no por ellos, sino porque cargar eso gasta tu propia energía.',
+          reward: { stat: 'alma', xp: 55 },
+          penalty: { stat: 'alma', xp: 25 },
+          tag: 'INTERNO',
+        },
       ],
       fisico_extremo: [
         {
-          title: 'Superá un récord',
-          desc: 'En lo que sea: más reps, más peso, más distancia, más velocidad. Aunque sea por 1. Hoy.',
+          title: 'El sprint final',
+          desc: 'En tu entrenamiento de hoy, los últimos 5 minutos tienen que ser a máxima intensidad. Hasta quedar sin aire. Vaciá el tanque completamente.',
+          reward: { stat: 'fuerza', xp: 50 },
+          penalty: { stat: 'fuerza', xp: 25 },
+          tag: 'FÍSICO',
+        },
+        {
+          title: 'Movimiento sin pausa',
+          desc: 'Entrená o corré sin hacer pausas para mirar el celular o escuchar música. Solo vos y el esfuerzo. 45 min mínimo.',
+          reward: { stat: 'fuerza', xp: 50 },
+          penalty: { stat: 'fuerza', xp: 25 },
+          tag: 'FÍSICO',
+        },
+        {
+          title: 'Sets hasta el fallo',
+          desc: 'Elegí un ejercicio. Hacé 5 sets hasta el fallo muscular real. No pares antes. El último rep es el que cuenta.',
           reward: { stat: 'fuerza', xp: 55 },
           penalty: { stat: 'fuerza', xp: 25 },
           tag: 'FÍSICO',
         },
         {
-          title: 'Frío deliberado',
-          desc: 'Ducha fría 2 min mínimo. O salida sin abrigo. El cuerpo agradece la incomodidad elegida.',
-          reward: { stat: 'fuerza', xp: 45 },
-          penalty: { stat: 'fuerza', xp: 20 },
+          title: 'Caminata larga deliberada',
+          desc: 'Caminá 90+ minutos sin parar. Sin destino fijo. Ritmo sostenido. Resistencia mental + física. Llevá agua.',
+          reward: { stat: 'fuerza', xp: 50 },
+          penalty: { stat: 'fuerza', xp: 25 },
           tag: 'FÍSICO',
         },
         {
-          title: 'Movimiento sin pausa',
-          desc: '60 minutos de movimiento continuo. Caminata larga, baile, deporte. Sin sentarte. Sin pausas largas.',
-          reward: { stat: 'fuerza', xp: 50 },
-          penalty: { stat: 'fuerza', xp: 25 },
+          title: 'Madrugá para entrenar',
+          desc: 'Poné alarma 90 minutos antes de lo normal. Usá ese tiempo para entrenar. El sacrificio del sueño no es el punto — la voluntad de ejecutar a esa hora sí.',
+          reward: { stat: 'disciplina', xp: 50 },
+          penalty: { stat: 'disciplina', xp: 25 },
+          tag: 'FÍSICO',
+        },
+        {
+          title: 'Estiramiento doloroso',
+          desc: 'Sesión de flexibilidad de 20 minutos. Sostené las posturas 60 segundos completos, atravesando el momento donde querés aflojar.',
+          reward: { stat: 'fuerza', xp: 40 },
+          penalty: { stat: 'fuerza', xp: 20 },
           tag: 'FÍSICO',
         },
       ],
@@ -5380,7 +5521,34 @@
 
     function save(key, value) {
       try { localStorage.setItem(key, JSON.stringify(value)); }
-      catch (e) { console.error('save failed', key, e); }
+      catch (e) {
+        if (e.name === 'QuotaExceededError' || e.code === 22) {
+          // Storage full — try to clean up old logs
+          console.warn('Storage quota exceeded, cleaning old logs');
+          try {
+            // Delete logs older than 180 days
+            const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() - 180);
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+            keys.forEach(k => {
+              if (k.startsWith('mo_log_')) {
+                const dateStr = k.replace('mo_log_', '');
+                const d = new Date(dateStr);
+                if (d < cutoff) localStorage.removeItem(k);
+              }
+            });
+            // Try save again
+            localStorage.setItem(key, JSON.stringify(value));
+            toast('Almacenamiento limpiado · logs antiguos eliminados', 'positive');
+          } catch (e2) {
+            console.error('save retry failed', key, e2);
+            toast('Almacenamiento lleno · exportá backup', 'danger');
+          }
+        } else {
+          console.error('save failed', key, e);
+        }
+      }
     }
 
     function dateToKey(date) {
@@ -5395,6 +5563,7 @@
     // ============================================================
     // STATE
     // ============================================================
+    const VERSION = 'momentum-v3.7.0-ecosystem';
     let state = {
       user: load(K.user, null),
       xp: load(K.xp, { fuerza: 0, sabiduria: 0, disciplina: 0, alma: 0, vinculo: 0, juego: 0 }),
@@ -5421,6 +5590,7 @@
       examHistory: load(K.examHistory, []),
       talents: load(K.talents, []),
       examTitles: load('mo_exam_titles', []),
+      ecosystem: load('mo_ecosystem', {}),
       weeklyReports: load(K.weeklyReports, []),
       ayanokoji: load(K.ayanokoji, { lastMessage: null, messages: [] }),
       page: 'home',
@@ -5451,6 +5621,7 @@
       save(K.examHistory, state.examHistory);
       save(K.talents, state.talents);
       if (state.examTitles) save('mo_exam_titles', state.examTitles);
+      save('mo_ecosystem', state.ecosystem);
       save(K.weeklyReports, state.weeklyReports);
       save(K.ayanokoji, state.ayanokoji);
     }
@@ -5562,6 +5733,12 @@
       }
 
       log.habits.push(habitId);
+      // First of the day bonus
+      const realHabits = log.habits.filter(x => x !== '__touched');
+      if (realHabits.length === 1) {
+        xpToAdd += 5;
+        setTimeout(() => sysToast('PRIMER LOG DEL DÍA · +5 BONUS'), 400);
+      }
       // Prompt nota (no-blocking, aparece después)
       setTimeout(() => promptHabitNote(habitId), 800);
       if (xpToAdd > 0) {
@@ -5588,6 +5765,7 @@
       updateQuestsFromHabit(habitId, h.stat);
       checkDailyIntentBonus();
       checkAchievements();
+      checkDailyCombo();
 
       saveLog(log);
       persist();
@@ -5704,6 +5882,36 @@
       else s.current = 1;
       if (s.current > s.longest) s.longest = s.current;
       s.last = today;
+
+      // Streak milestones — XP + PP bonuses
+      const milestones = [7, 14, 21, 30, 50, 75, 100];
+      if (milestones.includes(s.current)) {
+        const bonus = s.current * 3;
+        Object.keys(STATS).forEach(k => state.xp[k] += Math.floor(bonus / 6));
+        earnPP(s.current * 2, 'streak_milestone_' + s.current);
+        setTimeout(() => sysToast(`STREAK ${s.current} DÍAS · +${bonus} XP · +${s.current * 2} PP`, 'positive'), 800);
+      }
+    }
+
+    function checkDailyCombo() {
+      const statsHit = new Set();
+      log.habits.forEach(h => {
+        const habit = findHabit(h);
+        if (habit) statsHit.add(habit.stat);
+      });
+      const comboLevel = statsHit.size;
+      if (comboLevel >= 3 && !log.comboBonusGiven) {
+        const bonus = comboLevel === 3 ? 10 : comboLevel === 4 ? 20 : comboLevel === 5 ? 35 : comboLevel >= 6 ? 50 : 0;
+        if (bonus > 0) {
+          Object.keys(STATS).forEach(k => {
+            if (statsHit.has(k)) state.xp[k] += Math.floor(bonus / statsHit.size);
+          });
+          log.comboBonusGiven = true;
+          saveLog(log);
+          persist();
+          setTimeout(() => sysToast(`COMBO ×${comboLevel} · +${bonus} XP`, 'positive'), 600);
+        }
+      }
     }
 
     function checkDailyIntentBonus() {
@@ -5990,6 +6198,16 @@
       const completedSysQ = state.sysquest_history.filter(q => q.status === 'completed').length;
       if (!has('first_sysquest') && completedSysQ >= 1) unlockAchievement('first_sysquest');
       if (!has('sysquest_7') && completedSysQ >= 7) unlockAchievement('sysquest_7');
+      if (!has('combo_master') && log.comboBonusGiven) {
+        const statsHit = new Set();
+        log.habits.forEach(h => { const hab = findHabit(h); if (hab) statsHit.add(hab.stat); });
+        if (statsHit.size >= 6) unlockAchievement('combo_master');
+      }
+      if (!has('streak_50') && state.streaks.daily_log.longest >= 50) unlockAchievement('streak_50');
+      if (!has('streak_100') && state.streaks.daily_log.longest >= 100) unlockAchievement('streak_100');
+      if (!has('quest_master') && state.sysquest_history.filter(q => q.status === 'completed').length >= 30) unlockAchievement('quest_master');
+      if (!has('ecosystem') && state.ecosystem && Object.keys(state.ecosystem).filter(k => state.ecosystem[k]?.enabled).length >= 2) unlockAchievement('ecosystem');
+      if (!has('pp_millionaire') && state.ppLog.filter(l => l.type === 'earn').reduce((s, l) => s + l.amount, 0) >= 5000) unlockAchievement('pp_millionaire');
     }
 
     function getEmptyDaysCount() {
@@ -6148,7 +6366,7 @@
       if (!ppEnabled()) return '';
       const weekEarned = state.ppLog.filter(l => l.type === 'earn' && daysSince(l.date) <= 7).reduce((s, l) => s + l.amount, 0);
       return `
-        <div class="card" onclick="openModal('pp')" class="clickable">
+        <div class="card clickable" onclick="openModal('pp')">
           <div class="card-title">
             <span class="card-title-text">Private Points</span>
             <span class="card-action">ver</span>
@@ -7218,6 +7436,8 @@
         case 'quick': html = modalQuick(); break;
         case 'intent': html = modalIntent(); break;
         case 'custom': html = modalCustom(); break;
+        case 'ecosystem': html = modalEcosystem(); break;
+        case 'period_eval': html = modalPeriodEval(); break;
         case 'settings': html = modalSettings(); break;
         case 'dungeon_create': html = modalDungeonCreate(); break;
         case 'dungeon_view': html = modalDungeonView(args[0]); break;
@@ -7618,6 +7838,231 @@
         reward,
       });
       closeModal();
+    }
+
+    function modalEcosystem() {
+      if (!state.ecosystem) state.ecosystem = {};
+
+      return `
+        <div class="modal-handle"></div>
+        <div class="modal-tag">ECOSISTEMA</div>
+        <div class="modal-title">Apps de Rodrigo</div>
+        <div class="modal-sub">Importá datos de tus otras apps para auto-logging.</div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-name">GymBrain</div>
+            <div class="setting-sub">${state.ecosystem.gymbrain?.lastImport ? 'Último: ' + formatDate(state.ecosystem.gymbrain.lastImport) : 'Sin conectar'}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="importFromApp('gymbrain')">Importar</button>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-name">BookPick</div>
+            <div class="setting-sub">${state.ecosystem.bookpick?.lastImport ? 'Último: ' + formatDate(state.ecosystem.bookpick.lastImport) : 'Sin conectar'}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="importFromApp('bookpick')">Importar</button>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-name">FinTrack</div>
+            <div class="setting-sub">${state.ecosystem.fintrack?.lastImport ? 'Último: ' + formatDate(state.ecosystem.fintrack.lastImport) : 'Sin conectar'}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="importFromApp('fintrack')">Importar</button>
+        </div>
+
+        <div class="mt-4 text-center">
+          <div class="mono text-xs text-ink3 tracking-wide mb-3">O pegá un export JSON de cualquier app:</div>
+          <textarea class="input mono text-xs" id="ecoImportJSON" placeholder='{"app":"gymbrain","data":{...}}' style="min-height:80px;"></textarea>
+          <button class="btn btn-block btn-ghost mt-2" onclick="processEcoImport()">Procesar</button>
+        </div>
+      `;
+    }
+
+    function importFromApp(appName) {
+      customPrompt(
+        'Pegá el JSON de ' + appName,
+        'JSON export de la app',
+        '',
+        (json) => {
+          if (!json) return;
+          try {
+            const data = JSON.parse(json);
+            processAppData(appName, data);
+          } catch (e) {
+            toast('JSON inválido', 'danger');
+          }
+        }
+      );
+    }
+
+    function processEcoImport() {
+      const txt = document.getElementById('ecoImportJSON')?.value?.trim();
+      if (!txt) return;
+      try {
+        const data = JSON.parse(txt);
+        const app = data.app || detectApp(data);
+        if (app) {
+          processAppData(app, data);
+        } else {
+          toast('App no reconocida', 'danger');
+        }
+      } catch (e) {
+        toast('JSON inválido', 'danger');
+      }
+    }
+
+    function detectApp(data) {
+      // Heurísticas para detectar de qué app viene
+      if (data.exercises || data.workouts || data.gb_) return 'gymbrain';
+      if (data.books || data.bp_ || data.reading) return 'bookpick';
+      if (data.transactions || data.ft_ || data.budget) return 'fintrack';
+      return null;
+    }
+
+    function processAppData(appName, data) {
+      if (!state.ecosystem) state.ecosystem = {};
+      if (!state.ecosystem[appName]) state.ecosystem[appName] = {};
+      if (!data || typeof data !== 'object') {
+        toast('Datos inválidos', 'danger');
+        return;
+      }
+
+      const today = todayKey();
+
+      try {
+        switch (appName) {
+          case 'gymbrain': {
+            // Detectar si hubo workout hoy
+            const workouts = data.workouts || data.gb_workouts || [];
+            const todayWorkout = Array.isArray(workouts) && workouts.find(w => {
+              const d = w?.date || w?.timestamp;
+              return d && typeof d === 'string' && d.includes(today);
+            });
+            if (todayWorkout && !log.habits.includes('gym')) {
+              logHabit('gym');
+              sysToast('GYMBRAIN · WORKOUT DETECTADO');
+            }
+            state.ecosystem.gymbrain.lastImport = today;
+            state.ecosystem.gymbrain.enabled = true;
+            persist();
+            toast('GymBrain importado', 'positive');
+            break;
+          }
+          case 'bookpick': {
+            // Detectar lectura reciente
+            const sessions = data.sessions || data.bp_sessions || data.reading || [];
+            const todaySession = Array.isArray(sessions) && sessions.find(s => {
+              const d = s?.date || s?.timestamp;
+              return d && typeof d === 'string' && d.includes(today);
+            });
+            if (todaySession && !log.habits.includes('read25')) {
+              logHabit('read25');
+              sysToast('BOOKPICK · LECTURA DETECTADA');
+            }
+            state.ecosystem.bookpick.lastImport = today;
+            state.ecosystem.bookpick.enabled = true;
+            persist();
+            toast('BookPick importado', 'positive');
+            break;
+          }
+          case 'fintrack': {
+            // FinTrack no genera hábitos directamente, pero si hay transacciones
+            // de hoy, lo registramos como dato de contexto
+            state.ecosystem.fintrack.lastImport = today;
+            state.ecosystem.fintrack.enabled = true;
+            persist();
+            toast('FinTrack importado', 'positive');
+            break;
+          }
+        }
+      } catch (e) {
+        console.warn('processAppData error:', e.message);
+        toast('Error procesando datos', 'danger');
+        return;
+      }
+      closeModal();
+      openModal('ecosystem');
+    }
+
+    function modalPeriodEval() {
+      const oaa = getCurrentOAA();
+      if (!oaa || oaa.total === null) return '<div class="modal-handle"></div><div class="modal-title">Datos insuficientes</div>';
+
+      const rank = currentRank();
+      const cls = classCode(state.currentClass || 'D');
+      const reports = state.weeklyReports.slice(-4);
+      const avgOAA = reports.length > 0 ? reports.reduce((s, r) => s + (r.oaa.total || 0), 0) / reports.length : oaa.total;
+      const prevMonth = state.weeklyReports.slice(-8, -4);
+      const prevAvg = prevMonth.length > 0 ? prevMonth.reduce((s, r) => s + (r.oaa.total || 0), 0) / prevMonth.length : null;
+      const delta = prevAvg !== null ? avgOAA - prevAvg : 0;
+
+      const verdict = delta > 1 ? 'ASCENSO RECOMENDADO' : delta < -1 ? 'DESCENSO EN EVALUACIÓN' : 'MANTENER POSICIÓN';
+      const verdictColor = delta > 1 ? 'var(--positive)' : delta < -1 ? 'var(--negative)' : 'var(--info)';
+
+      const totalHabits = getRecentLogs(30).reduce((s, l) => s + l.habits.filter(h => h !== '__touched').length, 0);
+      const sysqCompleted = state.sysquest_history.filter(q => daysSince(q.date) <= 30 && q.status === 'completed').length;
+      const sysqTotal = state.sysquest_history.filter(q => daysSince(q.date) <= 30).length;
+
+      return `
+        <div class="modal-handle"></div>
+        <div class="mono text-xs tracking-widest text-sys mb-2 text-center uppercase">Evaluación de período</div>
+        <div class="display text-4xl text-center mb-1" style="color:${verdictColor}">${verdict}</div>
+        <div class="mono text-sm text-ink3 text-center tracking-wider mb-4">Período: últimos 30 días · Rank ${rank.rank} · Clase ${cls}</div>
+
+        <div class="sys-frame mb-4">
+          <div class="grid-2 gap-3 text-center">
+            <div>
+              <div class="data-cell-label">OAA PROMEDIO</div>
+              <div class="big-number text-5xl">${numToLetter(avgOAA)}</div>
+            </div>
+            <div>
+              <div class="data-cell-label">DELTA VS ANTERIOR</div>
+              <div class="big-number text-5xl" style="color:${verdictColor}">${delta > 0 ? '+' : ''}${delta.toFixed(1)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-label">Métricas del período</div>
+        <div class="grid-2 gap-2 mb-4">
+          <div class="data-cell">
+            <div class="data-cell-label">Hábitos</div>
+            <div class="data-cell-value text-sys">${totalHabits}</div>
+          </div>
+          <div class="data-cell">
+            <div class="data-cell-label">Sysquests</div>
+            <div class="data-cell-value text-sys">${sysqCompleted}/${sysqTotal}</div>
+          </div>
+          <div class="data-cell">
+            <div class="data-cell-label">Streak actual</div>
+            <div class="data-cell-value text-sys">${state.streaks.daily_log.current}d</div>
+          </div>
+          <div class="data-cell">
+            <div class="data-cell-label">PP ganados</div>
+            <div class="data-cell-value text-sys">+${state.ppLog.filter(l => l.type === 'earn' && daysSince(l.date) <= 30).reduce((s, l) => s + l.amount, 0)}</div>
+          </div>
+        </div>
+
+        <div class="modal-label">Dimensiones</div>
+        <div class="mb-4">
+          ${['academico', 'fisico', 'mental', 'social', 'identidad'].map(d => {
+        const name = { academico: 'Académico', fisico: 'Físico', mental: 'Mental', social: 'Social', identidad: 'Identidad' }[d];
+        const val = oaa.dims[d];
+        return `
+              <div class="report-dim-row">
+                <span class="mono text-md font-semibold tracking-wide uppercase">${name}</span>
+                <span class="display text-2xl text-sys">${val !== null ? numToLetter(val) : '—'}</span>
+              </div>
+            `;
+      }).join('')}
+        </div>
+
+        <div class="mono text-xs text-ink4 tracking-wider uppercase text-center section-divider">El Sistema ha registrado esta evaluación</div>
+
+        <button class="btn btn-block mt-4" onclick="closeModal()">Cerrar</button>
+      `;
     }
 
     function openBoss(id) { openModal('dungeon_view', id); }
@@ -8410,6 +8855,7 @@
         maybeAyanokojiMessage();
         // V3.4: Final Exam anual
         maybeShowFinalExam();
+        maybePeriodEval();
         // V3.1: API integrations (async, non-blocking)
         if (state.user?.settings?.chess?.username) autoLogChess();
         fetchDailyQuote();
@@ -8470,8 +8916,8 @@
       const clsCode = classCode(cls);
       return `
     <div class="header">
-            ${state.page !== "home" ? `<button class="header-btn header-btn-back" onclick="goPage("home")">${svgIcon("chevron", "icon")}</button>` : ""}
-      <div class="avatar" onclick="goPage("character")">${init}</div>
+            ${state.page !== 'home' ? `<button class="header-btn header-btn-back" onclick="goPage('${state.page === 'calendar' ? 'stats' : 'home'}')">${svgIcon('chevron', 'icon')}</button>` : ''}
+      <div class="avatar" onclick="goPage('character')">${init}</div>
       <div class="header-info">
         <div class="header-tag">${rank.name}</div>
         <div class="header-title">
@@ -8546,8 +8992,10 @@
       }
 
       // Check-in días vacíos
+      // No mostrar check-in si el usuario tiene menos de 7 días de uso
+      const userAge = daysSinceCreated();
       const emptyDays = getEmptyDaysCount();
-      if (emptyDays >= 5) {
+      if (emptyDays >= 5 && userAge > 7) {
         html += `
       <div class="checkin serious">
         <div class="checkin-tag">REGISTRO INTERRUMPIDO</div>
@@ -8558,7 +9006,7 @@
         </div>
       </div>
     `;
-      } else if (emptyDays >= 3) {
+      } else if (emptyDays >= 3 && userAge > 5) {
         html += `
       <div class="checkin">
         <div class="checkin-tag">ATENCIÓN</div>
@@ -9028,6 +9476,27 @@
     // ============================================================
     // V3.4 — FINAL EXAM & WIDGET
     // ============================================================
+
+    function maybePeriodEval() {
+      const today = todayKey();
+      const lastEval = state.uiState.last_period_eval;
+      if (lastEval) {
+        const daysSinceLast = daysSince(lastEval);
+        if (daysSinceLast < 28) return; // mínimo 28 días entre evaluaciones
+      }
+      // Solo trigger el primer día del mes o cada 30 días
+      const dayOfMonth = new Date().getDate();
+      if (dayOfMonth > 3 && lastEval) return;
+
+      if (!lastEval || daysSince(lastEval) >= 28) {
+        state.uiState.last_period_eval = today;
+        persist();
+        setTimeout(() => {
+          sysToast('EVALUACIÓN DE PERÍODO');
+          setTimeout(() => openModal('period_eval'), 1500);
+        }, 2000);
+      }
+    }
 
     function maybeShowFinalExam() {
       if (!state.creationDate) return;
