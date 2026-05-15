@@ -160,7 +160,7 @@
     .app {
       max-width: 500px;
       margin: 0 auto;
-      padding: env(safe-area-inset-top) 0 calc(100px + env(safe-area-inset-bottom)) 0;
+      padding: 0 0 calc(100px + env(safe-area-inset-bottom)) 0;
       min-height: 100dvh;
       position: relative;
       z-index: 1;
@@ -268,13 +268,18 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 14px 16px 10px;
+      padding: calc(14px + env(safe-area-inset-top)) 16px 10px;
       position: sticky;
       top: 0;
       z-index: 50;
-      background: linear-gradient(180deg, var(--bg) 75%, transparent 100%);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: var(--bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    body[data-theme="light"] .header {
+      background: var(--bg);
     }
 
     .avatar {
@@ -3173,18 +3178,18 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 14px 16px 10px;
+      padding: calc(14px + env(safe-area-inset-top)) 16px 10px;
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(5, 4, 10, .8);
+      background: rgba(5, 4, 10, .92);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       border-bottom: 1px solid var(--border);
     }
 
     body[data-theme="light"] .header {
-      background: rgba(245, 243, 248, .85);
+      background: rgba(245, 243, 248, .92);
     }
 
     .onb-frame {
@@ -3391,6 +3396,83 @@
       100% {
         transform: translateX(100%);
       }
+    }
+
+    /* === V3.8: Collapsible sections === */
+    .card-collapse {
+      overflow: hidden;
+      max-height: 2000px;
+      transition: max-height .4s var(--ease), opacity .3s var(--ease);
+      opacity: 1;
+    }
+
+    .card-collapse.collapsed {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    .card-title.collapsible {
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .card-title.collapsible::after {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-right: 1.5px solid var(--ink3);
+      border-bottom: 1.5px solid var(--ink3);
+      transform: rotate(45deg);
+      transition: transform .25s var(--ease);
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .card-title.collapsible.is-collapsed::after {
+      transform: rotate(-45deg);
+    }
+
+    /* === V3.8: Daily progress bar === */
+    .daily-progress {
+      height: 2px;
+      background: var(--border);
+      position: relative;
+      margin: 0 16px;
+    }
+
+    .daily-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--sys), var(--cyan));
+      transition: width .8s var(--ease);
+      border-radius: 1px;
+      position: relative;
+    }
+
+    .daily-progress-fill.has-progress::after {
+      content: '';
+      position: absolute;
+      right: -3px;
+      top: -2px;
+      width: 6px;
+      height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    /* === V3.8: Breathing === */
+    .section-gap {
+      height: 6px;
+    }
+
+    .page > .card + .card {
+      margin-top: 14px;
+    }
+
+    .page > .sysnotif + .card,
+    .page > .card + .sysnotif {
+      margin-top: 16px;
     }
   </style>
 </head>
@@ -6224,7 +6306,13 @@
     }
 
     const PAGE_ORDER = ["home", "stats", "focus", "character", "calendar"];
+    const pageHistory = [];
+
     function goPage(p) {
+      if (state.page && state.page !== p) {
+        pageHistory.push(state.page);
+        if (pageHistory.length > 10) pageHistory.shift();
+      }
       const oldIdx = PAGE_ORDER.indexOf(state.page);
       const newIdx = PAGE_ORDER.indexOf(p);
       state.pageDirection = newIdx > oldIdx ? "right" : "left";
@@ -6236,6 +6324,15 @@
       if (p === 'focus') {
         setTimeout(updateTimerUI, 60);
       }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function goBack() {
+      const prev = pageHistory.pop() || 'home';
+      state.page = prev;
+      render();
+      if (prev === 'stats') setTimeout(() => { renderRadar(); renderHeatmap(); renderOAALine(); renderXPStack(); }, 60);
+      if (prev === 'focus') setTimeout(updateTimerUI, 60);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -7580,7 +7677,7 @@
       const stat = statBtn?.dataset.val || 'alma';
       const xp = Math.max(3, Math.min(20, parseInt(document.getElementById('customXP').value) || 6));
       const customsForStat = state.custom.filter(c => c.stat === stat).length;
-      if (customsForStat >= 3) { toast('Máx 3 customs por stat'); return; }
+      if (customsForStat >= 7) { toast('Máx 7 customs por stat'); return; }
       state.custom.push({ id: 'custom_' + Date.now(), label, stat, xp, icon: 'plus' });
       persist();
       closeModal();
@@ -8826,6 +8923,97 @@
     }
 
     // ============================================================
+    // V3.8: COLLAPSIBLE SECTIONS
+    // ============================================================
+    function isCollapsed(sectionId) {
+      return state.uiState.collapsed?.[sectionId] || false;
+    }
+
+    function toggleCollapse(sectionId) {
+      if (!state.uiState.collapsed) state.uiState.collapsed = {};
+      state.uiState.collapsed[sectionId] = !state.uiState.collapsed[sectionId];
+      persist();
+      const el = document.getElementById('collapse_' + sectionId);
+      const title = document.querySelector(`[data-collapse="${sectionId}"]`);
+      if (el) el.classList.toggle('collapsed');
+      if (title) title.classList.toggle('is-collapsed');
+    }
+
+    // ============================================================
+    // V3.8: MICRO-NARRATIVA DEL SISTEMA
+    // ============================================================
+    const SYSTEM_PHRASES = {
+      habit_first: [
+        'Primer movimiento del día.',
+        'El Sistema registra actividad.',
+        'Arrancaste.',
+      ],
+      habit_combo_3: [
+        'Diversificación. El Sistema aprueba.',
+        'Tres dimensiones activas.',
+        'Balance en progreso.',
+      ],
+      habit_combo_6: [
+        'Las 6 dimensiones activas. Excepcional.',
+        'Cobertura completa.',
+        'Operación en todas las frecuencias.',
+      ],
+      reflection_good: [
+        'Día registrado. Descansá bien.',
+        'Datos archivados. Mañana es otro set de datos.',
+        'El Sistema procesa. Vos descansá.',
+      ],
+      reflection_minimal: [
+        'Día registrado. Mañana podés más.',
+        'Pocos datos hoy. No es un juicio.',
+        'Día lento. Registrado igual.',
+      ],
+      morning_streak: [
+        'Día ${streak} del streak. Buenos días.',
+        'El Sistema está activo. ¿Vos?',
+        'Nuevo día. Nuevos datos.',
+      ],
+      morning_no_streak: [
+        'Sin streak activo. Hoy empieza uno nuevo.',
+        'El Sistema no juzga el pasado. Solo mide el presente.',
+        'Cada día es un dato nuevo.',
+      ],
+      quest_accept: [
+        'Quest registrada. Tenés hasta las 23:59.',
+        'El Sistema confía en tu palabra.',
+        'Aceptar es el primer paso. Ejecutar es el que cuenta.',
+      ],
+      quest_complete: [
+        'Verificado. El Sistema actualiza tu perfil.',
+        'Quest cerrada. Los datos no mienten.',
+        'Completada. Siguiente.',
+      ],
+    };
+
+    function getSystemPhrase(context, vars = {}) {
+      const pool = SYSTEM_PHRASES[context];
+      if (!pool || pool.length === 0) return null;
+      let phrase = pool[Math.floor(Math.random() * pool.length)];
+      for (const key in vars) {
+        phrase = phrase.replace('${' + key + '}', vars[key]);
+      }
+      return phrase;
+    }
+
+    function morningGreeting() {
+      const today = todayKey();
+      if (state.uiState.morning_greeted === today) return;
+      state.uiState.morning_greeted = today;
+      persist();
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour <= 11) {
+        const streak = state.streaks.daily_log.current;
+        const context = streak > 1 ? 'morning_streak' : 'morning_no_streak';
+        setTimeout(() => sysToast(getSystemPhrase(context, { streak }) || 'Buenos días'), 1500);
+      }
+    }
+
+    // ============================================================
     // INIT
     // ============================================================
     const $app = document.getElementById('app');
@@ -8849,6 +9037,7 @@
         }
         applyTheme();
         maybeRemindReflection();
+        morningGreeting();
         // V3.3: Informe semanal
         maybeGenerateReport();
         // V3.3: Layer Ayanokoji
@@ -8914,20 +9103,25 @@
       const init = state.user.name.charAt(0).toUpperCase();
       const cls = state.currentClass || 'D';
       const clsCode = classCode(cls);
+      const todayHabitCount = log.habits.filter(h => h !== '__touched').length;
+      const dailyPct = Math.min(100, (todayHabitCount / 10) * 100);
       return `
     <div class="header">
-            ${state.page !== 'home' ? `<button class="header-btn header-btn-back" onclick="goPage('${state.page === 'calendar' ? 'stats' : 'home'}')">${svgIcon('chevron', 'icon')}</button>` : ''}
+            ${state.page !== 'home' ? `<button class="header-btn header-btn-back" onclick="goBack()">${svgIcon('chevron', 'icon')}</button>` : ''}
       <div class="avatar" onclick="goPage('character')">${init}</div>
       <div class="header-info">
         <div class="header-tag">${rank.name}</div>
         <div class="header-title">
           ${escapeHtml(state.user.name)}
-          <span class="header-rank" style="color:${rank.color}">${rank.rank}・CL${clsCode}・LV${lvl}</span>
+          <span class="header-rank" style="color:${rank.color}">${rank.rank} · CL ${clsCode} · LV ${lvl}</span>
         </div>
       </div>
       <button class="header-btn" onclick="openModal('settings')">
         ${svgIcon('settings', 'icon')}
       </button>
+    </div>
+    <div class="daily-progress">
+      <div class="daily-progress-fill ${dailyPct > 0 ? 'has-progress' : ''}" style="width: ${dailyPct}%"></div>
     </div>
   `;
     }
@@ -9104,7 +9298,10 @@
       // Stats
       html += `
     <div class="card">
-      <div class="card-title"><span class="card-title-text">Atributos</span></div>
+      <div class="card-title collapsible ${isCollapsed('atributos') ? 'is-collapsed' : ''}" data-collapse="atributos" onclick="toggleCollapse('atributos')">
+        <span class="card-title-text">Atributos</span>
+      </div>
+      <div class="card-collapse ${isCollapsed('atributos') ? 'collapsed' : ''}" id="collapse_atributos">
       ${Object.keys(STATS).map(k => {
         const p = progressInLevel(state.xp[k]);
         return `
@@ -9123,6 +9320,7 @@
           </div>
         `;
       }).join('')}
+      </div>
     </div>
   `;
 
@@ -9141,8 +9339,51 @@
         `;
       }
 
+      // Daily summary card
+      const todayHabits = log.habits.filter(h => h !== '__touched').length;
+      const todayXP = Object.values(log.xp_gained).reduce((a, b) => a + b, 0);
+      const statsHitSummary = new Set();
+      log.habits.forEach(h => { const hab = findHabit(h); if (hab) statsHitSummary.add(hab.stat); });
+      const allHabitsAvailable = Object.values(allHabits()).reduce((s, arr) => s + arr.length, 0);
+
+      if (todayHabits > 0) {
+        html += `
+          <div class="card" style="border-left: 2px solid var(--sys);">
+            <div class="card-title"><span class="card-title-text">Resumen de hoy</span></div>
+            <div class="grid-2 gap-2">
+              <div class="data-cell">
+                <div class="data-cell-label">Hábitos</div>
+                <div class="data-cell-value text-sys">${todayHabits}/${allHabitsAvailable}</div>
+              </div>
+              <div class="data-cell">
+                <div class="data-cell-label">XP ganada</div>
+                <div class="data-cell-value text-sys">+${todayXP}</div>
+              </div>
+              <div class="data-cell">
+                <div class="data-cell-label">Stats activos</div>
+                <div class="data-cell-value text-sys">${statsHitSummary.size}/6</div>
+              </div>
+              <div class="data-cell">
+                <div class="data-cell-label">Streak</div>
+                <div class="data-cell-value text-sys">${state.streaks.daily_log.current}d</div>
+              </div>
+            </div>
+            ${statsHitSummary.size >= 3 ? `<div class="mono text-xs text-positive tracking-wide mt-2 text-center uppercase">Combo ×${statsHitSummary.size} activo</div>` : ''}
+          </div>
+        `;
+      }
+
+      // System status footer
+      const footerHour = new Date().getHours();
+      const timeOfDay = footerHour < 6 ? 'MODO NOCTURNO' : footerHour < 12 ? 'CICLO MATUTINO' : footerHour < 18 ? 'CICLO VESPERTINO' : 'CICLO NOCTURNO';
       html += `
-    <button class="btn btn-block btn-ghost" onclick="goPage('focus')" class="flex items-center justify-center gap-2" style="margin-top:6px;padding:14px">
+        <div class="text-center mono text-xs text-ink4 tracking-wider uppercase mt-4" style="padding-bottom:8px;">
+          ◇ ${timeOfDay} · ${todayHabits} logs · streak ${state.streaks.daily_log.current}d
+        </div>
+      `;
+
+      html += `
+    <button class="btn btn-block btn-ghost" onclick="goPage('focus')" style="margin-top:6px;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;">
       ${svgIcon('timer', 'icon')}
       Iniciar focus
     </button>
@@ -9205,24 +9446,28 @@
 
     function renderHabits() {
       const all = allHabits();
-      let html = `<div class="card"><div class="card-title">
+      let html = `<div class="card"><div class="card-title collapsible ${isCollapsed('habitos') ? 'is-collapsed' : ''}" data-collapse="habitos" onclick="toggleCollapse('habitos')">
     <span class="card-title-text">Hábitos</span>
-    <span class="card-action" onclick="openModal('custom')">+ custom</span>
-  </div>`;
+  </div>
+  <div class="card-collapse ${isCollapsed('habitos') ? 'collapsed' : ''}" id="collapse_habitos">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:8px;"><span class="card-action" onclick="openModal('custom')">+ custom</span></div>`;
       for (const stat of Object.keys(STATS)) {
         const habits = all[stat];
         const gained = log.xp_gained[stat];
         const cap = STATS[stat].cap;
+        const collapseId = 'hab_' + stat;
         html += `
       <div class="habit-group">
-        <div class="habit-group-head">
+        <div class="habit-group-head" onclick="toggleCollapse('${collapseId}')" style="cursor:pointer;">
           <div class="habit-group-dot" style="background:${STATS[stat].color}"></div>
           <div class="habit-group-name">
             <span style="color:${STATS[stat].color};display:inline-flex">${svgIcon(STATS[stat].icon, 'icon icon-sm')}</span>
             ${STATS[stat].name}
           </div>
           <div class="habit-group-cap">${gained}/${cap}</div>
+          <span style="width:7px;height:7px;border-right:1.5px solid var(--ink3);border-bottom:1.5px solid var(--ink3);transform:rotate(${isCollapsed(collapseId) ? '-45' : '45'}deg);transition:transform .25s var(--ease);flex-shrink:0;margin-left:4px;"></span>
         </div>
+        <div class="card-collapse ${isCollapsed(collapseId) ? 'collapsed' : ''}" id="collapse_${collapseId}">
         <div class="habit-grid">
           ${habits.map(h => {
           const done = log.habits.includes(h.id);
@@ -9238,10 +9483,11 @@
             `;
         }).join('')}
         </div>
+        </div>
       </div>
     `;
       }
-      html += `</div>`;
+      html += `</div></div>`;
       return html;
     }
 
