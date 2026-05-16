@@ -7,8 +7,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Momentum">
-  <title>MomentumOS · Awakening</title>
+  <meta name="apple-mobile-web-app-title" content="The System">
+  <title>The System</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
@@ -3466,12 +3466,12 @@
       height: 6px;
     }
 
-    .page > .card + .card {
+    .page>.card+.card {
       margin-top: 14px;
     }
 
-    .page > .sysnotif + .card,
-    .page > .card + .sysnotif {
+    .page>.sysnotif+.card,
+    .page>.card+.sysnotif {
       margin-top: 16px;
     }
   </style>
@@ -3626,6 +3626,7 @@
         { id: 'no_scroll_am', label: 'Sin scroll AM', xp: 12, icon: 'no_scroll_am' },
         { id: 'daily_intent', label: 'Daily intent ✓', xp: 15, icon: 'daily_intent' },
         { id: 'deep_work', label: 'Deep work 90 min', xp: 20, icon: 'deep_work' },
+        { id: 'fin_opt', label: 'Optimización financiera', xp: 12, icon: 'pomo' },
         { id: 'reflection', label: 'Reflection nocturna', xp: 5, icon: 'reflection' },
       ],
       alma: [
@@ -3640,6 +3641,7 @@
         { id: 'msg', label: 'Mensaje genuino', xp: 5, icon: 'msg' },
         { id: 'meal', label: 'Comer con alguien', xp: 15, icon: 'meal' },
         { id: 'new_person', label: 'Conocer alguien nuevo', xp: 20, icon: 'new_person' },
+        { id: 'quality_time', label: 'Tiempo de calidad sin pantallas', xp: 18, icon: 'meal' },
         { id: 'compliment', label: 'Decir algo lindo', xp: 6, icon: 'compliment' },
       ],
       juego: [
@@ -4039,6 +4041,7 @@
       meal: 3.0,
       call: 2.5,
       new_person: 4.0,
+      quality_time: 4.5,
       compliment: 1.0,
       msg: 0.5,
     };
@@ -4137,9 +4140,27 @@
       if (maxDryStreak >= 5) raw -= 1.5;
 
       // Solo notes (el más fácil): cap C+
-      if (totalSabidLogs > 0 && uniqueHabits.size === 1 && uniqueHabits.has('notes')) {
+      // PERO: si hay carga profunda sostenida (5+ deep_work o 10+ pomos en 14d), anular
+      let deepLoad = 0;
+      let pomoLoad = 0;
+      for (let i = 0; i < 14; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = dateToKey(d);
+        const l = load(K.log(key), null);
+        if (l) {
+          deepLoad += l.habits.filter(h => h === 'deep_work').length;
+          pomoLoad += l.habits.filter(h => h === 'pomo').length;
+        }
+      }
+      const heavyCognitiveLoad = deepLoad >= 5 || pomoLoad >= 10;
+
+      if (totalSabidLogs > 0 && uniqueHabits.size === 1 && uniqueHabits.has('notes') && !heavyCognitiveLoad) {
         raw = Math.min(raw, 8);
       }
+
+      // Bonus por carga cognitiva profunda sostenida
+      if (heavyCognitiveLoad) raw += 0.5;
 
       return Math.max(0, Math.min(14, raw));
     }
@@ -4275,6 +4296,8 @@
       let weighted = 0;
       const types = new Set();
       let mostRecentVinculo = Infinity;
+      let qualityTimeCount = 0;
+      let qualityTimeRecent = Infinity;
 
       logs.forEach(log => {
         const w = timeWeight(log.daysAgo);
@@ -4284,19 +4307,31 @@
             types.add(h);
             mostRecentVinculo = Math.min(mostRecentVinculo, log.daysAgo);
           }
+          if (h === 'quality_time') {
+            qualityTimeCount++;
+            qualityTimeRecent = Math.min(qualityTimeRecent, log.daysAgo);
+          }
         });
       });
 
       // Normalizar — target 30 weighted points = A
       let raw = Math.min(14, (weighted / 30) * 14);
 
-      // Decay por inactividad
-      if (mostRecentVinculo >= 21) raw = Math.min(raw, 4); // cap D
-      else if (mostRecentVinculo >= 14) raw -= 2;
-      else if (mostRecentVinculo >= 7) raw -= 1;
+      // Hábito maestro: quality_time consistente protege contra decay
+      // (relación de pareja / vínculos profundos no son networking)
+      const qualityTimeMaster = qualityTimeCount >= 4 && qualityTimeRecent <= 7;
+
+      // Decay por inactividad — solo si NO hay quality_time activo
+      if (!qualityTimeMaster) {
+        if (mostRecentVinculo >= 21) raw = Math.min(raw, 4); // cap D
+        else if (mostRecentVinculo >= 14) raw -= 2;
+        else if (mostRecentVinculo >= 7) raw -= 1;
+      }
 
       // Bonus diversidad
       if (types.size >= 4) raw += 1;
+      // Bonus por mantenimiento profundo
+      if (qualityTimeMaster) raw += 0.5;
 
       return Math.max(0, Math.min(14, raw));
     }
@@ -5160,7 +5195,7 @@
       }
 
       const content = JSON.stringify(data, null, 2);
-      const filename = `momentum_backup_${todayKey()}.json`;
+      const filename = `system_backup_${todayKey()}.json`;
 
       const headers = {
         'Authorization': `token ${cfg.token}`,
@@ -5173,7 +5208,7 @@
             method: 'PATCH',
             headers,
             body: JSON.stringify({
-              description: `MomentumOS backup \u00b7 ${todayKey()}`,
+              description: `The System backup · ${todayKey()}`,
               files: { [filename]: { content } },
             }),
           });
@@ -5182,7 +5217,7 @@
             method: 'POST',
             headers,
             body: JSON.stringify({
-              description: `MomentumOS backup \u00b7 ${todayKey()}`,
+              description: `The System backup \u00b7 ${todayKey()}`,
               public: false,
               files: { [filename]: { content } },
             }),
@@ -5294,6 +5329,48 @@
           penalty: { stat: 'alma', xp: 15 },
           tag: 'EXPLORACIÓN',
         },
+        {
+          title: 'Comida que nunca probaste',
+          desc: 'Hoy comé algo que nunca hayas probado. Un plato, un ingrediente, una cocina entera. Que sea genuinamente nuevo. El paladar también es exploración.',
+          reward: { stat: 'sabiduria', xp: 35 },
+          penalty: { stat: 'sabiduria', xp: 15 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Modo avión 4 horas',
+          desc: 'Durante 4 horas seguidas, modo avión activado. Sin notificaciones, sin entradas. Hacé lo que quieras pero sin la app social. Aburrirte está permitido.',
+          reward: { stat: 'disciplina', xp: 45 },
+          penalty: { stat: 'disciplina', xp: 25 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Salida sin plan',
+          desc: 'Salí de tu casa sin destino fijo durante al menos 60 minutos. Sin Google Maps abierto, sin objetivo. Que el cuerpo decida hacia dónde. Volvé cuando quieras.',
+          reward: { stat: 'alma', xp: 40 },
+          penalty: { stat: 'alma', xp: 18 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Pieza nueva en el playlist',
+          desc: 'Escuchá un álbum completo de un género que normalmente no consumirías. De punta a punta, sin saltar. Que la música incómoda te enseñe algo.',
+          reward: { stat: 'sabiduria', xp: 30 },
+          penalty: { stat: 'sabiduria', xp: 12 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Día sin escribir',
+          desc: 'Hoy no tipeás absolutamente nada que no sea estrictamente laboral. Sin notas, sin mensajes largos, sin tweets. Que el silencio textual te haga ruido.',
+          reward: { stat: 'disciplina', xp: 35 },
+          penalty: { stat: 'disciplina', xp: 18 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Tarea con la mano no dominante',
+          desc: 'Lavá los platos, escribí una nota, cepillate los dientes, sirviete agua — todo con la mano que no usás siempre. Forzar la torpeza activa nuevas conexiones.',
+          reward: { stat: 'sabiduria', xp: 30 },
+          penalty: { stat: 'sabiduria', xp: 12 },
+          tag: 'EXPLORACIÓN',
+        },
       ],
       confrontacion: [
         {
@@ -5335,6 +5412,48 @@
           title: 'Contacto visual sostenido',
           desc: 'Hoy, cuando hables con alguien, mantené el contacto visual un poco más de lo que resulta cómodo. No bajes la mirada primero.',
           reward: { stat: 'fuerza', xp: 40 },
+          penalty: { stat: 'fuerza', xp: 15 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Pedido directo sin rodeos',
+          desc: 'Pedí algo que querés sin justificarte, sin disculparte, sin "si no te molesta". Una sola frase clara. Aprender a pedir es aprender a respetarse.',
+          reward: { stat: 'disciplina', xp: 45 },
+          penalty: { stat: 'disciplina', xp: 20 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Confrontá una incomodidad postergada',
+          desc: 'Algo que viene picándote hace semanas y lo estás esquivando. Una tarea, un mail, una llamada. Hoy lo hacés primero, antes que cualquier otra cosa.',
+          reward: { stat: 'disciplina', xp: 50 },
+          penalty: { stat: 'disciplina', xp: 25 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Decir lo que pensás en una reunión',
+          desc: 'En tu próxima reunión o conversación grupal, expresá una opinión sin diluirla. Sin "no sé, capaz", sin "tal vez". Si te equivocás, te equivocás claro.',
+          reward: { stat: 'alma', xp: 45 },
+          penalty: { stat: 'alma', xp: 20 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Reclamo bien hecho',
+          desc: 'Hay algo o alguien que no está cumpliendo lo que acordó. Reclamá formalmente, sin agresión pero sin retroceder. Un mail, una llamada, una conversación.',
+          reward: { stat: 'vinculo', xp: 50 },
+          penalty: { stat: 'vinculo', xp: 22 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Cerrá un loop pendiente',
+          desc: 'Tenés alguna conversación que quedó a medio terminar. Una respuesta que nunca diste. Hoy la cerrás, aunque sea para decir "no quiero hablar más de esto".',
+          reward: { stat: 'vinculo', xp: 45 },
+          penalty: { stat: 'vinculo', xp: 20 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Postura erguida 24h',
+          desc: 'Hoy controlás conscientemente tu postura. Espalda derecha, hombros atrás, cabeza alta. En el gym, en el trabajo, caminando. El cuerpo le habla a la mente.',
+          reward: { stat: 'fuerza', xp: 35 },
           penalty: { stat: 'fuerza', xp: 15 },
           tag: 'INTERNO',
         },
@@ -5382,6 +5501,48 @@
           penalty: { stat: 'disciplina', xp: 30 },
           tag: 'DISCIPLINA',
         },
+        {
+          title: 'Despertar +1h',
+          desc: 'Mañana levantate una hora antes de lo habitual. Sin snooze. Usá esa hora extra para algo productivo o de cuidado personal. No para scroll.',
+          reward: { stat: 'disciplina', xp: 50 },
+          penalty: { stat: 'disciplina', xp: 25 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Cama hecha + escritorio limpio',
+          desc: 'A primera hora: tendé la cama, ordená el escritorio. Sin excepciones. La micro-disciplina al despertar setea el tono del día entero.',
+          reward: { stat: 'disciplina', xp: 30 },
+          penalty: { stat: 'disciplina', xp: 12 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Una sola pestaña',
+          desc: 'Durante 90 minutos de trabajo, una sola pestaña abierta. Si necesitás otra, cerrá la actual primero. Fuerza secuencial, no paralelo.',
+          reward: { stat: 'disciplina', xp: 45 },
+          penalty: { stat: 'disciplina', xp: 20 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Plan del día escrito',
+          desc: 'Antes de empezar a operar, escribí tu plan del día. Bloque por bloque. Después seguilo. Re-evaluá al final. La planificación es disciplina.',
+          reward: { stat: 'disciplina', xp: 40 },
+          penalty: { stat: 'disciplina', xp: 18 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Sin azúcar agregada',
+          desc: 'Hoy no consumís nada con azúcar agregada. Ni bebidas, ni dulces, ni postres procesados. Frutas sí. La incomodidad del antojo es la quest.',
+          reward: { stat: 'fuerza', xp: 45 },
+          penalty: { stat: 'fuerza', xp: 20 },
+          tag: 'DISCIPLINA',
+        },
+        {
+          title: 'Cerrar pestañas mentales',
+          desc: 'Hoy terminás 3 cosas pendientes pequeñas que vienen postergándose: un mail, un mensaje, un trámite mínimo. Limpieza mental por completar.',
+          reward: { stat: 'disciplina', xp: 40 },
+          penalty: { stat: 'disciplina', xp: 18 },
+          tag: 'DISCIPLINA',
+        },
       ],
       curiosidad: [
         {
@@ -5423,6 +5584,48 @@
           title: 'Investigación obsesiva',
           desc: 'Elegí un tema hiper específico (ej: la caída del imperio bizantino, cómo funciona un motor de 4 tiempos). Dedicale 45 minutos a investigarlo a fondo.',
           reward: { stat: 'sabiduria', xp: 50 },
+          penalty: { stat: 'sabiduria', xp: 20 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Documental denso',
+          desc: 'Mirá un documental de mínimo 60 minutos sobre algo que no sabés. Sin segunda pantalla, sin chequear el celular. Atención completa.',
+          reward: { stat: 'sabiduria', xp: 40 },
+          penalty: { stat: 'sabiduria', xp: 18 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Asistir a algo nuevo',
+          desc: 'Charla, taller, evento, exposición — algo que normalmente no harías, abierto al público. Aunque sea online. Que te incomode el contexto nuevo.',
+          reward: { stat: 'sabiduria', xp: 45 },
+          penalty: { stat: 'sabiduria', xp: 20 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Escribir lo aprendido',
+          desc: 'Tomá un tema que aprendiste recientemente y escribí 500 palabras explicándolo. Sin copiar fuentes — desde tu cabeza. Enseñar es entender.',
+          reward: { stat: 'sabiduria', xp: 50 },
+          penalty: { stat: 'sabiduria', xp: 22 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Mapa mental de un sistema',
+          desc: 'Elegí algo complejo que usás todos los días (la economía, una app, tu trabajo). Dibujá un mapa mental de cómo funciona. Que la mano piense.',
+          reward: { stat: 'sabiduria', xp: 45 },
+          penalty: { stat: 'sabiduria', xp: 20 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Una pregunta hasta el fondo',
+          desc: 'Tomá una pregunta concreta ("¿por qué X funciona así?") y respondela. Buscá, leé, pensá. Mínimo 1 hora. Sin abandonar al primer "ya está".',
+          reward: { stat: 'sabiduria', xp: 50 },
+          penalty: { stat: 'sabiduria', xp: 22 },
+          tag: 'EXPLORACIÓN',
+        },
+        {
+          title: 'Lección con un experto',
+          desc: 'Conseguí 30 minutos con alguien que sabe más que vos de un tema específico. Mentor, profesor, amigo experto. Hacele preguntas reales.',
+          reward: { stat: 'vinculo', xp: 50 },
           penalty: { stat: 'sabiduria', xp: 20 },
           tag: 'EXPLORACIÓN',
         },
@@ -5470,6 +5673,48 @@
           penalty: { stat: 'alma', xp: 25 },
           tag: 'INTERNO',
         },
+        {
+          title: 'Pedí ayuda',
+          desc: 'Hay algo que necesitás que alguien te ayude. Pedilo explícitamente, sin disfrazar el pedido. Pedir es vulnerabilidad y es fuerza al mismo tiempo.',
+          reward: { stat: 'vinculo', xp: 50 },
+          penalty: { stat: 'alma', xp: 25 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Compartí un miedo real',
+          desc: 'Decile a alguien de confianza un miedo concreto que tenés, sin esperar consuelo, sin minimizarlo, sin ironía. Solo nombralo en voz alta para otro.',
+          reward: { stat: 'alma', xp: 55 },
+          penalty: { stat: 'alma', xp: 25 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Mostrate sin filtros',
+          desc: 'Tené una conversación de 20+ minutos con alguien cercano sin tu armadura habitual. Sin chistes desviando, sin máscara funcional. Solo presencia honesta.',
+          reward: { stat: 'vinculo', xp: 55 },
+          penalty: { stat: 'alma', xp: 25 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Aceptá un cumplido',
+          desc: 'Si alguien hoy te elogia o reconoce algo, no lo minimices, no lo redirijás. Decí "gracias" y bancate la incomodidad de recibir.',
+          reward: { stat: 'alma', xp: 35 },
+          penalty: { stat: 'alma', xp: 15 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Llorá si necesitás llorar',
+          desc: 'Si hoy aparece la emoción que vas a tragar, dejá que salga. Aunque sea 5 minutos en privado. El cuerpo limpia lo que la cabeza esconde.',
+          reward: { stat: 'alma', xp: 50 },
+          penalty: { stat: 'alma', xp: 20 },
+          tag: 'INTERNO',
+        },
+        {
+          title: 'Inventario interno',
+          desc: 'Escribí honestamente: ¿qué te falta?, ¿qué te sobra?, ¿qué venís evitando?, ¿qué necesitás soltar? Sin filtro. Solo para vos.',
+          reward: { stat: 'alma', xp: 50 },
+          penalty: { stat: 'alma', xp: 22 },
+          tag: 'INTERNO',
+        },
       ],
       fisico_extremo: [
         {
@@ -5514,6 +5759,48 @@
           penalty: { stat: 'fuerza', xp: 20 },
           tag: 'FÍSICO',
         },
+        {
+          title: 'Romper un PR',
+          desc: 'En tu próximo entreno, intentá subir el peso de un ejercicio compuesto (sentadilla, press, peso muerto, dominadas) más allá de tu mejor marca. Que la barra hable.',
+          reward: { stat: 'fuerza', xp: 60 },
+          penalty: { stat: 'fuerza', xp: 25 },
+          tag: 'FÍSICO',
+        },
+        {
+          title: '+5% de volumen semanal',
+          desc: 'Calculá tu volumen total de la semana pasada en tu ejercicio principal. Esta semana lo aumentás un 5%. Más reps, más peso o más sets. Sobrecarga progresiva real.',
+          reward: { stat: 'fuerza', xp: 55 },
+          penalty: { stat: 'fuerza', xp: 25 },
+          tag: 'FÍSICO',
+        },
+        {
+          title: 'Técnica perfecta',
+          desc: 'En tu próximo entreno, bajá el peso un 20% y enfocate 100% en la técnica. Tempo controlado, contracción consciente. Ego abajo, calidad arriba.',
+          reward: { stat: 'fuerza', xp: 40 },
+          penalty: { stat: 'fuerza', xp: 18 },
+          tag: 'FÍSICO',
+        },
+        {
+          title: 'Comida limpia 24h',
+          desc: 'Durante 24 horas, solo comida real: proteína, vegetales, carbohidratos integrales, frutas. Cero ultraprocesados. Combustible para tu entrenamiento.',
+          reward: { stat: 'fuerza', xp: 45 },
+          penalty: { stat: 'fuerza', xp: 20 },
+          tag: 'FÍSICO',
+        },
+        {
+          title: 'Hidratación quirúrgica',
+          desc: 'Hoy: mínimo 3 litros de agua. Tomá conscientemente, no porque tengas sed. El cuerpo rinde lo que vos le dejás rendir.',
+          reward: { stat: 'fuerza', xp: 30 },
+          penalty: { stat: 'fuerza', xp: 12 },
+          tag: 'FÍSICO',
+        },
+        {
+          title: 'Doble sesión',
+          desc: 'Hoy: 2 sesiones de movimiento separadas por al menos 6 horas. Una principal (gym o run), otra liviana (caminata larga, movilidad, yoga). El cuerpo se acuerda.',
+          reward: { stat: 'fuerza', xp: 55 },
+          penalty: { stat: 'fuerza', xp: 25 },
+          tag: 'FÍSICO',
+        },
       ],
     };
 
@@ -5529,7 +5816,7 @@
         vulnerabilidad: 1,
         fisico_extremo: 2,
       };
-      // Si tu rango es alto, aumentamos lo difícil (vulnerabilidad, disciplina, confrontación)
+      // Si tu rango es alto, aumentamos lo difícil
       if (currentRank === 'C' || currentRank === 'B') {
         weights.vulnerabilidad = 2;
         weights.disciplina_pura = 3;
@@ -5551,9 +5838,12 @@
       }
       const category = pool[Math.floor(Math.random() * pool.length)] || 'ruptura';
 
-      // Pick template from category, avoiding most recent template
+      // V3.7: Memoria de últimas 8 quests específicas (no solo categorías)
+      const recentTitles = state.sysquest_history.slice(-8).map(q => q.title);
       const templates = QUEST_TEMPLATES[category];
-      const tpl = templates[Math.floor(Math.random() * templates.length)];
+      const fresh = templates.filter(t => !recentTitles.includes(t.title));
+      const pickFrom = fresh.length > 0 ? fresh : templates;
+      const tpl = pickFrom[Math.floor(Math.random() * pickFrom.length)];
 
       return {
         id: 'sysq_' + Date.now(),
@@ -7958,7 +8248,7 @@
     </div>
 
     <div class="text-xs tracking-widest uppercase text-center text-ink3 mt-6 mono">
-      Momentum OS · v3.1 · Economy
+      The System · v3.7
     </div>
   `;
     }
@@ -8581,7 +8871,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `momentum_${todayKey()}.json`;
+      a.download = `system_${todayKey()}.json`;
       a.click();
       URL.revokeObjectURL(url);
       toast('Backup descargado', 'positive');
@@ -8832,7 +9122,7 @@
         const s = ONB_STEPS[onbStep];
         $app.innerHTML = `
       <div class="onb">
-        <div class="onb-tag">▸ MOMENTUM OS · AWAKENING</div>
+        <div class="onb-tag">▸ THE SYSTEM · AWAKENING</div>
         <div class="onb-frame">
           <div class="onb-step">
             <div class="onb-icon">${svgIcon(s.icon)}</div>
@@ -9368,9 +9658,9 @@
         html += `
           <div class="scroll-am-result ${passed ? 'won' : 'lost'}">
             ${passed
-              ? `◇ SCREEN TIME OK · ≤${threshold}h · streak ${state.screenTime.streak}d`
-              : `◆ SCREEN TIME EXCEDIDO · >${threshold}h`
-            }
+            ? `◇ SCREEN TIME OK · ≤${threshold}h · streak ${state.screenTime.streak}d`
+            : `◆ SCREEN TIME EXCEDIDO · >${threshold}h`
+          }
           </div>
         `;
       }
@@ -10012,7 +10302,7 @@
         const dataUrl = canvas.toDataURL('image/png');
         const a = document.createElement('a');
         a.href = dataUrl;
-        a.download = `MomentumOS_Status_${todayKey()}.png`;
+        a.download = `TheSystem_Status_${todayKey()}.png`;
         a.click();
         toast('Widget exportado exitosamente', 'positive');
       } catch (e) {
