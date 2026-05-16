@@ -302,6 +302,13 @@
       font-family: var(--font-mono);
     }
 
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
     .avatar::before {
       content: '';
       position: absolute;
@@ -2261,6 +2268,43 @@
       fill: none;
     }
 
+    /* === V3.7: Profile tab destacado al centro === */
+    .nav-tab-center {
+      position: relative;
+    }
+
+    .nav-tab-center svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .nav-tab-center.active {
+      color: var(--sys2);
+    }
+
+    .nav-tab-center.active svg {
+      filter: drop-shadow(0 0 8px var(--sys-glow));
+    }
+
+    .nav-tab-center::before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--sys-dim) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity .3s var(--ease);
+      pointer-events: none;
+    }
+
+    .nav-tab-center.active::before {
+      opacity: 1;
+    }
+
     /* === V3: OAA Card === */
     .oaa-card {
       border-color: var(--sys);
@@ -3473,6 +3517,261 @@
     .page>.sysnotif+.card,
     .page>.card+.sysnotif {
       margin-top: 16px;
+    }
+
+    /* === V3.7: COTE-style OAA card === */
+    .cote-card {
+      position: relative;
+      padding: 0;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(20, 24, 48, .6) 0%, rgba(15, 18, 36, .8) 100%);
+      border: 1px solid rgba(100, 180, 255, .35);
+      box-shadow:
+        0 0 30px rgba(80, 150, 255, .15),
+        inset 0 1px 0 rgba(150, 200, 255, .1);
+    }
+
+    body[data-theme="light"] .cote-card {
+      background: linear-gradient(180deg, rgba(240, 245, 255, .95) 0%, rgba(225, 235, 250, .95) 100%);
+      border-color: rgba(80, 150, 255, .45);
+      box-shadow: 0 0 24px rgba(80, 150, 255, .12), inset 0 1px 0 rgba(255, 255, 255, .8);
+    }
+
+    .cote-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(180deg, transparent 0%, transparent 50%, rgba(100, 180, 255, .03) 50%, transparent 51%);
+      background-size: 100% 4px;
+      pointer-events: none;
+    }
+
+    .cote-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 14px 18px 8px;
+      border-bottom: 1px solid rgba(100, 180, 255, .2);
+    }
+
+    .cote-tag {
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: .08em;
+      color: rgba(150, 200, 255, .9);
+      text-shadow: 0 0 8px rgba(100, 180, 255, .4);
+    }
+
+    .cote-class {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .2em;
+      color: rgba(150, 200, 255, .7);
+    }
+
+    .cote-portrait {
+      display: flex;
+      justify-content: center;
+      padding: 18px 0 8px;
+    }
+
+    .cote-portrait-frame {
+      width: 96px;
+      height: 96px;
+      border: 1px solid rgba(100, 180, 255, .5);
+      padding: 3px;
+      background: rgba(40, 60, 100, .3);
+      position: relative;
+    }
+
+    .cote-portrait-frame::before,
+    .cote-portrait-frame::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border: 1px solid rgba(150, 200, 255, .8);
+    }
+
+    .cote-portrait-frame::before {
+      top: -3px; left: -3px;
+      border-right: 0; border-bottom: 0;
+    }
+
+    .cote-portrait-frame::after {
+      bottom: -3px; right: -3px;
+      border-left: 0; border-top: 0;
+    }
+
+    .cote-portrait-inner {
+      width: 100%;
+      height: 100%;
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 36px;
+      font-weight: 700;
+      color: rgba(150, 200, 255, .9);
+      overflow: hidden;
+    }
+
+    .cote-name {
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: .12em;
+      color: rgba(200, 220, 255, 1);
+      text-shadow: 0 0 8px rgba(100, 180, 255, .3);
+      padding: 4px 16px 2px;
+    }
+
+    .cote-name-sub {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .35em;
+      color: rgba(150, 200, 255, .6);
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(100, 180, 255, .15);
+      margin: 0 16px;
+    }
+
+    .cote-dims-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      grid-template-rows: auto auto;
+      gap: 12px;
+      padding: 18px 16px 12px;
+      align-items: center;
+    }
+
+    .cote-dim-corner {
+      display: flex;
+      justify-content: center;
+    }
+
+    .cote-dim {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 4px 8px;
+      align-items: baseline;
+      padding: 8px 12px;
+      background: rgba(40, 60, 100, .25);
+      border: 1px solid rgba(100, 180, 255, .25);
+      min-width: 100px;
+      position: relative;
+    }
+
+    .cote-dim-score {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: rgba(150, 200, 255, .6);
+      letter-spacing: .08em;
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .cote-dim-letter {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: rgba(200, 220, 255, 1);
+      text-shadow: 0 0 6px rgba(100, 180, 255, .35);
+      grid-column: 2;
+      grid-row: 1 / 3;
+      line-height: 1;
+      align-self: center;
+    }
+
+    .cote-dim-label {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: .2em;
+      color: rgba(150, 200, 255, .55);
+      text-transform: uppercase;
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .cote-dim-arrow {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 10px;
+    }
+
+    .cote-center {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .cote-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .cote-ring-bg {
+      fill: none;
+      stroke: rgba(100, 180, 255, .15);
+      stroke-width: 3;
+    }
+
+    .cote-ring-fg {
+      fill: none;
+      stroke: rgba(150, 200, 255, .95);
+      stroke-width: 3;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 4px rgba(100, 180, 255, .6));
+      transition: stroke-dashoffset 1s var(--ease);
+    }
+
+    .cote-center-letter {
+      font-family: var(--font-display);
+      font-size: 42px;
+      color: rgba(220, 235, 255, 1);
+      text-shadow: 0 0 12px rgba(100, 180, 255, .6);
+      line-height: 1;
+    }
+
+    .cote-center-score {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: rgba(150, 200, 255, .8);
+      letter-spacing: .1em;
+      margin-top: 2px;
+    }
+
+    .cote-center-label {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: rgba(150, 200, 255, .5);
+      letter-spacing: .25em;
+      margin-top: 1px;
+    }
+
+    .cote-dim-full {
+      padding: 0 16px 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .cote-trend {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .2em;
+      color: rgba(150, 200, 255, .5);
+      padding: 0 16px 14px;
+      text-transform: uppercase;
     }
   </style>
 </head>
@@ -6808,12 +7107,13 @@
       const cls = state.currentClass || 'D';
       const clsCode = classCode(cls);
       const trend = getOAATrend(4);
+      const rank = currentRank();
 
       // Si no hay data suficiente
       if (oaa.total === null) {
         return `
           <div class="card oaa-card">
-            <div class="card-title"><span class="card-title-text">OAA Evaluation</span></div>
+            <div class="card-title"><span class="card-title-text">Over All Ability</span></div>
             <div class="empty">
               <div class="empty-icon">${svgIcon('hexagon', 'icon')}</div>
               <div class="empty-text">Datos insuficientes. Necesito 7+ días de actividad para evaluar.</div>
@@ -6823,53 +7123,86 @@
       }
 
       const totalLetter = numToLetter(oaa.total);
-
-      // Cambios por dimensión
       const dims = oaa.dims;
-      const arrowFor = (delta) => delta > 0.3 ? '▲' : delta < -0.3 ? '▼' : '→';
+      const arrowFor = (delta) => delta > 0.3 ? '▲' : delta < -0.3 ? '▼' : '·';
       const colorFor = (delta) => delta > 0.3 ? 'var(--positive)' : delta < -0.3 ? 'var(--negative)' : 'var(--ink3)';
 
-      const dimRow = (key, label) => {
+      const dimBlock = (key, label) => {
         if (dims[key] === null || dims[key] === undefined) {
           return `
-            <div class="oaa-dim">
-              <span class="oaa-dim-label">${label}</span>
-              <span class="oaa-dim-letter">—</span>
-              <span class="oaa-dim-arrow"></span>
+            <div class="cote-dim">
+              <div class="cote-dim-score">—</div>
+              <div class="cote-dim-letter">—</div>
+              <div class="cote-dim-label">${label}</div>
             </div>
           `;
         }
         const letter = numToLetter(dims[key]);
         const delta = getDimChange(key);
+        // Convertir dim (0-14) a score numérico estilo COTE (0-100)
+        const score = Math.round((dims[key] / 14) * 100);
         return `
-          <div class="oaa-dim">
-            <span class="oaa-dim-label">${label}</span>
-            <span class="oaa-dim-letter">${letter}</span>
-            <span class="oaa-dim-arrow" style="color:${colorFor(delta)}">${arrowFor(delta)}</span>
+          <div class="cote-dim">
+            <div class="cote-dim-score">${score}</div>
+            <div class="cote-dim-letter">${letter}</div>
+            <div class="cote-dim-label">${label}</div>
+            <div class="cote-dim-arrow" style="color:${colorFor(delta)}">${arrowFor(delta)}</div>
           </div>
         `;
       };
 
+      const totalScore = Math.round((oaa.total / 14) * 100);
+      const totalPct = (oaa.total / 14) * 100;
+      // Circular ring SVG
+      const ringR = 42;
+      const ringC = 2 * Math.PI * ringR;
+      const ringOffset = ringC - (totalPct / 100) * ringC;
+
       const trendText = trend === 'up' ? 'Ascendente' : trend === 'down' ? 'Descendente' : 'Estable';
 
       return `
-        <div class="card oaa-card">
-          <div class="card-title">
-            <span class="card-title-text">OAA Evaluation</span>
-            <span class="card-action mono p-0" style="border:0">CL ${clsCode}</span>
+        <div class="card cote-card">
+          <div class="cote-header">
+            <div class="cote-tag">Over All Ability</div>
+            <div class="cote-class">${rank.rank} - ${clsCode}</div>
           </div>
-          <div class="oaa-grade">
-            <div class="oaa-grade-letter">${totalLetter}</div>
-            <div class="oaa-grade-label">OAA TOTAL</div>
+
+          <div class="cote-portrait">
+            <div class="cote-portrait-frame">
+              <div class="cote-portrait-inner">
+                ${avatarHTML()}
+              </div>
+            </div>
           </div>
-          <div class="oaa-dims">
-            ${dimRow('academico', 'Académico')}
-            ${dimRow('fisico', 'Físico')}
-            ${dimRow('mental', 'Mental')}
-            ${dimRow('social', 'Social')}
-            ${dimRow('identidad', 'Identidad')}
+
+          <div class="cote-name">${escapeHtml(state.user.name)}</div>
+          <div class="cote-name-sub">${escapeHtml(rank.name).toUpperCase()}</div>
+
+          <div class="cote-dims-grid">
+            <div class="cote-dim-corner tl">${dimBlock('academico', 'Académico')}</div>
+            <div class="cote-dim-corner tr">${dimBlock('fisico', 'Físico')}</div>
+
+            <div class="cote-center">
+              <svg class="cote-ring" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="${ringR}" class="cote-ring-bg"></circle>
+                <circle cx="50" cy="50" r="${ringR}" class="cote-ring-fg"
+                  stroke-dasharray="${ringC}" stroke-dashoffset="${ringOffset}"
+                  transform="rotate(-90 50 50)"></circle>
+              </svg>
+              <div class="cote-center-letter">${totalLetter}</div>
+              <div class="cote-center-score">${totalScore}</div>
+              <div class="cote-center-label">TOTAL</div>
+            </div>
+
+            <div class="cote-dim-corner bl">${dimBlock('mental', 'Mental')}</div>
+            <div class="cote-dim-corner br">${dimBlock('social', 'Social')}</div>
           </div>
-          <div class="oaa-trend">Tendencia 4 semanas: ${trendText}</div>
+
+          <div class="cote-dim-full">
+            ${dimBlock('identidad', 'Identidad')}
+          </div>
+
+          <div class="cote-trend">Tendencia 4 semanas: ${trendText}</div>
         </div>
       `;
     }
@@ -9532,10 +9865,16 @@
       $app.innerHTML = html;
     }
 
+    // Avatar: usa avatar.png si existe en el repo, sino fallback a la inicial
+    function avatarHTML(extraClasses = '') {
+      const init = state.user.name.charAt(0).toUpperCase();
+      // El onerror reemplaza la img por la inicial si el archivo no existe
+      return `<img src="avatar.png" class="avatar-img" alt="${init}" onerror="this.outerHTML='${init}'">`;
+    }
+
     function renderHeader() {
       const rank = currentRank();
       const lvl = totalLevel();
-      const init = state.user.name.charAt(0).toUpperCase();
       const cls = state.currentClass || 'D';
       const clsCode = classCode(cls);
       const todayHabitCount = log.habits.filter(h => h !== '__touched').length;
@@ -9543,7 +9882,7 @@
       return `
     <div class="header">
             ${state.page !== 'home' ? `<button class="header-btn header-btn-back" onclick="goBack()">${svgIcon('chevron', 'icon')}</button>` : ''}
-      <div class="avatar" onclick="goPage('character')">${init}</div>
+      <div class="avatar" onclick="goPage('character')">${avatarHTML()}</div>
       <div class="header-info">
         <div class="header-tag">${rank.name}</div>
         <div class="header-title">
@@ -10078,7 +10417,6 @@
       <div class="text-sm tracking-wider uppercase text-center text-ink3 mono" style="padding-top:10px;border-top:1px solid var(--border2)">${rank.name}</div>
     </div>
 
-    ${renderOAACard()}
     ${renderPPCard()}
     ${renderActiveTalentsBadge()}
 
@@ -10316,7 +10654,8 @@
       const totalHabits = countAllHabits();
       const daysActive = daysSinceCreated();
       const rank = currentRank();
-      let html = `
+      let html = renderOAACard();
+      html += `
     <div class="status-window">
       <div class="status-title">▸ CHARACTER SHEET</div>
       <div class="text-center" style="margin-bottom:18px">
@@ -10639,16 +10978,17 @@
             ${svgIcon('chart')}
             <span>Status</span>
           </button>
-          <button class="nav-tab-fab" onclick="openModal('quick')">
-            ${svgIcon('plus')}
+          <button class="nav-tab nav-tab-center ${p === 'character' ? 'active' : ''}" onclick="goPage('character')">
+            ${svgIcon('hexagon')}
+            <span>Profile</span>
           </button>
           <button class="nav-tab ${p === 'focus' ? 'active' : ''}" onclick="goPage('focus')">
             ${svgIcon('timer')}
             <span>Focus</span>
           </button>
-          <button class="nav-tab ${p === 'character' ? 'active' : ''}" onclick="goPage('character')">
-            ${svgIcon('hexagon')}
-            <span>Profile</span>
+          <button class="nav-tab" onclick="openModal('quick')">
+            ${svgIcon('plus')}
+            <span>Quick</span>
           </button>
         </div>
       `;
