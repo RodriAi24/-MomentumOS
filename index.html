@@ -4262,6 +4262,9 @@
         raw = Math.min(raw, 5);
       }
 
+      // Screen Time impact on OAA Mental
+      raw += getScreenTimeOAAFactor();
+
       return Math.max(0, Math.min(14, raw));
     }
 
@@ -5591,6 +5594,7 @@
       talents: 'mo_talents',
       weeklyReports: 'mo_weekly_reports',
       ayanokoji: 'mo_ayanokoji',
+      screenTime: 'mo_screen_time',
     };
 
     function load(key, fallback) {
@@ -5673,6 +5677,7 @@
       talents: load(K.talents, []),
       examTitles: load('mo_exam_titles', []),
       ecosystem: load('mo_ecosystem', {}),
+      screenTime: load(K.screenTime, { streak: 0, longest: 0, last: null, history: [] }),
       weeklyReports: load(K.weeklyReports, []),
       ayanokoji: load(K.ayanokoji, { lastMessage: null, messages: [] }),
       page: 'home',
@@ -5704,6 +5709,7 @@
       save(K.talents, state.talents);
       if (state.examTitles) save('mo_exam_titles', state.examTitles);
       save('mo_ecosystem', state.ecosystem);
+      save(K.screenTime, state.screenTime);
       save(K.weeklyReports, state.weeklyReports);
       save(K.ayanokoji, state.ayanokoji);
     }
@@ -5713,6 +5719,7 @@
         date,
         habits: [],
         scroll_am: null,
+        screen_time: null, // null = no respondido, 'pass' | 'fail'
         daily_intent: { items: [], completed: [], blocks: {} },
         reflection: null,
         xp_gained: { fuerza: 0, sabiduria: 0, disciplina: 0, alma: 0, vinculo: 0, juego: 0 },
@@ -5975,6 +5982,110 @@
       }
     }
 
+    // ============================================================
+    // SCREEN TIME ACCOUNTABILITY SYSTEM
+    // ============================================================
+    // Umbral dinámico por rango + clase. Penalización NO LINEAL.
+    // Afecta TODOS los stats (disciplina doble).
+    // Primeros 7 días cumplidos: no suman, solo evitan penalización.
+    // Después de streak sostenido: empezás a ganar de a poco.
+
+    function getScreenTimeThreshold() {
+      const rank = currentRank().rank;
+      const cls = state.currentClass || 'D';
+      let threshold = 3;
+      const rankAdj = { E: 0, D: 0, C: -0.5, B: -0.5, A: -1, S: -1, NL: -1.5 };
+      const clsAdj = { D: 0, C: -0.25, B: -0.5, A: -0.75, Aplus: -1 };
+      threshold += (rankAdj[rank] || 0);
+      threshold += (clsAdj[cls] || 0);
+      return Math.max(1, Math.round(threshold * 4) / 4);
+    }
+
+    function calcScreenTimePenalty(hours, threshold) {
+      const excess = Math.max(0, hours - threshold);
+      if (excess === 0) return 0;
+      // NO LINEAL — exponencial. Pasarte 1h duele, 4h destruye.
+      // 0.5h over: ~4, 1h: ~10, 2h: ~25, 3h: ~45, 4h: ~70, 5h: ~100
+      return Math.min(120, Math.round(Math.pow(excess, 1.8) * 6));
+    }
+
+    function calcScreenTimeReward(streak) {
+      // Primeros 7 días: 0 reward. Solo evitás penalización.
+      if (streak <= 7) return 0;
+      if (streak <= 14) return 2;
+      if (streak <= 21) return 5;
+      if (streak <= 30) return 8;
+      return 12; // cap ~15 XP/stat/día después de un mes
+    }
+
+    function reportScreenTime(hours) {
+      if (log.screen_time !== null) return;
+      hours = Math.round(hours * 2) / 2;
+
+      const threshold = getScreenTimeThreshold();
+      const passed = hours <= threshold;
+      const st = state.screenTime;
+
+      if (passed) {
+        log.screen_time = 'pass';
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const ykey = dateToKey(yesterday);
+        if (st.last === ykey || st.streak === 0) st.streak++;
+        else st.streak = 1;
+        if (st.streak > st.longest) st.longest = st.streak;
+        st.last = todayKey();
+
+        const reward = calcScreenTimeReward(st.streak);
+        if (reward > 0) {
+          Object.keys(STATS).forEach(k => state.xp[k] += reward);
+          sysToast('SCREEN TIME · streak ' + st.streak + 'd · +' + (reward * 6) + ' XP', 'positive');
+          floatXP('+' + (reward * 6), 'var(--positive)', null);
+        } else {
+          sysToast('SCREEN TIME · APROBADO · streak ' + st.streak + 'd');
+        }
+      } else {
+        log.screen_time = 'fail';
+        st.streak = 0;
+        st.last = todayKey();
+
+        const penalty = calcScreenTimePenalty(hours, threshold);
+        // TODOS los stats pierden. DISCIPLINA pierde el DOBLE.
+        Object.keys(STATS).forEach(k => {
+          const mult = k === 'disciplina' ? 2 : 1;
+          state.xp[k] = Math.max(0, state.xp[k] - (penalty * mult));
+        });
+        const totalLoss = (penalty * 5) + (penalty * 2);
+        floatXP('-' + totalLoss, 'var(--negative)', null);
+        sysToast('SCREEN TIME · ' + hours + 'h > ' + threshold + 'h · -' + totalLoss + ' XP', 'danger');
+      }
+
+      st.history.push({
+        date: todayKey(), hours, threshold,
+        result: passed ? 'pass' : 'fail',
+        streak: st.streak,
+        penalty: passed ? 0 : calcScreenTimePenalty(hours, threshold),
+      });
+      if (st.history.length > 90) st.history.shift();
+
+      saveLog(log);
+      persist();
+      render();
+    }
+
+    function getScreenTimeOAAFactor() {
+      const hist = state.screenTime.history;
+      if (hist.length < 7) return 0;
+      const last30 = hist.filter(h => daysSince(h.date) <= 30);
+      if (last30.length === 0) return 0;
+      const passRate = last30.filter(h => h.result === 'pass').length / last30.length;
+      if (passRate >= 0.8) return 2;
+      if (passRate >= 0.6) return 1;
+      if (passRate >= 0.4) return 0;
+      if (passRate >= 0.2) return -1;
+      return -3;
+    }
+
     function checkDailyCombo() {
       const statsHit = new Set();
       log.habits.forEach(h => {
@@ -6037,7 +6148,12 @@
       const today = todayKey();
       if (state.sysquest && state.sysquest.date === today) return; // ya hay una de hoy
 
-      // Si tenemos una vieja sin resolver, marcarla fallida y archivar
+      // BUGFIX: si ya hubo una quest hoy en el historial, NO generar otra.
+      // Esto evita que completar/rechazar una quest genere otra el mismo día.
+      const hadOneToday = state.sysquest_history.some(q => q.date === today);
+      if (hadOneToday && !state.sysquest) return;
+
+      // Si tenemos una vieja sin resolver (de OTRO día), marcarla fallida y archivar
       if (state.sysquest && state.sysquest.date !== today) {
         const old = state.sysquest;
         if (old.status === 'accepted' || old.status === 'pending') {
@@ -6061,9 +6177,15 @@
           state.sysquest_history.push(old);
         }
         state.sysquest = null;
+
+        // Re-check: ahora que archivamos la vieja, ¿ya hay una de hoy en el historial?
+        if (state.sysquest_history.some(q => q.date === today)) {
+          persist();
+          return;
+        }
       }
 
-      // Generar nueva si corresponde
+      // Generar nueva solo si no hay y no hubo ninguna hoy
       if (!state.sysquest) {
         const rank = currentRank().rank;
         const recentCats = state.sysquest_history.slice(-2).map(q => q.category);
@@ -6171,7 +6293,10 @@
       return dateToKey(d);
     }
 
-    function monthKey() { return new Date().toISOString().slice(0, 7); }
+    function monthKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    }
 
     function generateWeeklyQuests() {
       const wk = weekKey();
@@ -6815,6 +6940,18 @@
       if (oaa.dims[highest] - oaa.dims[lowest] > 4) {
         const loName = { academico: 'Académico', fisico: 'Físico', mental: 'Mental', social: 'Social', identidad: 'Identidad' }[lowest];
         observations.push(`Desbalance detectado: ${loName} está ${Math.round(oaa.dims[highest] - oaa.dims[lowest])} niveles por debajo de tu dimensión más fuerte.`);
+      }
+
+      // 8. Screen Time
+      const stHist = state.screenTime.history.filter(h => daysSince(h.date) <= 7);
+      if (stHist.length >= 3) {
+        const stPassRate = stHist.filter(h => h.result === 'pass').length / stHist.length;
+        if (stPassRate < 0.5) {
+          const avgHours = (stHist.reduce((s, h) => s + h.hours, 0) / stHist.length).toFixed(1);
+          observations.push(`Screen time promedio: ${avgHours}h/día. ${Math.round(stPassRate * 100)}% dentro del umbral. Impacto negativo en OAA Mental.`);
+        } else if (stPassRate >= 0.85 && state.screenTime.streak >= 7) {
+          observations.push(`Screen time controlado: streak de ${state.screenTime.streak} días. Impacto positivo en OAA Mental (+${getScreenTimeOAAFactor()}).`);
+        }
       }
 
       // Limitar a 4 observaciones
@@ -7712,6 +7849,14 @@
         <div class="setting-sub">−10 disciplina si caés</div>
       </div>
       <div class="switch ${state.user.settings.penalize_scroll_am ? 'on' : ''}" onclick="toggleSetting('penalize_scroll_am', this)"></div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-name">Screen Time Accountability</div>
+        <div class="setting-sub">Umbral: ${getScreenTimeThreshold()}h · streak ${state.screenTime.streak}d</div>
+      </div>
+      <div class="switch ${state.user.settings.screen_time_enabled !== false ? 'on' : ''}" onclick="toggleSetting('screen_time_enabled', this)"></div>
     </div>
 
     <div class="setting-row">
@@ -9166,6 +9311,68 @@
       // SPECIAL EXAM banner
       if (state.specialExam) {
         html += renderSpecialExam();
+      }
+
+      // SCREEN TIME ACCOUNTABILITY — primera apertura del día
+      if (log.screen_time === null && state.user?.settings?.screen_time_enabled !== false) {
+        const threshold = getScreenTimeThreshold();
+        const streak = state.screenTime.streak;
+        const reward = calcScreenTimeReward(streak + 1);
+        const examplePenalty = calcScreenTimePenalty(threshold + 2, threshold);
+        html += `
+          <div class="sysnotif" style="border-color:var(--negative);box-shadow:0 0 20px rgba(239,68,68,.2);">
+            <div class="sysnotif-corner tl" style="border-color:var(--negative)"></div>
+            <div class="sysnotif-corner tr" style="border-color:var(--negative)"></div>
+            <div class="sysnotif-corner bl" style="border-color:var(--negative)"></div>
+            <div class="sysnotif-corner br" style="border-color:var(--negative)"></div>
+            <div class="sysnotif-head">
+              <span class="sysnotif-icon" style="color:var(--negative)">${svgIcon('no_scroll_am', 'icon')}</span>
+              <span class="sysnotif-tag" style="color:var(--negative)">SCREEN TIME · REPORTE</span>
+              ${streak > 0 ? `<span class="sysnotif-rank">${streak}d STREAK</span>` : ''}
+            </div>
+            <div class="sysnotif-body">
+              <div class="sysnotif-title">¿Cuántas horas de redes ayer?</div>
+              <div class="sysnotif-desc">Umbral: ${threshold}h. Sé honesto — el Sistema solo funciona con datos reales.</div>
+            </div>
+            <div style="padding:0 12px 12px;">
+              <input type="range" class="slider" id="stSlider" min="0" max="8" step="0.5" value="1.5"
+                oninput="document.getElementById('stSliderVal').textContent = this.value + 'h';
+                  const v = parseFloat(this.value);
+                  const t = ${threshold};
+                  const el = document.getElementById('stSliderLabel');
+                  const p = document.getElementById('stSliderPenalty');
+                  if (v <= t) {
+                    el.style.color = 'var(--positive)';
+                    el.textContent = '${streak < 7 ? 'APROBADO · sin bonus aún (streak < 7d)' : 'APROBADO · +' + (reward * 6) + ' XP'}';
+                    p.textContent = '';
+                  } else {
+                    const excess = v - t;
+                    const pen = Math.min(120, Math.round(Math.pow(excess, 1.8) * 6));
+                    const total = (pen * 5) + (pen * 2);
+                    el.style.color = 'var(--negative)';
+                    el.textContent = 'EXCEDIDO · -' + total + ' XP';
+                    p.textContent = 'Disciplina: -' + (pen * 2) + ' · Resto: -' + pen + ' c/u';
+                    p.style.color = 'var(--negative)';
+                  }
+                ">
+              <div class="slider-val" id="stSliderVal">1.5h</div>
+              <div class="mono text-xs text-center mt-1" id="stSliderLabel" style="color:var(--positive);letter-spacing:.1em;">APROBADO</div>
+              <div class="mono text-xs text-center mt-1" id="stSliderPenalty" style="letter-spacing:.08em;"></div>
+              <button class="btn btn-block mt-3" onclick="reportScreenTime(parseFloat(document.getElementById('stSlider').value))">Reportar</button>
+            </div>
+          </div>
+        `;
+      } else if (log.screen_time !== null) {
+        const threshold = getScreenTimeThreshold();
+        const passed = log.screen_time === 'pass';
+        html += `
+          <div class="scroll-am-result ${passed ? 'won' : 'lost'}">
+            ${passed
+              ? `◇ SCREEN TIME OK · ≤${threshold}h · streak ${state.screenTime.streak}d`
+              : `◆ SCREEN TIME EXCEDIDO · >${threshold}h`
+            }
+          </div>
+        `;
       }
 
       // SYSTEM QUEST CARD — la pieza central
