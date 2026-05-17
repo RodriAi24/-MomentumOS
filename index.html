@@ -3577,10 +3577,10 @@
     }
 
     .cote-portrait-frame {
-      width: 96px;
-      height: 96px;
-      border: 1px solid rgba(100, 180, 255, .5);
-      padding: 3px;
+      width: 140px;
+      height: 160px;
+      border: 1px solid rgba(100, 180, 255, .55);
+      padding: 4px;
       background: rgba(40, 60, 100, .3);
       position: relative;
     }
@@ -3589,18 +3589,18 @@
     .cote-portrait-frame::after {
       content: '';
       position: absolute;
-      width: 10px;
-      height: 10px;
-      border: 1px solid rgba(150, 200, 255, .8);
+      width: 14px;
+      height: 14px;
+      border: 1px solid rgba(150, 200, 255, .9);
     }
 
     .cote-portrait-frame::before {
-      top: -3px; left: -3px;
+      top: -4px; left: -4px;
       border-right: 0; border-bottom: 0;
     }
 
     .cote-portrait-frame::after {
-      bottom: -3px; right: -3px;
+      bottom: -4px; right: -4px;
       border-left: 0; border-top: 0;
     }
 
@@ -3612,7 +3612,7 @@
       align-items: center;
       justify-content: center;
       font-family: var(--font-mono);
-      font-size: 36px;
+      font-size: 56px;
       font-weight: 700;
       color: rgba(150, 200, 255, .9);
       overflow: hidden;
@@ -3621,11 +3621,11 @@
     .cote-name {
       text-align: center;
       font-family: var(--font-display);
-      font-size: 22px;
-      letter-spacing: .12em;
+      font-size: 24px;
+      letter-spacing: .14em;
       color: rgba(200, 220, 255, 1);
       text-shadow: 0 0 8px rgba(100, 180, 255, .3);
-      padding: 4px 16px 2px;
+      padding: 10px 16px 2px;
     }
 
     .cote-name-sub {
@@ -3634,78 +3634,99 @@
       font-size: 9px;
       letter-spacing: .35em;
       color: rgba(150, 200, 255, .6);
-      padding-bottom: 14px;
-      border-bottom: 1px solid rgba(100, 180, 255, .15);
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(100, 180, 255, .2);
       margin: 0 16px;
     }
 
     .cote-dims-grid {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      grid-template-rows: auto auto;
-      gap: 12px;
-      padding: 18px 16px 12px;
-      align-items: center;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 8px;
+      padding: 16px 16px 8px;
+      position: relative;
     }
 
     .cote-dim-corner {
       display: flex;
-      justify-content: center;
     }
 
+    .cote-dim-corner.tl { grid-column: 1; grid-row: 1; }
+    .cote-dim-corner.tr { grid-column: 2; grid-row: 1; }
+    .cote-dim-corner.bl { grid-column: 1; grid-row: 3; }
+    .cote-dim-corner.br { grid-column: 2; grid-row: 3; }
+
     .cote-dim {
+      width: 100%;
       display: grid;
-      grid-template-columns: auto auto;
-      gap: 4px 8px;
-      align-items: baseline;
-      padding: 8px 12px;
-      background: rgba(40, 60, 100, .25);
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 0 10px;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(20, 30, 55, .55);
       border: 1px solid rgba(100, 180, 255, .25);
-      min-width: 100px;
       position: relative;
+    }
+
+    body[data-theme="light"] .cote-dim {
+      background: rgba(220, 232, 250, .65);
     }
 
     .cote-dim-score {
       font-family: var(--font-mono);
-      font-size: 11px;
-      color: rgba(150, 200, 255, .6);
-      letter-spacing: .08em;
+      font-size: 13px;
+      color: rgba(150, 200, 255, .75);
+      letter-spacing: .05em;
       grid-column: 1;
       grid-row: 1;
+      font-weight: 500;
     }
 
     .cote-dim-letter {
       font-family: var(--font-display);
-      font-size: 28px;
-      color: rgba(200, 220, 255, 1);
-      text-shadow: 0 0 6px rgba(100, 180, 255, .35);
+      font-size: 30px;
+      color: rgba(220, 230, 255, 1);
+      text-shadow: 0 0 8px rgba(100, 180, 255, .4);
       grid-column: 2;
       grid-row: 1 / 3;
       line-height: 1;
       align-self: center;
+      justify-self: end;
     }
 
     .cote-dim-label {
       font-family: var(--font-mono);
       font-size: 8px;
-      letter-spacing: .2em;
-      color: rgba(150, 200, 255, .55);
+      letter-spacing: .22em;
+      color: rgba(150, 200, 255, .5);
       text-transform: uppercase;
       grid-column: 1;
       grid-row: 2;
+      margin-top: 2px;
     }
 
     .cote-dim-arrow {
       position: absolute;
-      top: 4px;
-      right: 6px;
+      top: 6px;
+      right: 8px;
       font-size: 10px;
+    }
+
+    .cote-center-wrap {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 4px 0;
     }
 
     .cote-center {
       position: relative;
-      width: 110px;
-      height: 110px;
+      width: 120px;
+      height: 120px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3736,7 +3757,7 @@
 
     .cote-center-letter {
       font-family: var(--font-display);
-      font-size: 42px;
+      font-size: 46px;
       color: rgba(220, 235, 255, 1);
       text-shadow: 0 0 12px rgba(100, 180, 255, .6);
       line-height: 1;
@@ -3744,10 +3765,10 @@
 
     .cote-center-score {
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 11px;
       color: rgba(150, 200, 255, .8);
       letter-spacing: .1em;
-      margin-top: 2px;
+      margin-top: 4px;
     }
 
     .cote-center-label {
@@ -4350,7 +4371,8 @@
 
     // Decay exponencial — vida media 14 días
     function timeWeight(daysAgo) {
-      return Math.exp(-daysAgo / 14);
+      // Vida media 7 días — el decay golpea fuerte
+      return Math.exp(-daysAgo / 7);
     }
 
     function daysSince(dateStr) {
@@ -4383,12 +4405,11 @@
 
     function calcAcademico() {
       const logs = getRecentLogs(30);
-      if (logs.length < 7) return null; // no enough data
+      if (logs.length < 7) return null;
 
       const sabidIds = HABITS_BASE.sabiduria.map(h => h.id)
         .concat(state.custom.filter(c => c.stat === 'sabiduria').map(c => c.id));
 
-      // Frecuencia ponderada
       let freqRaw = 0;
       let totalSabidLogs = 0;
       let highEffortLogs = 0;
@@ -4408,24 +4429,24 @@
         });
       });
 
-      // Normalizar frecuencia (target: ~15 hábitos ponderados en 30d = A)
-      const freqScore = Math.min(14, (freqRaw / 15) * 14);
+      // V14: target subido — 40 hábitos ponderados = A (era 15)
+      // Llegar a A requiere ~3-4 sabiduría por día sostenidos
+      const freqScore = Math.min(14, (freqRaw / 40) * 14);
 
-      // Consistencia: % días con al menos 1 sabiduría
-      const consistencyScore = (daysWithSabid.size / 30) * 14;
+      // Consistencia: % días con sabiduría — necesita 90%+ para A
+      const consistencyScore = Math.pow(daysWithSabid.size / 30, 1.5) * 14;
 
-      // Profundidad: % de high-effort
+      // Profundidad: high-effort tiene que ser dominante para A
       const depthScore = totalSabidLogs > 0
-        ? Math.min(14, (highEffortLogs / totalSabidLogs) * 20)
+        ? Math.min(14, Math.pow(highEffortLogs / totalSabidLogs, 1.3) * 14)
         : 0;
 
-      // Diversidad: cantidad de hábitos distintos
-      const diversityScore = Math.min(14, (uniqueHabits.size / 5) * 14);
+      // Diversidad: necesitás 6+ hábitos distintos para A
+      const diversityScore = Math.min(14, (uniqueHabits.size / 6) * 14);
 
       let raw = freqScore * 0.40 + consistencyScore * 0.30 + depthScore * 0.20 + diversityScore * 0.10;
 
-      // Penalizaciones
-      // Racha de 5+ días sin sabiduría
+      // Penalizaciones más agresivas
       let dryStreak = 0, maxDryStreak = 0;
       for (let i = 0; i < 14; i++) {
         const d = new Date();
@@ -4436,10 +4457,12 @@
         if (!hasSabid) { dryStreak++; maxDryStreak = Math.max(maxDryStreak, dryStreak); }
         else dryStreak = 0;
       }
+      // V14: penalizaciones escaladas
+      if (maxDryStreak >= 3) raw -= 1.0;
       if (maxDryStreak >= 5) raw -= 1.5;
+      if (maxDryStreak >= 7) raw -= 2.0;
 
-      // Solo notes (el más fácil): cap C+
-      // PERO: si hay carga profunda sostenida (5+ deep_work o 10+ pomos en 14d), anular
+      // Carga profunda (CCA, deep_work)
       let deepLoad = 0;
       let pomoLoad = 0;
       for (let i = 0; i < 14; i++) {
@@ -4458,8 +4481,10 @@
         raw = Math.min(raw, 8);
       }
 
-      // Bonus por carga cognitiva profunda sostenida
       if (heavyCognitiveLoad) raw += 0.5;
+
+      // V14: cap absoluto si menos de 21 días de uso (B máximo)
+      if (logs.length < 21) raw = Math.min(raw, 10);
 
       return Math.max(0, Math.min(14, raw));
     }
@@ -4491,21 +4516,22 @@
         });
       });
 
-      const freqScore = Math.min(14, (freqRaw / 18) * 14);
-      const consistencyScore = (daysWithFisico.size / 30) * 14;
-      const sleepScore = (sleepDays / 30) * 14;
-      const hydraVarScore = Math.min(14, (hydrationDays / 20) * 7 + (habitTypes.size / 5) * 7);
+      // V14: targets subidos
+      // Frecuencia: target 45 hábitos ponderados (era 18) — necesita actividad casi diaria
+      const freqScore = Math.min(14, (freqRaw / 45) * 14);
+      const consistencyScore = Math.pow(daysWithFisico.size / 30, 1.5) * 14;
+      const sleepScore = Math.pow(sleepDays / 30, 1.3) * 14;
+      const hydraVarScore = Math.min(14, (hydrationDays / 25) * 7 + (habitTypes.size / 6) * 7);
 
       let raw = freqScore * 0.30 + consistencyScore * 0.30 + sleepScore * 0.20 + hydraVarScore * 0.20;
 
       // Penalizaciones
-      // Solo gym sin variedad
       if (gymDays > 0 && habitTypes.size === 1 && habitTypes.has('gym')) {
-        raw = Math.min(raw, 10); // cap B
+        raw = Math.min(raw, 9); // cap B− (era B)
       }
-      // Sin gym 14+ días
+      // Sin gym 7/14/21+ días — escalado
       let gymDryStreak = 0;
-      for (let i = 0; i < 14; i++) {
+      for (let i = 0; i < 21; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const key = dateToKey(d);
@@ -4513,7 +4539,12 @@
         if (!l || !l.habits.includes('gym')) gymDryStreak++;
         else break;
       }
+      if (gymDryStreak >= 7) raw -= 1;
       if (gymDryStreak >= 14) raw -= 2;
+      if (gymDryStreak >= 21) raw -= 3;
+
+      // Cap absoluto si menos de 21 días
+      if (logs.length < 21) raw = Math.min(raw, 10);
 
       return Math.max(0, Math.min(14, raw));
     }
@@ -4547,20 +4578,19 @@
       });
       const intentScore = intentTotal > 0 ? (intentDone / intentTotal) * 14 : 7;
 
-      // Scroll AM streak
-      const scrollScore = Math.min(14, (state.streaks.no_scroll_am.current / 14) * 14);
+      // V14: targets subidos en pomos y scroll streak
+      const scrollScore = Math.min(14, Math.pow(state.streaks.no_scroll_am.current / 21, 1.2) * 14);
 
-      // Pomodoros + deep work
       let pomoCount = 0;
       logs.forEach(log => {
         if (log.habits.includes('pomo')) pomoCount++;
         if (log.habits.includes('deep_work')) pomoCount += 1.5;
       });
-      const pomoScore = Math.min(14, (pomoCount / 15) * 14);
+      // V14: target 40 pomos en 30d (era 15) — requiere ~1.3 pomos/día sostenidos
+      const pomoScore = Math.min(14, (pomoCount / 40) * 14);
 
-      // Reflections cerradas
       const reflClosed = logs.filter(l => l.reflection?.closed).length;
-      const reflScore = (reflClosed / 30) * 14;
+      const reflScore = Math.pow(reflClosed / 30, 1.3) * 14;
 
       let raw =
         acceptScore * 0.25 +
@@ -4571,19 +4601,19 @@
         reflScore * 0.10;
 
       // Penalizaciones
-      // 3 rechazos seguidos: cap C
       const lastThree = state.sysquest_history.slice(-3);
       if (lastThree.length === 3 && lastThree.every(q => q.status === 'rejected' || q.status === 'failed')) {
         raw = Math.min(raw, 7);
       }
-      // 0 quests aceptadas en 14 días: cap D+
       const last14 = state.sysquest_history.filter(q => daysSince(q.date) <= 14);
       if (last14.length > 0 && last14.every(q => q.status === 'rejected')) {
         raw = Math.min(raw, 5);
       }
 
-      // Screen Time impact on OAA Mental
       raw += getScreenTimeOAAFactor();
+
+      // Cap absoluto si menos de 21 días
+      if (logs.length < 21) raw = Math.min(raw, 10);
 
       return Math.max(0, Math.min(14, raw));
     }
@@ -4613,24 +4643,24 @@
         });
       });
 
-      // Normalizar — target 30 weighted points = A
-      let raw = Math.min(14, (weighted / 30) * 14);
+      // V14: target subido — 70 weighted points = A (era 30)
+      let raw = Math.min(14, (weighted / 70) * 14);
 
-      // Hábito maestro: quality_time consistente protege contra decay
-      // (relación de pareja / vínculos profundos no son networking)
       const qualityTimeMaster = qualityTimeCount >= 4 && qualityTimeRecent <= 7;
 
-      // Decay por inactividad — solo si NO hay quality_time activo
       if (!qualityTimeMaster) {
-        if (mostRecentVinculo >= 21) raw = Math.min(raw, 4); // cap D
-        else if (mostRecentVinculo >= 14) raw -= 2;
-        else if (mostRecentVinculo >= 7) raw -= 1;
+        // V14: decay más agresivo
+        if (mostRecentVinculo >= 14) raw = Math.min(raw, 4);
+        else if (mostRecentVinculo >= 10) raw -= 3;
+        else if (mostRecentVinculo >= 7) raw -= 2;
+        else if (mostRecentVinculo >= 4) raw -= 1;
       }
 
-      // Bonus diversidad
-      if (types.size >= 4) raw += 1;
-      // Bonus por mantenimiento profundo
+      if (types.size >= 5) raw += 1;
       if (qualityTimeMaster) raw += 0.5;
+
+      // Cap absoluto si menos de 21 días
+      if (logs.length < 21) raw = Math.min(raw, 10);
 
       return Math.max(0, Math.min(14, raw));
     }
@@ -4656,41 +4686,42 @@
           }
         });
       });
-      const almaScore = Math.min(14, (almaDays.size / 20) * 14);
+      // V14: targets subidos
+      const almaScore = Math.min(14, Math.pow(almaDays.size / 25, 1.4) * 14);
 
-      // Diversidad Juego
+      // Diversidad Juego: necesitás 6+ tipos para A
       const juegoTypes = new Set();
       logs.forEach(log => {
         log.habits.forEach(h => { if (juegoIds.includes(h)) juegoTypes.add(h); });
       });
-      const juegoScore = (juegoTypes.size / 5) * 14;
+      const juegoScore = (juegoTypes.size / 6) * 14;
 
-      // Mazmorras
+      // Mazmorras: requieren más para alto score
       const recentBosses = state.bosses.filter(b => b.completed && daysSince(b.completedAt) <= 30);
       const recentForged = state.bosses.filter(b => daysSince(b.createdAt) <= 30);
-      const bossScore = Math.min(14, recentBosses.length * 4 + recentForged.length * 1);
+      const bossScore = Math.min(14, recentBosses.length * 3 + recentForged.length * 0.5);
 
-      // Customs activos
       const activeCustoms = state.custom.filter(c => {
         return logs.some(l => l.habits.includes(c.id));
       });
-      const customScore = Math.min(14, activeCustoms.length * 3);
+      const customScore = Math.min(14, activeCustoms.length * 2.5);
 
-      // Reflections con journal lleno
       const journaled = logs.filter(l => l.reflection?.journal && l.reflection.journal.length > 10).length;
-      const journalScore = Math.min(14, (journaled / 15) * 14);
+      const journalScore = Math.min(14, (journaled / 20) * 14);
 
       let raw = almaScore * 0.30 + juegoScore * 0.20 + bossScore * 0.25 + customScore * 0.15 + journalScore * 0.10;
 
-      // Bonus si tu custom más usado tiene 20+ logs
       if (state.custom.length > 0) {
         let maxLogs = 0;
         state.custom.forEach(c => {
           const count = logs.reduce((s, l) => s + (l.habits.includes(c.id) ? 1 : 0), 0);
           maxLogs = Math.max(maxLogs, count);
         });
-        if (maxLogs >= 20) raw += 0.5;
+        if (maxLogs >= 25) raw += 0.5;
       }
+
+      // Cap absoluto si menos de 21 días
+      if (logs.length < 21) raw = Math.min(raw, 10);
 
       return Math.max(0, Math.min(14, raw));
     }
@@ -7182,16 +7213,18 @@
             <div class="cote-dim-corner tl">${dimBlock('academico', 'Académico')}</div>
             <div class="cote-dim-corner tr">${dimBlock('fisico', 'Físico')}</div>
 
-            <div class="cote-center">
-              <svg class="cote-ring" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="${ringR}" class="cote-ring-bg"></circle>
-                <circle cx="50" cy="50" r="${ringR}" class="cote-ring-fg"
-                  stroke-dasharray="${ringC}" stroke-dashoffset="${ringOffset}"
-                  transform="rotate(-90 50 50)"></circle>
-              </svg>
-              <div class="cote-center-letter">${totalLetter}</div>
-              <div class="cote-center-score">${totalScore}</div>
-              <div class="cote-center-label">TOTAL</div>
+            <div class="cote-center-wrap">
+              <div class="cote-center">
+                <svg class="cote-ring" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="${ringR}" class="cote-ring-bg"></circle>
+                  <circle cx="50" cy="50" r="${ringR}" class="cote-ring-fg"
+                    stroke-dasharray="${ringC}" stroke-dashoffset="${ringOffset}"
+                    transform="rotate(-90 50 50)"></circle>
+                </svg>
+                <div class="cote-center-letter">${totalLetter}</div>
+                <div class="cote-center-score">${totalScore}</div>
+                <div class="cote-center-label">TOTAL</div>
+              </div>
             </div>
 
             <div class="cote-dim-corner bl">${dimBlock('mental', 'Mental')}</div>
@@ -9240,13 +9273,14 @@
     }
 
     // ============================================================
-    // FOCUS TIMER
+    // FOCUS TIMER (V14: timestamp-based, sobrevive a bloqueo de pantalla)
     // ============================================================
     window.focusTimer = {
       duration: 25 * 60,
       remaining: 25 * 60,
       running: false,
-      startedAt: null,
+      startedAt: null,      // Date.now() cuando arrancó esta corrida
+      pausedRemaining: 25 * 60, // segundos que quedaban cuando se pausó
       mode: 25,
       interval: null,
     };
@@ -9256,6 +9290,7 @@
       focusTimer.mode = mins;
       focusTimer.duration = mins * 60;
       focusTimer.remaining = mins * 60;
+      focusTimer.pausedRemaining = mins * 60;
       updateTimerUI();
     }
 
@@ -9266,13 +9301,22 @@
 
     function startTimer() {
       focusTimer.running = true;
+      // V14: anchor en Date.now(). Si pausamos antes, retomamos desde pausedRemaining.
       focusTimer.startedAt = Date.now();
-      focusTimer.interval = setInterval(tickTimer, 1000);
+      // El interval ahora solo refresca el UI cada 250ms basado en el delta real
+      focusTimer.interval = setInterval(tickTimer, 250);
       updateTimerUI();
     }
 
     function pauseTimer() {
+      // Guardar el tiempo restante real antes de parar
+      if (focusTimer.startedAt) {
+        const elapsed = Math.floor((Date.now() - focusTimer.startedAt) / 1000);
+        focusTimer.pausedRemaining = Math.max(0, focusTimer.pausedRemaining - elapsed);
+        focusTimer.remaining = focusTimer.pausedRemaining;
+      }
       focusTimer.running = false;
+      focusTimer.startedAt = null;
       if (focusTimer.interval) clearInterval(focusTimer.interval);
       updateTimerUI();
     }
@@ -9280,12 +9324,17 @@
     function resetTimer() {
       if (focusTimer.interval) clearInterval(focusTimer.interval);
       focusTimer.running = false;
+      focusTimer.startedAt = null;
       focusTimer.remaining = focusTimer.duration;
+      focusTimer.pausedRemaining = focusTimer.duration;
       updateTimerUI();
     }
 
     function tickTimer() {
-      focusTimer.remaining--;
+      // V14: calcular remaining basado en timestamp, no en decrement
+      if (!focusTimer.running || !focusTimer.startedAt) return;
+      const elapsed = Math.floor((Date.now() - focusTimer.startedAt) / 1000);
+      focusTimer.remaining = Math.max(0, focusTimer.pausedRemaining - elapsed);
       if (focusTimer.remaining <= 0) completeTimer();
       else updateTimerUI();
     }
@@ -9293,14 +9342,23 @@
     function completeTimer() {
       clearInterval(focusTimer.interval);
       focusTimer.running = false;
+      focusTimer.startedAt = null;
       focusTimer.remaining = 0;
       updateTimerUI();
       const habitId = focusTimer.mode >= 90 ? 'deep_work' : 'pomo';
       if (!log.habits.includes(habitId)) logHabit(habitId);
       else toast(`Sesión completada`, 'positive');
       focusTimer.remaining = focusTimer.duration;
+      focusTimer.pausedRemaining = focusTimer.duration;
       if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
     }
+
+    // V14: cuando la app vuelve del background, recalcular remaining
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && focusTimer.running) {
+        tickTimer();
+      }
+    });
 
     function updateTimerUI() {
       const $t = document.getElementById('timerTime');
@@ -10655,6 +10713,7 @@
       const daysActive = daysSinceCreated();
       const rank = currentRank();
       let html = renderOAACard();
+      html += `<div class="section-gap" style="height:18px;"></div>`;
       html += `
     <div class="status-window">
       <div class="status-title">▸ CHARACTER SHEET</div>
