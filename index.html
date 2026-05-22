@@ -20,6 +20,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     :root {
+      /* V19.8: Card padding tokens */
+      --card-pad-sm: 12px;
+      --card-pad-md: 16px;
+      --card-pad-lg: 22px;
       --bg: #05040A;
       --bg2: #0A0814;
       --bg3: #110E1F;
@@ -321,54 +325,74 @@
       transform: scale(.94);
     }
 
-    .header-info {
+    .header-left {
       flex: 1;
       min-width: 0;
-    }
-
-    .header-tag {
-      font-size: 10px;
-      color: var(--sys2);
-      font-weight: 600;
-      letter-spacing: .2em;
-      font-family: var(--font-mono);
-      text-transform: uppercase;
-      margin-bottom: 2px;
       display: flex;
-      align-items: center;
-      gap: 6px;
+      flex-direction: column;
+      gap: 3px;
     }
 
-    .header-tag::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: var(--sys);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-
-    .header-title {
+    .header-name {
       font-size: 16px;
       font-weight: 700;
       color: var(--ink);
+      letter-spacing: .02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-bottom-line {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       gap: 10px;
     }
 
-    .header-streak {
-      display: inline-block;
-      font-size: 11px;
+    .header-pp {
       font-family: var(--font-mono);
-      color: var(--negative);
-      letter-spacing: .05em;
-      margin-left: 6px;
+      font-size: 11px;
+      color: var(--sys);
+      letter-spacing: .08em;
       font-weight: 600;
     }
 
+    .header-pp-locked {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .08em;
+    }
+
+    .header-streak {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--negative);
+      font-weight: 700;
+      letter-spacing: .05em;
+    }
+
+    .header-streak-icon {
+      display: inline-flex;
+      width: 12px;
+      height: 12px;
+    }
+
+    .header-streak-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--negative);
+      fill: var(--negative);
+    }
+
+    .header-streak-glow .header-streak-icon svg {
+      filter: drop-shadow(0 0 4px rgba(239, 68, 68, .6));
+    }
+
     .header-streak-glow {
-      text-shadow: 0 0 8px rgba(239, 68, 68, .6);
       animation: streakPulse 2s ease-in-out infinite;
     }
 
@@ -380,16 +404,31 @@
       }
 
       50% {
-        opacity: .7;
+        opacity: .65;
       }
     }
 
-    .header-rank {
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .header-rank-line {
       font-family: var(--font-display);
-      font-size: 22px;
-      color: var(--sys2);
+      font-size: 16px;
       letter-spacing: .08em;
       text-shadow: 0 0 8px var(--sys-glow);
+      white-space: nowrap;
+    }
+
+    .header-level-line {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink3);
+      letter-spacing: .15em;
     }
 
     .header-btn {
@@ -416,10 +455,11 @@
       background: var(--card);
       border: 1px solid var(--border2);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: var(--card-pad-md);
       margin-bottom: 12px;
       position: relative;
       overflow: hidden;
+      transition: border-color .25s var(--ease);
     }
 
     .card-title {
@@ -502,6 +542,8 @@
 
     .btn:active {
       transform: scale(.97);
+      filter: brightness(.92);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, .25);
     }
 
     .btn-ghost {
@@ -2594,6 +2636,344 @@
       }
     }
 
+    /* V19.7: Microinteractions */
+    @keyframes cardFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes habitBounce {
+      0% {
+        transform: scale(1);
+      }
+
+      40% {
+        transform: scale(.94);
+      }
+
+      60% {
+        transform: scale(1.04);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes xpFloat {
+      0% {
+        transform: translateY(0);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-40px);
+        opacity: 0;
+      }
+    }
+
+    .page>.card,
+    .page>.sysnotif,
+    .page>.checkin {
+      animation: cardFadeIn .35s var(--ease) backwards;
+    }
+
+    .page>.card:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .page>.card:nth-child(2) {
+      animation-delay: .04s;
+    }
+
+    .page>.card:nth-child(3) {
+      animation-delay: .08s;
+    }
+
+    .page>.card:nth-child(4) {
+      animation-delay: .12s;
+    }
+
+    .page>.card:nth-child(5) {
+      animation-delay: .16s;
+    }
+
+    .page>.card:nth-child(6) {
+      animation-delay: .20s;
+    }
+
+    .habit-row.bouncing {
+      animation: habitBounce .4s var(--ease);
+    }
+
+    /* Smooth scroll behavior */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Collapsible smooth */
+    .collapsible-content {
+      transition: max-height .35s var(--ease), opacity .25s var(--ease);
+    }
+
+    .xp-float-mult {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      opacity: .85;
+      letter-spacing: .05em;
+    }
+
+    /* V19.8: Cinematic Rank Up */
+    .rankup-cinematic {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .4s var(--ease);
+    }
+
+    .rankup-cinematic.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .rankup-cinematic-bg {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 4, 10, .92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .rankup-cinematic-rays {
+      position: absolute;
+      inset: 0;
+      animation: rankupRaysSpin 20s linear infinite;
+      opacity: .6;
+    }
+
+    @keyframes rankupRaysSpin {
+      0% {
+        transform: rotate(0deg) scale(1);
+      }
+
+      50% {
+        transform: rotate(180deg) scale(1.1);
+      }
+
+      100% {
+        transform: rotate(360deg) scale(1);
+      }
+    }
+
+    .rankup-cinematic-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 50px 36px;
+      max-width: 380px;
+      animation: rankupContentIn 1s var(--ease) both;
+    }
+
+    @keyframes rankupContentIn {
+      0% {
+        opacity: 0;
+        transform: scale(.85);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .rankup-cinematic-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .5em;
+      color: var(--sys);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      animation: rankupTagIn 1.2s var(--ease) both;
+      animation-delay: .3s;
+    }
+
+    .rankup-cinematic-tag-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .2em;
+      color: var(--ink3);
+      text-transform: uppercase;
+      margin-bottom: 36px;
+      animation: rankupTagIn 1.2s var(--ease) both;
+      animation-delay: .5s;
+    }
+
+    @keyframes rankupTagIn {
+      0% {
+        opacity: 0;
+        letter-spacing: 1em;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .rankup-cinematic-num-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .rankup-cinematic-num {
+      font-family: var(--font-display);
+      font-size: 120px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -.04em;
+      animation: rankupNumIn 1.6s cubic-bezier(.2, .8, .2, 1) both;
+      animation-delay: .8s;
+    }
+
+    @keyframes rankupNumIn {
+      0% {
+        opacity: 0;
+        transform: scale(.4);
+        filter: blur(20px);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.15);
+        filter: blur(0);
+      }
+
+      75% {
+        transform: scale(.95);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+      }
+    }
+
+    .rankup-cinematic-label {
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: .25em;
+      color: var(--ink);
+      margin-bottom: 40px;
+      text-transform: uppercase;
+      animation: rankupLabelIn 1s var(--ease) both;
+      animation-delay: 1.6s;
+    }
+
+    @keyframes rankupLabelIn {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .rankup-cinematic-btn {
+      background: var(--sys);
+      color: #fff;
+      border: 0;
+      padding: 14px 36px;
+      border-radius: var(--radius);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 20px var(--sys-glow);
+      animation: rankupBtnIn 1s var(--ease) both;
+      animation-delay: 2.2s;
+      transition: all .2s var(--ease);
+    }
+
+    .rankup-cinematic-btn:active {
+      transform: scale(.95);
+      filter: brightness(.92);
+    }
+
+    @keyframes rankupBtnIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tip-of-day {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      background: var(--bg2);
+      border: 1px dashed var(--border2);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all .2s var(--ease);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tip-of-day:active {
+      transform: scale(.99);
+      opacity: .8;
+    }
+
+    .tip-of-day-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .15em;
+      color: var(--sys);
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+
+    .tip-of-day-text {
+      flex: 1;
+      font-size: 12px;
+      color: var(--ink2);
+      line-height: 1.4;
+    }
+
+    .tip-of-day-close {
+      color: var(--ink3);
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
     .nav-tab.active {
       color: var(--sys2);
       position: relative;
@@ -3435,7 +3815,7 @@
       background: var(--card);
       border: 1px solid var(--border2);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: var(--card-pad-md);
       margin-bottom: 12px;
       position: relative;
       overflow: hidden;
@@ -4347,9 +4727,6 @@
       return OAA_LETTERS[Math.max(0, Math.min(14, Math.round(n)))];
     }
 
-    function letterToNum(letter) {
-      return OAA_LETTERS.indexOf(letter);
-    }
 
     // Pesos del OAA Total — Mental pesa más porque es el predictor más fuerte
     const OAA_WEIGHTS = {
@@ -4765,9 +5142,7 @@
     }
 
     // Días con datos en últimos N días (proxy de antigüedad de uso)
-    function daysWithData(days = 30) {
-      return getRecentLogs(days).filter(l => l.habits.length > 0 || l.scroll_am !== null).length;
-    }
+
 
     // ============================================================
     // CÁLCULO DE DIMENSIONES (0 a 14, mapeable a letras)
@@ -5763,15 +6138,7 @@
       };
     }
 
-    async function getWeather() {
-      const cached = state.weatherCache;
-      if (cached && (Date.now() - cached.fetchedAt) < 30 * 60 * 1000) return cached;
-      const fresh = await fetchWeather();
-      if (fresh) {
-        state.weatherCache = fresh;
-      }
-      return fresh || cached || null;
-    }
+
 
     // ============================================================
     // ZENQUOTES \u2014 quote diaria curada por el Sistema
@@ -6513,7 +6880,7 @@
       ],
     };
 
-    const QUEST_CATEGORIES = Object.keys(QUEST_TEMPLATES);
+
 
     function generateDailyQuest(currentRank, recentCategories) {
       // Pesos: ajustan según rango
@@ -6648,7 +7015,7 @@
     // ============================================================
     // STATE
     // ============================================================
-    const VERSION = 'momentum-v3.7.0-ecosystem';
+
     let state = {
       user: load(K.user, null),
       xp: load(K.xp, { fuerza: 0, sabiduria: 0, disciplina: 0, alma: 0, vinculo: 0, juego: 0 }),
@@ -6759,9 +7126,7 @@
       return total;
     }
 
-    function xpForNextLevel(currentLevel) {
-      return Math.floor(Math.pow(currentLevel + 1, 1.5) * 100);
-    }
+
 
     function levelFromXP(xp) {
       // Starts at 0
@@ -6840,6 +7205,15 @@
       log.habits.push(habitId);
       const realHabits = log.habits.filter(x => x !== '__touched');
 
+      // V19.7: Habit bounce animation
+      if (originEvent?.target) {
+        const row = originEvent.target.closest('.habit-row');
+        if (row) {
+          row.classList.add('bouncing');
+          setTimeout(() => row.classList.remove('bouncing'), 400);
+        }
+      }
+
       // First log of the day bonus
       if (realHabits.length === 1) {
         xpToAdd += 5;
@@ -6901,14 +7275,7 @@
     }
 
 
-    function showUndoToast(habitId) {
-      let $t = document.getElementById('toast');
-      if (!$t) { $t = document.createElement('div'); $t.id = 'toast'; document.body.appendChild($t); }
-      $t.className = 'toast positive show';
-      $t.innerHTML = `Marcado · <span onclick="undoHabit('${habitId}')" class="text-sys" style="text-decoration:underline;cursor:pointer">DESHACER</span>`;
-      clearTimeout(window._toastT);
-      window._toastT = setTimeout(() => $t.classList.remove('show'), 3500);
-    }
+
 
     function undoHabit(habitId) {
       const h = findHabit(habitId);
@@ -7009,13 +7376,59 @@
       s.last = today;
 
       // Streak milestones — XP + PP bonuses
+      // Streak milestones - XP + PP bonuses + V19.8 celebration
       const milestones = [7, 14, 21, 30, 50, 75, 100];
       if (milestones.includes(s.current)) {
         const bonus = s.current * 3;
         Object.keys(STATS).forEach(k => state.xp[k] += Math.floor(bonus / 6));
         earnPP(s.current * 2, 'streak_milestone_' + s.current);
-        setTimeout(() => sysToast(`STREAK ${s.current} DÍAS · +${bonus} XP · +${s.current * 2} PP`, 'positive'), 800);
+        setTimeout(() => showStreakMilestone(s.current, bonus, s.current * 2), 800);
       }
+    }
+
+    // V19.8: Streak milestone celebration modal
+    function showStreakMilestone(days, xpBonus, ppBonus) {
+      playSystemSound('achievement');
+      haptic('success');
+      const messages = {
+        7: 'Una semana sin perder un día. El Sistema registra disciplina inicial.',
+        14: 'Dos semanas. La inercia se vuelve estructura.',
+        21: 'Tres semanas. Los hábitos cruzaron al sistema autónomo.',
+        30: 'Un mes completo. Pocos Hunters alcanzan este punto.',
+        50: 'Cincuenta días. El Sistema te clasifica entre los persistentes.',
+        75: 'Setenta y cinco días. Esto ya no es esfuerzo, es identidad.',
+        100: 'Cien días. Has reescrito tu línea base. El Sistema lo registra.'
+      };
+      const msg = messages[days] || `${days} días consecutivos.`;
+      const ov = document.createElement('div');
+      ov.className = 'levelup show';
+      ov.innerHTML = `
+        <div class="rankup-content" style="max-width:340px;padding:36px 28px;box-shadow:0 0 60px var(--negative);border-color:var(--negative)">
+          <div class="sysnotif-corner tl" style="border-color:var(--negative)"></div>
+          <div class="sysnotif-corner tr" style="border-color:var(--negative)"></div>
+          <div class="sysnotif-corner bl" style="border-color:var(--negative)"></div>
+          <div class="sysnotif-corner br" style="border-color:var(--negative)"></div>
+          <div class="mono text-xs" style="letter-spacing:.4em;margin-bottom:16px;color:var(--negative)">STREAK MILESTONE</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:20px">
+            <span style="color:var(--negative);width:36px;height:36px;display:inline-flex">${svgIcon('ach_fire', 'icon')}</span>
+            <div class="display" style="font-size:64px;line-height:1;color:var(--negative);text-shadow:0 0 24px rgba(239,68,68,.6)">${days}</div>
+          </div>
+          <div class="display text-xl text-center" style="margin-bottom:12px">DÍAS CONSECUTIVOS</div>
+          <div class="text-md text-ink2" style="text-align:center;line-height:1.5;margin-bottom:20px;font-style:italic">${msg}</div>
+          <div style="display:flex;justify-content:center;gap:24px;padding:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:20px">
+            <div style="text-align:center">
+              <div class="mono text-xs text-ink3" style="letter-spacing:.15em">XP BONUS</div>
+              <div class="display text-xl" style="color:var(--positive)">+${xpBonus}</div>
+            </div>
+            <div style="text-align:center">
+              <div class="mono text-xs text-ink3" style="letter-spacing:.15em">PP BONUS</div>
+              <div class="display text-xl" style="color:var(--sys)">+${ppBonus}</div>
+            </div>
+          </div>
+          <button class="btn btn-block" onclick="this.closest('.levelup').remove()">Continuar</button>
+        </div>
+      `;
+      document.body.appendChild(ov);
     }
 
     // ============================================================
@@ -7436,6 +7849,7 @@
 
     // V19.5: Rich achievement notification modal
     function showAchievementUnlock(ach) {
+      playSystemSound('achievement');
       const ov = document.createElement('div');
       ov.className = 'levelup show';
       ov.innerHTML = `
@@ -8242,8 +8656,6 @@
       const ppEarned = ppWeek.filter(l => l.type === 'earn').reduce((s, l) => s + l.amount, 0);
       const ppSpent = ppWeek.filter(l => l.type === 'spend').reduce((s, l) => s + Math.abs(l.amount), 0);
 
-      // Weather context (if available)
-      let weatherNote = '';
 
       const report = {
         week: wk,
@@ -8567,6 +8979,13 @@
 
     function dismissSmartSuggestion() {
       state.uiState.smart_suggestion_today = todayKey();
+      persist();
+      render();
+    }
+
+    // V19.8: Tip of day dismiss
+    function dismissTipOfDay() {
+      state.uiState.tip_dismissed_today = todayKey();
       persist();
       render();
     }
@@ -9440,6 +9859,14 @@
       </div>
     </div>
 
+    <div class="setting-row">
+      <div>
+        <div class="setting-name">Sonidos del Sistema</div>
+        <div class="setting-sub">Feedback auditivo en hitos (level up, achievements)</div>
+      </div>
+      <div class="switch ${state.user.settings.sounds_enabled ? 'on' : ''}" onclick="toggleSetting('sounds_enabled', this)"></div>
+    </div>
+
     <div class="setting-row" onclick="closeModal(); openModal('report')" class="clickable">
       <div>
         <div class="setting-name">Informe semanal</div>
@@ -9529,14 +9956,7 @@
       render();
     }
 
-    function toggleTheme(el) {
-      // Legacy: toggle dark/light, kept for retro-compat in modalSettings
-      state.user.theme = state.user.theme === 'dark' ? 'light' : 'dark';
-      applyTheme();
-      if (el) el.classList.toggle('on');
-      persist();
-      if (state.page === 'stats') setTimeout(renderRadar, 100);
-    }
+
 
     function pickTheme(themeId) {
       if (!state.unlockedThemes.includes(themeId)) {
@@ -10418,22 +10838,10 @@
     // ============================================================
     // ANIMATIONS: levelup, rankup, toast, xpfloat
     // ============================================================
-    function animateNumber(element, target, duration = 800) {
-      const start = parseInt(element.textContent) || 0;
-      const diff = target - start;
-      if (diff === 0) return;
-      const startTime = performance.now();
-      function tick(now) {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-        element.textContent = Math.round(start + diff * eased);
-        if (progress < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
+
 
     function showLevelUp(stat, level, big = false) {
+      playSystemSound('level_up');
       haptic('heavy');
       const ov = document.createElement('div');
       ov.className = 'levelup show';
@@ -10454,25 +10862,32 @@
     }
 
     function showRankUp(rankCode) {
+      playSystemSound('rank_up');
       haptic('heavy');
       const rank = RANKS.find(r => r.rank === rankCode);
       if (!rank) return;
       const ov = document.createElement('div');
-      ov.className = 'levelup show';
+      ov.className = 'rankup-cinematic show';
       ov.innerHTML = `
-    <div class="rankup-content">
-      <div class="sysnotif-corner tl"></div>
-      <div class="sysnotif-corner tr"></div>
-      <div class="sysnotif-corner bl"></div>
-      <div class="sysnotif-corner br"></div>
-      <div class="rankup-tag">REEVALUACIÓN COMPLETA</div>
-      <div class="rankup-num" style="color:${rank.color};text-shadow:0 0 30px ${rank.color}">${rank.rank}</div>
-      <div class="rankup-label">${rank.name}</div>
-    </div>
-  `;
-      ov.onclick = () => ov.remove();
+        <div class="rankup-cinematic-bg"></div>
+        <div class="rankup-cinematic-rays" style="background:radial-gradient(circle, ${rank.color}33 0%, transparent 70%)"></div>
+        <div class="rankup-cinematic-content">
+          <div class="sysnotif-corner tl"></div>
+          <div class="sysnotif-corner tr"></div>
+          <div class="sysnotif-corner bl"></div>
+          <div class="sysnotif-corner br"></div>
+          <div class="rankup-cinematic-tag">EVALUACIÓN COMPLETADA</div>
+          <div class="rankup-cinematic-tag-sub">El Sistema te reclasifica</div>
+          <div class="rankup-cinematic-num-wrap">
+            <div class="rankup-cinematic-num" style="color:${rank.color};text-shadow:0 0 60px ${rank.color}, 0 0 24px ${rank.color}">${rank.rank}</div>
+          </div>
+          <div class="rankup-cinematic-label">${rank.name.toUpperCase()}</div>
+          <button class="rankup-cinematic-btn" onclick="this.closest('.rankup-cinematic').remove()">Continuar</button>
+        </div>
+      `;
       document.body.appendChild(ov);
-      setTimeout(() => { if (ov.parentNode) ov.remove(); }, 3200);
+      // Auto-close after 8s if not dismissed
+      setTimeout(() => { if (ov.parentNode) ov.remove(); }, 8000);
     }
 
     function toast(msg, variant = '') {
@@ -10520,22 +10935,33 @@
       toast('▸ ' + msg, variant);
     }
 
-    function floatXP(text, color, ev) {
+    function floatXP(text, color, originEvent) {
+      if (!originEvent?.target) return;
+      const rect = originEvent.target.getBoundingClientRect();
       const el = document.createElement('div');
       el.className = 'xp-float';
-      el.textContent = text;
-      el.style.color = color;
-      if (ev && ev.target) {
-        const r = ev.target.getBoundingClientRect();
-        el.style.left = (r.left + r.width / 2 - 20) + 'px';
-        el.style.top = (r.top + r.height / 2) + 'px';
-      } else {
-        el.style.left = '50%';
-        el.style.top = '40%';
-        el.style.transform = 'translate(-50%, -50%)';
-      }
+      const mult = getStreakMultiplier();
+      const multHtml = mult > 1.0 ? `<span class="xp-float-mult">×${mult.toFixed(2)}</span>` : '';
+      el.innerHTML = `<span class="xp-float-num">${text}</span>${multHtml}`;
+      el.style.cssText = `
+        position:fixed;
+        left:${rect.left + rect.width / 2}px;
+        top:${rect.top}px;
+        transform:translateX(-50%);
+        color:${color};
+        font-family:var(--font-display);
+        font-size:20px;
+        font-weight:700;
+        text-shadow:0 0 8px ${color};
+        pointer-events:none;
+        z-index:1000;
+        animation:xpFloat 1s var(--ease) forwards;
+        display:flex;
+        align-items:center;
+        gap:6px;
+      `;
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 1500);
+      setTimeout(() => el.remove(), 1100);
     }
 
     // ============================================================
@@ -10810,11 +11236,7 @@
       return `${d.getDate()} ${months[d.getMonth()]}`;
     }
 
-    function formatDateFull(dateStr) {
-      const d = new Date(dateStr + "T12:00:00");
-      const months = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-      return `${d.getDate()} de ${months[d.getMonth()]} de ${d.getFullYear()}`;
-    }
+
 
     // ============================================================
     // V3.8: COLLAPSIBLE SECTIONS
@@ -10836,6 +11258,49 @@
     // ============================================================
     // V3.8: MICRO-NARRATIVA DEL SISTEMA
     // ============================================================
+    // V19.8: Tips of the day — rotates daily, max 30 tips
+    const TIPS_OF_DAY = [
+      'Podés crear hábitos personalizados (hasta 7 por stat) desde Profile.',
+      'Cerrar el día con Reflection mejora tu OAA Identidad significativamente.',
+      'Las Daily Intents (3 movimientos del día) cuentan triple para tu evaluación semanal.',
+      'Forjá mazmorras personalizadas desde Profile cuando quieras focalizar una stat débil.',
+      'El Sistema te ofrece Special Exams en Rank B. Pasarlos desbloquea Talents permanentes.',
+      'Tu streak multiplica el XP de cada hábito. A los 60 días llegás al cap de x1.50.',
+      'Los Class Points semanales se calculan los lunes basados en tu actividad de la semana.',
+      'Marcar el primer hábito del día da +5 XP de bonus. Tocá una stat distinta para +3 extra.',
+      'El OAA combina 5 dimensiones. Para Rank A no podés tener ninguna dim por debajo de E.',
+      'Los temas premium se compran con PP. Las paletas cambian completamente el sistema visual.',
+      'El Mentor Question (50 PP) te da diagnóstico personalizado del Sistema.',
+      'Pause Mode (300 PP) suspende penalizaciones por 48h. Útil en viajes o enfermedad.',
+      'Achievements se desbloquean automáticamente. Revisalos en Profile → Trophy Room.',
+      'El header muestra tu balance de PP, rango actual y streak en todo momento.',
+      'En Status, la Proyección estima cuánto te falta para tu próximo rango.',
+      'Tu screen time penaliza si supera el umbral del rango. Estricto pero justo.',
+      'El primer mes el Sistema te ofrece más quests fáciles. Después se calibra a tu nivel.',
+      'Si rechazás 3 sysquests seguidas, la evaluación se suspende por 7 días.',
+      'Las quests de Vulnerabilidad son las que más mueven el OAA Identidad.',
+      'En Settings podés activar Sonidos del Sistema (level up, rank up, achievements).',
+      'El Sistema te ofrece una Mazmorra Sugerida los domingos si detecta una stat oxidada.',
+      'Las Frases del Mentor Ayano aparecen cada 14-21 días con observaciones del Sistema.',
+      'Para llegar a Rank S necesitás OAA total ≥ 12.5 y ningún dim debajo de D+.',
+      'El Daily Quote se renueva cada 24h. Cita del Sistema basada en filósofos y estrategas.',
+      'Podés exportar e importar todo tu progreso desde Menu → Backup JSON.',
+      'Los hábitos de Juego (hobbies, ajedrez, lectura recreativa) construyen tu identidad fuera del trabajo.',
+      'El Suggested Dungeon se activa cuando una stat está 5+ niveles abajo del promedio.',
+      'Si tu OAA cae 3+ puntos en 14 días, el Sistema te lo comunica explícitamente.',
+      'Streak roto pero récord alto: cuando recuperes 30 días, desbloqueás el achievement Resiliente.',
+      'El Sistema no juzga rechazos ni fallas. Solo registra patrones.',
+    ];
+
+    function getTipOfDay() {
+      // Use day of year as seed so tip is stable within a day
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const diff = now - start;
+      const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+      return TIPS_OF_DAY[dayOfYear % TIPS_OF_DAY.length];
+    }
+
     const SYSTEM_PHRASES = {
       habit_first: [
         'Primer movimiento del día.',
@@ -10973,6 +11438,63 @@
     // ============================================================
     const $app = document.getElementById('app');
 
+    // V19.7: Optional system sounds using WebAudio (no external files)
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) { return null; }
+      }
+      return audioCtx;
+    }
+
+    function playSystemSound(type) {
+      if (!state.user?.settings?.sounds_enabled) return;
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g);
+        g.connect(ctx.destination);
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(.08, now + .02);
+
+        if (type === 'level_up') {
+          o.type = 'sine';
+          o.frequency.setValueAtTime(440, now);
+          o.frequency.linearRampToValueAtTime(880, now + .25);
+          g.gain.exponentialRampToValueAtTime(.0001, now + .35);
+          o.start(now);
+          o.stop(now + .4);
+        } else if (type === 'rank_up') {
+          o.type = 'triangle';
+          o.frequency.setValueAtTime(523, now);
+          o.frequency.setValueAtTime(659, now + .15);
+          o.frequency.setValueAtTime(784, now + .30);
+          g.gain.exponentialRampToValueAtTime(.0001, now + .55);
+          o.start(now);
+          o.stop(now + .6);
+        } else if (type === 'achievement') {
+          o.type = 'square';
+          o.frequency.setValueAtTime(659, now);
+          o.frequency.setValueAtTime(880, now + .12);
+          g.gain.exponentialRampToValueAtTime(.0001, now + .25);
+          o.start(now);
+          o.stop(now + .3);
+        } else if (type === 'click') {
+          o.type = 'sine';
+          o.frequency.setValueAtTime(800, now);
+          g.gain.setValueAtTime(.04, now);
+          g.gain.exponentialRampToValueAtTime(.0001, now + .06);
+          o.start(now);
+          o.stop(now + .07);
+        }
+      } catch (e) { }
+    }
+
     function init() {
       if (state.uiState.onb_done) {
         generateWeeklyQuests();
@@ -11002,6 +11524,10 @@
         // V3.4: Final Exam anual
         maybeShowFinalExam();
         maybePeriodEval();
+        // FIX: Activar sistema dormido de Talents + Special Exams
+        evaluateTalents();
+        maybeOfferExam();
+        checkExamDaily();
         // V3.1: API integrations (async, non-blocking)
         if (state.user?.settings?.chess?.username) autoLogChess();
         fetchDailyQuote();
@@ -11068,23 +11594,26 @@
       const clsCode = classCode(cls);
       const todayHabitCount = log.habits.filter(h => h !== '__touched').length;
       const dailyPct = Math.min(100, (todayHabitCount / 10) * 100);
-      // V19.5: Streak indicator
       const streak = state.streaks?.daily_log?.current || 0;
       const streakHtml = streak >= 7
-        ? `<span class="header-streak ${streak >= 30 ? 'header-streak-glow' : ''}" title="${streak} días de streak">${streak >= 30 ? '🔥🔥' : '🔥'} ${streak}</span>`
+        ? `<span class="header-streak ${streak >= 30 ? 'header-streak-glow' : ''}" title="${streak} días consecutivos"><span class="header-streak-icon">${svgIcon('ach_fire', 'icon')}</span><span class="header-streak-num">${streak}</span></span>`
         : '';
+
       return `
     <div class="header">
-            ${state.page !== 'home' ? `<button class="header-btn header-btn-back" onclick="goBack()">${svgIcon('chevron', 'icon')}</button>` : ''}
+      ${state.page !== 'home' ? `<button class="header-btn header-btn-back" onclick="goBack()">${svgIcon('chevron', 'icon')}</button>` : ''}
       <div class="avatar" onclick="goPage('character')">${avatarHTML()}</div>
-      <div class="header-info">
-        <div class="header-tag">${rank.name}</div>
-        <div class="header-title">
-          ${escapeHtml(state.user.name)} ${streakHtml}
-          <span class="header-rank" style="color:${rank.color}">${rank.rank} · CL ${clsCode} · LV ${lvl}${ppEnabled() ? ` · <span style="color:var(--sys)">${state.pp} PP</span>` : ''}</span>
+      <div class="header-left">
+        <div class="header-name">${escapeHtml(state.user.name)}</div>
+        <div class="header-bottom-line">
+          ${ppEnabled() ? `<span class="header-pp">${state.pp.toLocaleString()} PP</span>` : `<span class="header-pp-locked">— PP</span>`}
+          ${streakHtml}
         </div>
       </div>
-
+      <div class="header-right">
+        <div class="header-rank-line" style="color:${rank.color}">${rank.rank} · CL ${clsCode}</div>
+        <div class="header-level-line">LV ${lvl}</div>
+      </div>
     </div>
     <div class="daily-progress">
       <div class="daily-progress-fill ${dailyPct > 0 ? 'has-progress' : ''}" style="width: ${dailyPct}%"></div>
@@ -11116,6 +11645,18 @@
             <div class="daily-quote-tag">⟢ TRANSMISIÓN</div>
             <div class="daily-quote-text">"${escapeHtml(dailyQuote.text)}"</div>
             <div class="daily-quote-author">— ${escapeHtml(dailyQuote.author)}</div>
+          </div>
+        `;
+      }
+
+      // V19.8: Tip of the day (compact, dismissible per session)
+      if (state.uiState.tip_dismissed_today !== todayKey()) {
+        const tip = getTipOfDay();
+        html += `
+          <div class="tip-of-day" onclick="dismissTipOfDay()">
+            <span class="tip-of-day-tag">💡 TIP</span>
+            <span class="tip-of-day-text">${tip}</span>
+            <span class="tip-of-day-close">×</span>
           </div>
         `;
       }
@@ -11726,6 +12267,56 @@
       // Notas recientes
       html += renderRecentNotes();
 
+      // V19.7: Trend insights — predicción de Rank
+      const currentLvl = totalLevel();
+      const ranksTargets = [
+        { rank: 'C', min: 20 },
+        { rank: 'B', min: 40 },
+        { rank: 'A', min: 65 },
+        { rank: 'S', min: 95 },
+        { rank: 'NL', min: 130 },
+      ];
+      const nextRank = ranksTargets.find(r => r.min > currentLvl);
+      if (nextRank) {
+        // Calculate XP/day rate over last 14 days
+        const recent14 = getRecentLogs(14);
+        const totalXP14 = recent14.reduce((s, l) => {
+          return s + Object.values(l.xp_gained || {}).reduce((a, b) => a + b, 0);
+        }, 0);
+        const xpPerDay = totalXP14 / 14;
+        // XP needed to reach next rank
+        let xpNeeded = 0;
+        const xpPerStatNeeded = Math.ceil((nextRank.min - currentLvl) / 6);
+        for (const stat of Object.keys(STATS)) {
+          const currLvl = levelFromXP(state.xp[stat]);
+          const targetLvl = currLvl + Math.max(1, xpPerStatNeeded);
+          xpNeeded += Math.max(0, xpForLevel(targetLvl) - state.xp[stat]);
+        }
+        const daysEst = xpPerDay > 0 ? Math.ceil(xpNeeded / xpPerDay) : null;
+
+        html += `
+          <div class="card">
+            <div class="card-title"><span class="card-title-text">Proyección</span></div>
+            <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:10px">
+              <div class="mono text-xs text-ink3" style="letter-spacing:.2em">PRÓXIMO RANGO</div>
+              <div class="display text-3xl" style="color:var(--sys)">${nextRank.rank}</div>
+              <div class="mono text-sm text-ink3">LV ${nextRank.min}</div>
+            </div>
+            <div class="text-sm text-ink2" style="line-height:1.5">
+              ${xpPerDay > 0
+            ? `Al ritmo actual de ${Math.round(xpPerDay)} XP/día, alcanzarías Rank ${nextRank.rank} en aproximadamente <strong style="color:var(--ink)">${daysEst} días</strong>.`
+            : 'Sin actividad reciente para calcular proyección.'
+          }
+            </div>
+            ${xpPerDay > 0 ? `
+              <div class="mono text-xs text-ink3" style="margin-top:8px;letter-spacing:.1em">
+                Última semana: ${(totalXP14 / 14).toFixed(0)} XP/día promedio · ${Math.ceil(totalXP14)} XP total en 14d
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
       return html;
     }
 
@@ -11900,27 +12491,7 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title"><span class="card-title-text">Atributos detallados</span></div>
-      ${Object.keys(STATS).map(k => {
-          const p = progressInLevel(state.xp[k]);
-          return `
-          <div class="stat-row">
-            <div class="stat-icon" style="color:${STATS[k].color}">${svgIcon(STATS[k].icon)}</div>
-            <div class="stat-body">
-              <div class="stat-head">
-                <span class="stat-name">${STATS[k].name}</span>
-                <span class="stat-lvl" style="color:${STATS[k].color}">LV ${p.level}</span>
-              </div>
-              <div class="stat-bar">
-                <div class="stat-fill" style="width:${p.pct}%;background:${STATS[k].color}"></div>
-              </div>
-              <div class="stat-xp">${state.xp[k].toLocaleString()} XP · falta ${p.needed - p.current} para LV ${p.level + 1}</div>
-            </div>
-          </div>
-        `;
-        }).join('')}
-    </div>
+
 
     ${renderTalentsSection()}
     ${renderExamHistory()}
@@ -12017,7 +12588,6 @@
         const dayLog = load(K.log(key), null);
         const habitCount = dayLog ? dayLog.habits.filter(h => h !== '__touched').length : 0;
         const isToday = key === today;
-        const hasSysQ = dayLog?.sysquest_status || null;
         const mood = dayLog?.reflection?.mood;
 
         // Intensidad de color por actividad
@@ -12260,20 +12830,54 @@
       if (!enabled) {
         const r = currentRank();
         const lvl = totalLevel();
+        const pct = Math.min(100, (lvl / 20) * 100);
+        const remaining = Math.max(0, 20 - lvl);
         return `
-          <div class="card text-center" style="padding:40px 20px">
-            <div class="display text-6xl text-ink4" style="opacity:.4">${svgIcon('lock', 'icon')}</div>
-            <div class="mono text-sm tracking-widest text-ink3 mt-3">RANK C REQUERIDO</div>
-            <div class="display text-2xl mt-2">Private Points bloqueados</div>
-            <div class="text-base text-ink2 mt-3" style="max-width:320px;margin:0 auto;line-height:1.5">
-              La economía del Sistema se desbloquea al llegar a Rank C. Seguí completando hábitos y subiendo niveles.
+          <div class="card pp-locked-card" style="padding:32px 22px">
+            <div class="pp-locked-icon" style="text-align:center">
+              <div style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;border:1px solid var(--ink3);border-radius:50%;opacity:.5">
+                ${svgIcon('lock', 'icon')}
+              </div>
             </div>
-            <div class="mt-6" style="padding-top:20px;border-top:1px solid var(--border)">
-              <div class="mono text-sm tracking-widest text-ink3">RANGO ACTUAL</div>
-              <div class="display text-4xl mt-2" style="color:${r.color}">${r.rank}</div>
-              <div class="text-sm text-ink2 mt-1">LV ${lvl} / 20 para Rank C</div>
-              <div class="stat-bar mt-3" style="max-width:240px;margin:12px auto 0">
-                <div class="stat-fill" style="width:${Math.min(100, (lvl / 20) * 100)}%;background:var(--sys)"></div>
+            <div class="mono text-sm tracking-widest text-ink3 text-center mt-4">RANK C REQUERIDO</div>
+            <div class="display text-2xl text-center mt-2">Private Points bloqueados</div>
+
+            <div class="pp-locked-progress" style="margin-top:24px;padding:18px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+                <div>
+                  <div class="mono text-xs text-ink3" style="letter-spacing:.2em">RANGO ACTUAL</div>
+                  <div class="display text-3xl" style="color:${r.color};margin-top:2px">${r.rank}</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="mono text-xs text-ink3" style="letter-spacing:.2em">NIVEL TOTAL</div>
+                  <div class="display text-3xl" style="color:var(--ink);margin-top:2px">${lvl}<span class="text-sm text-ink3" style="margin-left:4px">/ 20</span></div>
+                </div>
+              </div>
+              <div class="stat-bar" style="margin-top:14px;height:10px">
+                <div class="stat-fill" style="width:${pct}%;background:linear-gradient(90deg, var(--sys), var(--sys2));box-shadow:0 0 8px var(--sys-glow)"></div>
+              </div>
+              <div class="text-sm text-ink2 text-center" style="margin-top:10px">${remaining > 0 ? `Te faltan <strong style="color:var(--sys)">${remaining} niveles</strong> para desbloquear` : '¡Estás muy cerca!'}</div>
+            </div>
+
+            <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border)">
+              <div class="mono text-xs text-ink3 text-center" style="letter-spacing:.2em;margin-bottom:14px">QUÉ SE DESBLOQUEA EN RANK C</div>
+              <div style="display:grid;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="color:var(--sys);flex-shrink:0">${svgIcon('coin', 'icon')}</span>
+                  <span class="text-sm text-ink2">Private Points (PP) — economía interna</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="color:var(--sys);flex-shrink:0">${svgIcon('eye', 'icon')}</span>
+                  <span class="text-sm text-ink2">Mentor Question — diagnóstico del Sistema</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="color:var(--sys);flex-shrink:0">${svgIcon('hexagon', 'icon')}</span>
+                  <span class="text-sm text-ink2">Tienda de temas y items</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="color:var(--sys);flex-shrink:0">${svgIcon('chart', 'icon')}</span>
+                  <span class="text-sm text-ink2">Class Points semanales automáticos</span>
+                </div>
               </div>
             </div>
           </div>
