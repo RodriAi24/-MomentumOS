@@ -4322,6 +4322,19 @@
       { id: 'quest_master', name: 'Quest Master', desc: '30 sysquests completadas', icon: 'ach_scroll' },
       { id: 'ecosystem', name: 'Ecosistema', desc: 'Conectar 2+ apps', icon: 'ach_balance' },
       { id: 'pp_millionaire', name: 'Millonario', desc: '5000 PP acumulados', icon: 'ach_crown' },
+      // V19.6: Nuevos achievements
+      { id: 'rank_c_reached', name: 'Calificado', desc: 'Llegar a Rank C', icon: 'ach_bolt' },
+      { id: 'rank_b_reached', name: 'Élite', desc: 'Llegar a Rank B', icon: 'ach_bolt' },
+      { id: 'rank_a_reached', name: 'Candidato S', desc: 'Llegar a Rank A', icon: 'ach_crown' },
+      { id: 'first_talent', name: 'Habilidad innata', desc: 'Desbloquear 1er talent', icon: 'ach_sword' },
+      { id: 'first_exam', name: 'Examinado', desc: 'Pasar 1er Special Exam', icon: 'ach_scroll' },
+      { id: 'half_year', name: 'Mitad de año', desc: '180 días activo', icon: 'ach_tree' },
+      { id: 'one_year', name: 'Año completo', desc: '365 días en el Sistema', icon: 'ach_crown' },
+      { id: 'resilient', name: 'Resiliente', desc: 'Recuperar un streak 30+ tras romperlo', icon: 'ach_fire' },
+      { id: 'theme_collector', name: 'Coleccionista', desc: '3+ temas desbloqueados', icon: 'ach_balance' },
+      { id: 'no_shortcuts', name: 'Sin atajos', desc: '30 días sin usar PP para skip/reroll', icon: 'ach_eye' },
+      { id: 'versatile_week', name: 'Versátil', desc: 'Los 6 stats activos 7 días seguidos', icon: 'ach_wings' },
+      { id: 'stoic_month', name: 'Estoico', desc: '30 días con OAA todas dims ≥ D', icon: 'ach_balance' },
     ];
 
     // ============================================================
@@ -5203,7 +5216,16 @@
 
     function earnPP(amount, reason) {
       if (!ppEnabled()) return;
+      const wasZero = state.pp === 0;
       state.pp += amount;
+      // V19.6: First PP earned tutorial
+      if (wasZero && amount > 0) {
+        maybeShowTutorial('first_pp', 'Primeros Private Points', 'ECONOMÍA ACTIVA', [
+          `Has ganado tus primeros ${amount} PP. La economía del Sistema ya está en marcha.`,
+          'Los PP se acumulan automáticamente cada lunes según tu evaluación semanal. También los ganás al completar mazmorras, exámenes y achievements.',
+          'Andá a la tab Points para ver tu balance y la tienda donde podés gastarlos.'
+        ]);
+      }
       state.ppLog.push({
         date: todayKey(),
         type: 'earn',
@@ -6660,7 +6682,7 @@
       weeklyReports: load(K.weeklyReports, []),
       ayanokoji: load(K.ayanokoji, { lastMessage: null, messages: [] }),
       page: 'home',
-      uiState: load(K.state, { onb_done: false }),
+      uiState: load(K.state, { onb_done: false, tutorials_shown: {} }),
     };
 
     function persist() {
@@ -7377,6 +7399,14 @@
         const dungeonXP = b.doubleReward ? 1600 : 800;
         state.xp[b.stat] += dungeonXP;
         ppOnDungeonComplete();
+        // V19.6: First dungeon tutorial
+        if (state.bosses.filter(b => b.completed).length === 1) {
+          maybeShowTutorial('first_dungeon', 'Primera mazmorra conquistada', 'OBJETIVO CUMPLIDO', [
+            'Has completado tu primera mazmorra. El Sistema reconoce la capacidad de ejecutar planes multi-etapa.',
+            'Las mazmorras son tus desafíos personales. Las quests diarias las da el Sistema, las épicas las elegís vos.',
+            'Forjá nuevas mazmorras desde Profile → Mazmorras. El Sistema te sugerirá una los domingos si detecta una stat oxidada.'
+          ]);
+        }
         setTimeout(() => {
           const newLvl = levelFromXP(state.xp[b.stat]);
           showLevelUp(b.stat, newLvl, true);
@@ -7452,6 +7482,36 @@
       if (!has('quest_master') && state.sysquest_history.filter(q => q.status === 'completed').length >= 30) unlockAchievement('quest_master');
       if (!has('ecosystem') && state.ecosystem && Object.keys(state.ecosystem).filter(k => state.ecosystem[k]?.enabled).length >= 2) unlockAchievement('ecosystem');
       if (!has('pp_millionaire') && state.ppLog.filter(l => l.type === 'earn').reduce((s, l) => s + l.amount, 0) >= 5000) unlockAchievement('pp_millionaire');
+      // V19.6: New achievement checks + contextual tutorials
+      const lvl = totalLevel();
+      if (!has('rank_c_reached') && lvl >= 20) {
+        unlockAchievement('rank_c_reached');
+        maybeShowTutorial('rank_c', 'Rank C alcanzado', 'PROMOCIÓN DEL SISTEMA', [
+          'El Sistema te ha clasificado como Hunter Calificado. Tu trayectoria justifica acceso a la economía interna.',
+          'Private Points ahora están activos. Cada lunes recibirás puntos según tu evaluación semanal.',
+          'Podés gastarlos en la tienda (tab Points) en temas, items de emergencia o consultas al Mentor.'
+        ]);
+      }
+      if (!has('rank_b_reached') && lvl >= 40) {
+        unlockAchievement('rank_b_reached');
+        maybeShowTutorial('rank_b', 'Rank B alcanzado', 'PROMOCIÓN DEL SISTEMA', [
+          'El Sistema te ha clasificado como Hunter de Élite. Has demostrado capacidad sostenida.',
+          'Special Exams ahora están disponibles. Son evaluaciones de 7 días que desbloquean Talents permanentes.',
+          'El Sistema te ofrecerá un examen automáticamente cada cierto tiempo. Aceptarlo es opcional pero cada examen aprobado expande tus capacidades de forma permanente.'
+        ]);
+      }
+      if (!has('rank_a_reached') && lvl >= 65) unlockAchievement('rank_a_reached');
+      if (!has('first_talent') && (state.talents || []).length >= 1) unlockAchievement('first_talent');
+      if (!has('first_exam') && (state.examHistory || []).some(e => e.result === 'passed')) unlockAchievement('first_exam');
+      if (!has('half_year') && daysSinceCreated() >= 180) unlockAchievement('half_year');
+      if (!has('one_year') && daysSinceCreated() >= 365) unlockAchievement('one_year');
+      if (!has('theme_collector') && (state.unlockedThemes || []).length >= 5) unlockAchievement('theme_collector');
+      // resilient: tiene streak actual 30+ y al menos una vez antes lo rompió
+      if (!has('resilient')) {
+        const currStreak = state.streaks.daily_log.current;
+        const longestStreak = state.streaks.daily_log.longest;
+        if (currStreak >= 30 && longestStreak > currStreak) unlockAchievement('resilient');
+      }
     }
 
     function getEmptyDaysCount() {
@@ -8401,22 +8461,19 @@
     // ============================================================
 
     function getSmartSuggestion() {
-      // Solo Clase B+
-      const classIdx = CLASS_ORDER.indexOf(state.currentClass || 'D');
-      if (classIdx < CLASS_ORDER.indexOf('B')) return null;
+      // V19.6: Disponible desde Rank C (no más Clase B-only)
+      if (totalLevel() < 20) return null;
 
       // Solo una sugerencia por día
       if (state.uiState.smart_suggestion_today === todayKey()) return null;
 
       const today = new Date();
-      const dayOfWeek = today.getDay(); // 0=dom, 1=lun...
+      const dayOfWeek = today.getDay();
       const hour = today.getHours();
-
-      // Analizar los últimos 30 días para detectar patrón por día de la semana
       const logs = getRecentLogs(30);
-      const dayPatterns = {};
 
-      // Contar hábitos por día de la semana
+      // ========== Patrón 1: hábito por día de la semana ==========
+      const dayPatterns = {};
       logs.forEach(l => {
         const d = new Date(l.date);
         const dow = d.getDay();
@@ -8426,34 +8483,86 @@
           dayPatterns[dow][h] = (dayPatterns[dow][h] || 0) + 1;
         });
       });
-
-      // Para hoy: ¿cuál hábito se hizo más veces en este día de la semana?
       const todayPattern = dayPatterns[dayOfWeek];
-      if (!todayPattern) return null;
+      if (todayPattern) {
+        const entries = Object.entries(todayPattern).sort((a, b) => b[1] - a[1]);
+        if (entries.length > 0) {
+          const [topHabit, count] = entries[0];
+          if (count >= 3 && !log.habits.includes(topHabit)) {
+            const habit = findHabit(topHabit);
+            if (habit) {
+              const dayNames = ['domingos', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados'];
+              return {
+                habit: topHabit,
+                label: habit.label,
+                stat: habit.stat,
+                message: `${habit.label} registrado en ${count} de los últimos ${dayNames[dayOfWeek]}. Hoy aún sin actividad.`,
+              };
+            }
+          }
+        }
+      }
 
-      // Encontrar el hábito dominante (más de 3 veces en las últimas ~4 semanas de este día)
-      const entries = Object.entries(todayPattern).sort((a, b) => b[1] - a[1]);
-      if (entries.length === 0) return null;
+      // ========== Patrón 2: stat oxidándose ==========
+      const statActivity = {};
+      Object.keys(STATS).forEach(s => statActivity[s] = 0);
+      logs.forEach(l => {
+        l.habits.forEach(h => {
+          const habit = findHabit(h);
+          if (habit && statActivity[habit.stat] !== undefined) statActivity[habit.stat]++;
+        });
+      });
+      const rusty = Object.entries(statActivity).sort((a, b) => a[1] - b[1])[0];
+      if (rusty && rusty[1] < 3) {
+        const statHabits = (HABITS_BASE[rusty[0]] || []);
+        if (statHabits.length > 0) {
+          const habit = statHabits[0];
+          return {
+            habit: habit.id,
+            label: habit.label,
+            stat: rusty[0],
+            message: `${STATS[rusty[0]].name} con solo ${rusty[1]} actividades en 30 días. Stat oxidándose.`,
+          };
+        }
+      }
 
-      const [topHabit, count] = entries[0];
-      if (count < 3) return null; // no hay patrón fuerte
+      // ========== Patrón 3: cerca de level up ==========
+      for (const stat of Object.keys(STATS)) {
+        const p = progressInLevel(state.xp[stat]);
+        if (p.pct >= 80) {
+          const statHabits = (HABITS_BASE[stat] || []);
+          const todoHoy = statHabits.filter(h => !log.habits.includes(h.id));
+          if (todoHoy.length > 0) {
+            const habit = todoHoy[0];
+            const remaining = p.needed - p.current;
+            return {
+              habit: habit.id,
+              label: habit.label,
+              stat: stat,
+              message: `Faltan ${remaining} XP para que ${STATS[stat].name} suba a LV ${p.level + 1}.`,
+            };
+          }
+        }
+      }
 
-      // ¿Ya se marcó hoy?
-      if (log.habits.includes(topHabit)) return null;
+      // ========== Patrón 4: streak en riesgo (no marcaste nada hoy y es tarde) ==========
+      if (hour >= 19 && log.habits.filter(h => h !== '__touched').length === 0) {
+        const streak = state.streaks?.daily_log?.current || 0;
+        if (streak >= 7) {
+          // Sugerir el hábito más fácil/rápido
+          const easyHabit = HABITS_BASE.alma?.find(h => h.id === 'gratitude') || HABITS_BASE.disciplina?.find(h => h.id === 'reflection');
+          if (easyHabit && !log.habits.includes(easyHabit.id)) {
+            return {
+              habit: easyHabit.id,
+              label: easyHabit.label,
+              stat: easyHabit.stat,
+              message: `Tu streak de ${streak} días en riesgo. ${easyHabit.label} mantiene el ciclo activo.`,
+            };
+          }
+        }
+      }
 
-      const habit = findHabit(topHabit);
-      if (!habit) return null;
-
-      const dayNames = ['domingos', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados'];
-
-      return {
-        habit: topHabit,
-        label: habit.label,
-        stat: habit.stat,
-        count,
-        dayName: dayNames[dayOfWeek],
-        message: `${habit.label} registrado en ${count} de los últimos ${Math.min(4, Math.floor(logs.length / 7))} ${dayNames[dayOfWeek]}. Hoy aún sin actividad.`,
-      };
+      return null;
     }
 
     function dismissSmartSuggestion() {
@@ -8561,8 +8670,78 @@
       // Para el primer mensaje (temprano)
       {
         id: 'first_message',
-        condition: (oaa, st) => daysSinceCreated() >= 90 && st.ayanokoji.messages.length === 0,
-        text: 'El Sistema ha completado su primera evaluación trimestral de patrón profundo. Tus datos iniciales están registrados. Lo que importa no es dónde empezaste — es la dirección del vector. El Sistema continuará observando.',
+        condition: (oaa, st) => daysSinceCreated() >= 14 && st.ayanokoji.messages.length === 0,
+        text: 'El Sistema ha completado su primera evaluación de patrón. Tus datos iniciales están registrados. Lo que importa no es dónde empezaste — es la dirección del vector. El Sistema continuará observando.',
+      },
+      // V19.6: Nuevas observaciones
+      {
+        id: 'rank_stuck',
+        condition: (oaa, st) => {
+          const hist = st.classHistory || [];
+          if (hist.length === 0) return daysSinceCreated() >= 60 && (st.currentClass || 'D') === 'D';
+          const lastChange = hist[hist.length - 1];
+          const daysSinceChange = daysSince(lastChange.date);
+          return daysSinceChange >= 60 && (st.currentClass || 'D') !== 'A+';
+        },
+        text: 'Has permanecido en tu clase actual más de 60 días. El Sistema observa que esto puede significar estabilidad consciente o estancamiento inconsciente. La diferencia está en si elegiste quedarte o solo dejaste de moverte.',
+      },
+      {
+        id: 'screen_time_winning',
+        condition: (oaa, st) => (st.screenTime?.longest || 0) >= 21,
+        text: 'Tu manejo del tiempo de pantalla supera al promedio operativo. El Sistema registra que los Hunters que sostienen esto durante 90 días desarrollan capacidad de foco que sus pares pierden permanentemente. Continuá.',
+      },
+      {
+        id: 'screen_time_losing',
+        condition: (oaa, st) => {
+          const hist = st.screenTime?.history || [];
+          if (hist.length < 14) return false;
+          const recent = hist.slice(-14);
+          const failed = recent.filter(h => h.failed).length;
+          return failed >= 10;
+        },
+        text: 'Tu screen time excede el umbral con frecuencia. El Sistema no dictamina si tu uso es voluntario o automático. Solo registra que esa distinción define si lo controlás o te controla.',
+      },
+      {
+        id: 'identidad_below_all',
+        condition: (oaa, st) => {
+          const d = oaa.dims;
+          if (!d.identidad) return false;
+          return d.identidad < (d.academico || 14) - 3 && d.identidad < (d.mental || 14) - 3;
+        },
+        text: 'Tu Identidad está significativamente por debajo de tus otras dimensiones. Esto sugiere brecha entre tus capacidades y tus declaraciones. La capacidad sin dirección produce cansancio acumulativo. El Sistema sugiere recalibrar lo que estás midiendo.',
+      },
+      {
+        id: 'pp_hoarder',
+        condition: (oaa, st) => st.pp >= 2000 && st.ppLog.filter(l => l.type === 'spend').length < 3,
+        text: 'Acumulás Private Points pero rara vez los usás. El Sistema observa que la economía solo tiene sentido si circula. Los PP no son trofeos — son herramientas.',
+      },
+      {
+        id: 'no_dungeons_ever',
+        condition: (oaa, st) => daysSinceCreated() >= 45 && st.bosses.length === 0,
+        text: 'En 45 días no has forjado una sola mazmorra. El Sistema te da las quests diarias. Las épicas las elegís vos. El silencio en esta área se interpreta como falta de objetivos personales, no como ausencia de capacidad.',
+      },
+      {
+        id: 'exam_avoider',
+        condition: (oaa, st) => totalLevel() >= 40 && st.examHistory.length === 0,
+        text: 'Has alcanzado el rango necesario para los exámenes especiales pero no has tomado ninguno. El Sistema reconoce dos perfiles aquí: el que aún no se siente listo, y el que evita la verificación. Solo vos sabés cuál sos.',
+      },
+      {
+        id: 'multiple_failed_quests',
+        condition: (oaa, st) => {
+          const recent = st.sysquest_history.filter(q => daysSince(q.date) <= 30);
+          const failed = recent.filter(q => q.status === 'failed').length;
+          return failed >= 4;
+        },
+        text: 'Has fallado múltiples quests del Sistema en el último mes. Esto no es un juicio. Pero el Sistema observa que aceptar una quest implica un cálculo previo. Si el cálculo está fallando con frecuencia, el problema no está en la quest.',
+      },
+      {
+        id: 'big_climber',
+        condition: (oaa, st) => {
+          const hist = st.classHistory || [];
+          const upgrades = hist.filter(h => CLASS_ORDER.indexOf(h.to) > CLASS_ORDER.indexOf(h.from));
+          return upgrades.length >= 2;
+        },
+        text: 'Has subido de clase múltiples veces. El Sistema registra trayectoria ascendente consistente. Observación lateral: los Hunters que escalan rápido tienden a estancarse cerca de A. Preparate para esa transición.',
       },
     ];
 
@@ -8670,38 +8849,74 @@
     function generateMentorQuestion(oaa) {
       const questions = [];
 
+      // DIMENSIONS - BAJAS
       if (oaa?.dims?.mental !== null && oaa.dims.mental < 9) {
         questions.push({
           area: 'DIMENSIÓN: MENTAL',
           question: '¿Estás rechazando las quests del Sistema porque no encajan con tu día, o porque te incomodan?',
           context: 'Tu OAA Mental está en ' + numToLetter(oaa.dims.mental) + '. La diferencia entre ambas respuestas define si el problema es logístico o emocional.',
         });
+        questions.push({
+          area: 'DIMENSIÓN: MENTAL',
+          question: '¿Cuándo fue la última vez que terminaste algo sin distracciones?',
+          context: 'Tu Mental está baja. La capacidad mental sin deep work es como una espada sin filo.',
+        });
       }
-
       if (oaa?.dims?.social !== null && oaa.dims.social < 8) {
         questions.push({
           area: 'DIMENSIÓN: SOCIAL',
           question: '¿Cuándo fue la última vez que alguien te vio vulnerable?',
           context: 'Tu actividad social registrada es baja. Esto puede ser una elección o un patrón. Solo vos sabés.',
         });
+        questions.push({
+          area: 'DIMENSIÓN: SOCIAL',
+          question: '¿Tus relaciones actuales reflejan al Hunter que querés ser o al que fuiste?',
+          context: 'Las personas alrededor moldean tu identidad más que tus propias decisiones.',
+        });
+        questions.push({
+          area: 'DIMENSIÓN: SOCIAL',
+          question: '¿Estás más solo por elección o por evitación?',
+          context: 'Ambas son válidas. Solo necesitás saber cuál es la tuya.',
+        });
       }
-
       if (oaa?.dims?.fisico !== null && oaa.dims.fisico < 9) {
         questions.push({
           area: 'DIMENSIÓN: FÍSICO',
           question: '¿Tu cuerpo está siendo un vehículo o un obstáculo esta semana?',
           context: 'Tu OAA Físico cayó. La pregunta no es si entrenaste — es si estás tratando tu cuerpo como herramienta.',
         });
+        questions.push({
+          area: 'DIMENSIÓN: FÍSICO',
+          question: '¿Postergás entrenar porque te falta tiempo o porque te falta certeza de que importe?',
+          context: 'El cuerpo no se cuida con motivación. Se cuida con frecuencia.',
+        });
       }
-
       if (oaa?.dims?.identidad !== null && oaa.dims.identidad < 9) {
         questions.push({
           area: 'DIMENSIÓN: IDENTIDAD',
           question: '¿Qué harías mañana si no existiera esta app?',
           context: 'Tu Identidad mide coherencia entre declaraciones y acciones. Si la respuesta a esta pregunta es "lo mismo", vas bien.',
         });
+        questions.push({
+          area: 'DIMENSIÓN: IDENTIDAD',
+          question: '¿Las decisiones que tomaste esta semana las firmaría el vos de hace 5 años?',
+          context: 'No es nostalgia. Es coherencia narrativa.',
+        });
+        questions.push({
+          area: 'DIMENSIÓN: IDENTIDAD',
+          question: '¿Qué dejaste de hacer este año que te definía? ¿Por qué?',
+          context: 'La identidad se pierde silenciosa. Las preguntas explícitas la rescatan.',
+        });
+      }
+      if (oaa?.dims?.academico !== null && oaa.dims.academico < 8) {
+        questions.push({
+          area: 'DIMENSIÓN: ACADÉMICO',
+          question: '¿Cuándo fue la última vez que aprendiste algo que no era inmediatamente útil?',
+          context: 'Tu OAA Académico está bajo. La curiosidad sin propósito directo es la marca del crecimiento real.',
+        });
       }
 
+      // DIMENSIONS - ALTAS
       if (oaa?.dims?.academico !== null && oaa.dims.academico >= 12) {
         questions.push({
           area: 'DIMENSIÓN: ACADÉMICO',
@@ -8709,29 +8924,151 @@
           context: 'Tu input intelectual es alto. El Sistema pregunta si la salida es proporcional a la entrada.',
         });
       }
+      if (oaa?.dims?.mental !== null && oaa.dims.mental >= 12) {
+        questions.push({
+          area: 'DIMENSIÓN: MENTAL',
+          question: '¿Tu disciplina sigue siendo voluntaria o ya es automática?',
+          context: 'Cuando se vuelve automática, perdés el músculo. La fricción mantiene la fuerza.',
+        });
+      }
 
-      const streak = state.streaks.daily_log.current;
-      if (streak >= 14) {
+      // PATRONES - STREAKS
+      const streak = state.streaks?.daily_log?.current || 0;
+      if (streak >= 14 && streak < 30) {
         questions.push({
           area: 'PATRÓN: CONSISTENCIA',
           question: '¿Seguís haciendo esto porque te importa o porque no querés romper el streak?',
           context: `Llevás ${streak} días consecutivos. La inercia positiva es real, pero puede enmascarar agotamiento.`,
         });
       }
-
-      if (state.bosses.filter(b => !b.completed).length >= 2) {
+      if (streak >= 30) {
         questions.push({
-          area: 'PATRÓN: MAZMORRAS',
-          question: '¿Estás forjando mazmorras que realmente querés completar, o las que creés que deberías?',
-          context: 'Tenés ' + state.bosses.filter(b => !b.completed).length + ' mazmorras abiertas. El Sistema nota la diferencia entre ambición y deseo.',
+          area: 'PATRÓN: CONSISTENCIA',
+          question: '¿Marcás hábitos el día que más cansado estás? ¿Por qué?',
+          context: `${streak} días consecutivos. La respuesta a esta pregunta define si esto sigue siendo crecimiento o se convirtió en ritual.`,
+        });
+      }
+      if (streak === 0 && state.streaks?.daily_log?.longest >= 14) {
+        questions.push({
+          area: 'PATRÓN: STREAK ROTO',
+          question: '¿Qué pasó el día que rompiste tu streak? ¿Lo viste venir?',
+          context: `Tu récord es ${state.streaks.daily_log.longest} días. Las roturas tienen patrones que se repiten si no se nombran.`,
         });
       }
 
-      // Default
+      // PATRONES - MAZMORRAS
+      const activeBosses = state.bosses?.filter(b => !b.completed).length || 0;
+      if (activeBosses >= 2) {
+        questions.push({
+          area: 'PATRÓN: MAZMORRAS',
+          question: '¿Estás forjando mazmorras que realmente querés completar, o las que creés que deberías?',
+          context: `Tenés ${activeBosses} mazmorras abiertas. El Sistema nota la diferencia entre ambición y deseo.`,
+        });
+      }
+      if (daysSinceCreated() >= 45 && (!state.bosses || state.bosses.length === 0)) {
+        questions.push({
+          area: 'PATRÓN: AUSENCIA DE MAZMORRAS',
+          question: '¿Por qué no has forjado una sola mazmorra en 45 días?',
+          context: 'Las quests diarias las da el Sistema. Las épicas las elegís vos. El silencio acá no es neutralidad.',
+        });
+      }
+
+      // PATRONES - SYSQUESTS
+      const sysqHist = state.sysquest_history || [];
+      const recentRejected = sysqHist.filter(q => daysSince(q.date) <= 30 && q.status === 'rejected').length;
+      if (recentRejected >= 3) {
+        questions.push({
+          area: 'PATRÓN: RECHAZO',
+          question: '¿Rechazás las quests porque están mal calibradas o porque te exigen lo que no querés ver?',
+          context: `Rechazaste ${recentRejected} quests este mes. El Sistema pregunta una sola vez.`,
+        });
+      }
+      const recentFailed = sysqHist.filter(q => daysSince(q.date) <= 30 && q.status === 'failed').length;
+      if (recentFailed >= 3) {
+        questions.push({
+          area: 'PATRÓN: FALLAS',
+          question: '¿Aceptás quests sin chequear si realmente podés cumplirlas?',
+          context: `Fallaste ${recentFailed} quests recientes. Aceptar sin calcular es peor que rechazar.`,
+        });
+      }
+
+      // PATRONES - PP
+      if (ppEnabled() && state.pp >= 2000 && state.ppLog?.filter(l => l.type === 'spend').length < 3) {
+        questions.push({
+          area: 'PATRÓN: PP ACUMULADOS',
+          question: '¿Por qué acumulás Private Points sin usarlos?',
+          context: `Tenés ${state.pp} PP. La economía solo tiene sentido si circula. Los PP son herramientas, no trofeos.`,
+        });
+      }
+
+      // PATRONES - SCREEN TIME
+      if (state.screenTime?.streak === 0 && (state.screenTime?.longest || 0) >= 14) {
+        questions.push({
+          area: 'PATRÓN: SCREEN TIME',
+          question: '¿Cuándo dejaste de controlar tu tiempo de pantalla esta vez?',
+          context: 'Tu mejor racha fue ' + state.screenTime.longest + ' días. Las recaídas tienen detonantes específicos.',
+        });
+      }
+
+      // PATRONES - REFLECTION
+      const recentLogs = getRecentLogs(14);
+      const reflections = recentLogs.filter(l => l.reflection).length;
+      if (reflections < 3) {
+        questions.push({
+          area: 'PATRÓN: REFLEXIÓN',
+          question: '¿Evitás cerrar el día porque no querés ver lo que hiciste o no hiciste?',
+          context: 'Hiciste reflection ' + reflections + ' veces en 14 días. El registro nocturno es donde se procesa el día.',
+        });
+      }
+
+      // PATRONES - CUSTOM HABITS
+      const customCount = (state.custom || []).length;
+      if (customCount === 0 && daysSinceCreated() >= 30) {
+        questions.push({
+          area: 'PATRÓN: CUSTOM',
+          question: '¿Por qué no has creado ni un solo hábito personalizado en un mes?',
+          context: 'Los hábitos predefinidos son el punto de partida. Los tuyos son los que te definen.',
+        });
+      }
+
+      // PATRONES - BALANCE
+      const dimsValues = Object.values(oaa?.dims || {}).filter(d => d !== null);
+      if (dimsValues.length === 5) {
+        const max = Math.max(...dimsValues);
+        const min = Math.min(...dimsValues);
+        if (max - min >= 6) {
+          questions.push({
+            area: 'PATRÓN: DESBALANCE',
+            question: '¿Estás optimizando lo que ya sos bueno y evitando lo que te cuesta?',
+            context: `La brecha entre tu mejor y peor dimensión es de ${(max - min).toFixed(1)} puntos. Eso no es perfil, es preferencia.`,
+          });
+        }
+      }
+
+      // PATRONES - TIEMPO EN EL SISTEMA
+      if (daysSinceCreated() >= 90) {
+        questions.push({
+          area: 'PATRÓN: VETERANIA',
+          question: '¿La persona que sos hoy reconocería al que abrió esta app por primera vez?',
+          context: 'Llevás ' + daysSinceCreated() + ' días en el Sistema. El cambio se ve mejor desde adentro hacia afuera.',
+        });
+      }
+
+      // Default (siempre presente)
       questions.push({
         area: 'PATRÓN: GENERAL',
         question: '¿Si pudieras cambiar una sola cosa de cómo estás usando este sistema, cuál sería?',
         context: 'A veces la pregunta más simple es la más útil. No la respondas rápido.',
+      });
+      questions.push({
+        area: 'PATRÓN: GENERAL',
+        question: '¿Qué hábito te dice más sobre vos: el que más marcás o el que más postergás?',
+        context: 'Lo que sostenés define lo que sos. Lo que evitás define lo que evitás ser.',
+      });
+      questions.push({
+        area: 'PATRÓN: GENERAL',
+        question: '¿Por qué arrancaste a usar el Sistema? ¿Esa razón sigue siendo válida?',
+        context: 'Las razones cambian. Lo importante es saber cuándo cambian y por qué.',
       });
 
       // Elegir una aleatoria del pool
@@ -10152,6 +10489,33 @@
       window._toastT = setTimeout(() => $t.classList.remove('show'), 2400);
     }
 
+    // V19.6: Show contextual tutorial modal once
+    function maybeShowTutorial(key, title, tag, paragraphs) {
+      if (!state.uiState.tutorials_shown) state.uiState.tutorials_shown = {};
+      if (state.uiState.tutorials_shown[key]) return;
+      state.uiState.tutorials_shown[key] = todayKey();
+      persist();
+      setTimeout(() => {
+        const ov = document.createElement('div');
+        ov.className = 'levelup show';
+        const body = paragraphs.map(p => `<p style="margin:0 0 14px;line-height:1.6;color:var(--ink2);font-family:var(--font-body);text-align:left">${p}</p>`).join('');
+        ov.innerHTML = `
+          <div class="rankup-content" style="max-width:360px;padding:30px 24px;box-shadow:0 0 50px var(--sys-glow);">
+            <div class="sysnotif-corner tl"></div>
+            <div class="sysnotif-corner tr"></div>
+            <div class="sysnotif-corner bl"></div>
+            <div class="sysnotif-corner br"></div>
+            <div class="mono text-xs text-sys" style="letter-spacing:.4em;margin-bottom:14px;text-align:center">${tag}</div>
+            <div class="display text-2xl" style="text-align:center;margin-bottom:20px;text-shadow:0 0 10px var(--sys-glow)">${title}</div>
+            ${body}
+            <button class="btn btn-block mt-4" onclick="this.closest('.levelup').remove()">Entendido</button>
+          </div>
+        `;
+        document.body.appendChild(ov);
+        try { haptic && haptic('medium'); } catch (e) { }
+      }, 1500);
+    }
+
     function sysToast(msg, variant = '') {
       toast('▸ ' + msg, variant);
     }
@@ -10477,46 +10841,107 @@
         'Primer movimiento del día.',
         'El Sistema registra actividad.',
         'Arrancaste.',
+        'Primer dato del ciclo. Procesado.',
+        'Inicio detectado. Continuá.',
+        'El Sistema te observa desde el primer movimiento.',
       ],
       habit_combo_3: [
         'Diversificación. El Sistema aprueba.',
         'Tres dimensiones activas.',
         'Balance en progreso.',
+        'Cobertura parcial detectada.',
+        'El patrón se vuelve interesante.',
+        'Tres vectores activos. Bien.',
       ],
       habit_combo_6: [
         'Las 6 dimensiones activas. Excepcional.',
         'Cobertura completa.',
         'Operación en todas las frecuencias.',
+        'Día completo. Pocos Hunters alcanzan esto.',
+        'Saturación operativa positiva.',
+        'El Sistema no detecta áreas inactivas hoy.',
       ],
       reflection_good: [
         'Día registrado. Descansá bien.',
         'Datos archivados. Mañana es otro set de datos.',
         'El Sistema procesa. Vos descansá.',
+        'Cierre limpio. Hasta mañana.',
+        'Reflexión registrada. El Sistema agradece la honestidad.',
+        'Día auditado. Resultados archivados.',
       ],
       reflection_minimal: [
         'Día registrado. Mañana podés más.',
         'Pocos datos hoy. No es un juicio.',
         'Día lento. Registrado igual.',
+        'Día atípico. El Sistema lo distingue del abandono.',
+        'Mínimo viable cumplido.',
+        'Día de baja intensidad. Es parte del ciclo.',
       ],
       morning_streak: [
         'Día ${streak} del streak. Buenos días.',
         'El Sistema está activo. ¿Vos?',
         'Nuevo día. Nuevos datos.',
+        'Streak de ${streak} días en pie. Continuá.',
+        'El patrón se sostiene. Día ${streak}.',
+        'La inercia trabaja a tu favor. Día ${streak}.',
       ],
       morning_no_streak: [
         'Sin streak activo. Hoy empieza uno nuevo.',
         'El Sistema no juzga el pasado. Solo mide el presente.',
         'Cada día es un dato nuevo.',
+        'Reset registrado. Próximo intento disponible ahora.',
+        'El contador vuelve a cero. Tu capacidad no.',
       ],
       quest_accept: [
         'Quest registrada. Tenés hasta las 23:59.',
         'El Sistema confía en tu palabra.',
         'Aceptar es el primer paso. Ejecutar es el que cuenta.',
+        'Compromiso registrado. Verificación pendiente.',
+        'El Sistema espera tu reporte al cierre del día.',
       ],
       quest_complete: [
         'Verificado. El Sistema actualiza tu perfil.',
         'Quest cerrada. Los datos no mienten.',
         'Completada. Siguiente.',
+        'Cumplido. Próxima evaluación en 24h.',
+        'Ejecución registrada. Recompensa procesada.',
+      ],
+      // V19.6: Nuevos contextos
+      level_up: [
+        'Umbral cruzado. Nivel ${level} en ${stat}.',
+        'Capacidad expandida. ${stat} ahora opera en nivel ${level}.',
+        '${stat} promovida a nivel ${level}.',
+        'Avance registrado. ${stat} · LV ${level}.',
+      ],
+      rank_up: [
+        'Promoción confirmada. Rango ${rank}.',
+        'El Sistema te reclasifica. Rango ${rank}.',
+        'Nueva clasificación: Rango ${rank}.',
+        'Reevaluación completada. Rango ${rank}.',
+      ],
+      screen_time_pass: [
+        'Screen time dentro del umbral. Disciplina registrada.',
+        'Foco mantenido. Recompensa procesada.',
+        'Umbral respetado. El Sistema observa.',
+      ],
+      screen_time_fail: [
+        'Screen time excedido. Penalización aplicada.',
+        'Umbral superado. El Sistema registra el patrón.',
+        'Tiempo perdido en pantallas. Costo: ${cost} XP.',
+      ],
+      dungeon_complete: [
+        'Mazmorra conquistada. Recompensa entregada.',
+        'Objetivo completado. El Sistema reconoce el esfuerzo sostenido.',
+        'Mazmorra cerrada. Capacidad demostrada.',
+      ],
+      talent_unlock: [
+        'Talent desbloqueado. Buff permanente activo.',
+        'Capacidad permanente añadida a tu perfil.',
+        'El Sistema otorga nuevo modificador.',
+      ],
+      pp_first: [
+        'Private Points activos. Tu primera moneda económica del Sistema.',
+        'Economía interna desbloqueada.',
       ],
     };
 
