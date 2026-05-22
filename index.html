@@ -357,6 +357,33 @@
       gap: 10px;
     }
 
+    .header-streak {
+      display: inline-block;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--negative);
+      letter-spacing: .05em;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+
+    .header-streak-glow {
+      text-shadow: 0 0 8px rgba(239, 68, 68, .6);
+      animation: streakPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes streakPulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .7;
+      }
+    }
+
     .header-rank {
       font-family: var(--font-display);
       font-size: 22px;
@@ -1385,6 +1412,11 @@
     }
 
     /* === RANK UP === */
+    .achievement-unlock .ach-unlock-icon svg {
+      width: 32px;
+      height: 32px;
+    }
+
     .rankup-content {
       text-align: center;
       animation: levelupPulse .9s var(--ease);
@@ -1468,6 +1500,71 @@
     }
 
     /* === ACHIEVEMENTS === */
+    .trophy-room {
+      padding: 16px;
+    }
+
+    .trophy-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .trophy {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 6px;
+      border-radius: 8px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      transition: all .2s var(--ease);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .trophy.unlocked {
+      border-color: var(--sys);
+      box-shadow: inset 0 0 12px var(--sys-dim);
+    }
+
+    .trophy.locked {
+      opacity: .35;
+      filter: grayscale(1);
+    }
+
+    .trophy:active {
+      transform: scale(.95);
+    }
+
+    .trophy-icon {
+      color: var(--sys);
+      margin-bottom: 6px;
+    }
+
+    .trophy.locked .trophy-icon {
+      color: var(--ink3);
+    }
+
+    .trophy-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .trophy-name {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-align: center;
+      letter-spacing: .05em;
+      color: var(--ink2);
+      line-height: 1.2;
+    }
+
+    .trophy.locked .trophy-name {
+      color: var(--ink3);
+    }
+
     .ach-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -2270,53 +2367,69 @@
 
     /* === V3.7: Profile tab destacado al centro === */
     .nav-tab-center {
-      position: relative;
-    }
-
-    .nav-tab-center svg:not(.nav-radar svg) {
-      width: 22px;
-      height: 22px;
-    }
-
-    .nav-radar {
-      width: 38px;
-      height: 38px;
+      background: var(--sys);
+      border: 0;
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      color: #fff;
+      cursor: pointer;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: -6px auto -2px;
-      pointer-events: none;
-    }
-
-    .nav-tab-center.active {
-      color: var(--sys2);
-    }
-
-    .nav-tab-center.active .nav-radar svg {
-      filter: drop-shadow(0 0 6px rgba(139, 92, 246, .6));
-    }
-
-    .nav-tab-center>* {
-      pointer-events: none;
+      box-shadow: 0 4px 20px rgba(139, 92, 246, .45), 0 0 14px var(--sys-glow);
+      transition: all .25s var(--ease);
+      margin-top: -18px;
+      position: relative;
+      flex-shrink: 0;
+      gap: 2px;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .nav-tab-center::before {
       content: '';
       position: absolute;
-      top: 2px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--sys-dim) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity .3s var(--ease);
+      inset: -3px;
+      border: 1px solid var(--sys);
+      border-radius: 16px;
+      opacity: .3;
+    }
+
+    .nav-tab-center:active {
+      transform: scale(.92);
+    }
+
+    .nav-tab-center .nav-radar {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       pointer-events: none;
     }
 
-    .nav-tab-center.active::before {
-      opacity: 1;
+    .nav-tab-center .nav-radar svg polygon {
+      fill: rgba(255, 255, 255, .3);
+      stroke: rgba(255, 255, 255, .9);
+    }
+
+    .nav-tab-center .nav-radar svg circle {
+      fill: rgba(255, 255, 255, .9);
+    }
+
+    .nav-tab-center span {
+      font-size: 8px;
+      letter-spacing: .12em;
+      color: rgba(255, 255, 255, .85);
+    }
+
+    .nav-tab-center.active {
+      box-shadow: 0 4px 24px rgba(139, 92, 246, .6), 0 0 20px var(--sys-glow);
+    }
+
+    body[data-theme="light"] .nav-tab-center {
+      box-shadow: 0 4px 16px rgba(139, 92, 246, .3);
     }
 
     /* === V3: OAA Card === */
@@ -3071,6 +3184,113 @@
     /* Quote card */
     .quote-card {
       border-left: 2px solid var(--sys);
+    }
+
+    .mini-oaa {
+      background: var(--card);
+      border: 1px solid var(--sys);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--sys-dim);
+      transition: all .2s var(--ease);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mini-oaa:active {
+      transform: scale(.98);
+    }
+
+    .mini-oaa-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .25em;
+      color: var(--sys);
+      margin-bottom: 8px;
+    }
+
+    .mini-oaa-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .mini-oaa-letter {
+      font-family: var(--font-display);
+      font-size: 36px;
+      color: var(--sys);
+      text-shadow: 0 0 10px var(--sys-glow);
+      line-height: 1;
+      flex-shrink: 0;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .mini-oaa-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .mini-oaa-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .mini-oaa-dim {
+      color: var(--ink3);
+      letter-spacing: .1em;
+    }
+
+    .mini-oaa-val {
+      color: var(--ink2);
+      font-weight: 600;
+    }
+
+    .mini-oaa-chev {
+      color: var(--ink3);
+      flex-shrink: 0;
+    }
+
+    .mini-oaa-chev svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .daily-quote-compact {
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border-left: 2px solid var(--sys);
+      background: var(--card);
+      border-radius: 6px;
+      font-family: var(--font-body);
+    }
+
+    .daily-quote-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .25em;
+      color: var(--sys);
+      margin-bottom: 4px;
+    }
+
+    .daily-quote-text {
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink2);
+      font-style: italic;
+    }
+
+    .daily-quote-author {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink3);
+      margin-top: 4px;
+      text-align: right;
     }
 
     .quote-text {
@@ -3982,6 +4202,8 @@
       ach_sword: '<svg viewBox="0 0 24 24"><line x1="14" y1="3" x2="21" y2="10"/><path d="M14 3 L8 9 L12 13 L15 16 L18 13 Z M3 18 L8 13 L11 16 L6 21 Z"/></svg>',
       play: '<svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" fill="currentColor" stroke="none"/></svg>',
       pause: '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" fill="currentColor" stroke="none"/><rect x="14" y="4" width="4" height="16" fill="currentColor" stroke="none"/></svg>',
+      coin: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="11" font-family="monospace" font-weight="bold" stroke="none" fill="currentColor">P</text></svg>',
+      menu: '<svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>',
     };
 
     function svgIcon(name, extraClass = '') {
@@ -3993,22 +4215,45 @@
     // STATS & RANKS
     // ============================================================
     const STATS = {
-      fuerza: { name: 'Fuerza', icon: 'fuerza', color: 'var(--stat-fuerza)', cap: 35 },
-      sabiduria: { name: 'Sabiduría', icon: 'sabiduria', color: 'var(--stat-sabiduria)', cap: 30 },
-      disciplina: { name: 'Disciplina', icon: 'disciplina', color: 'var(--stat-disciplina)', cap: 40 },
-      alma: { name: 'Alma', icon: 'alma', color: 'var(--stat-alma)', cap: 30 },
-      vinculo: { name: 'Vínculo', icon: 'vinculo', color: 'var(--stat-vinculo)', cap: 35 },
-      juego: { name: 'Juego', icon: 'juego', color: 'var(--stat-juego)', cap: 20 },
+      fuerza: { name: 'Fuerza', icon: 'fuerza', color: 'var(--stat-fuerza)' },
+      sabiduria: { name: 'Sabiduría', icon: 'sabiduria', color: 'var(--stat-sabiduria)' },
+      disciplina: { name: 'Disciplina', icon: 'disciplina', color: 'var(--stat-disciplina)' },
+      alma: { name: 'Alma', icon: 'alma', color: 'var(--stat-alma)' },
+      vinculo: { name: 'Vínculo', icon: 'vinculo', color: 'var(--stat-vinculo)' },
+      juego: { name: 'Juego', icon: 'juego', color: 'var(--stat-juego)' },
     };
 
+    // V19: Ranks now require BOTH total level AND OAA minimum + no stat below threshold
+    // This means you can't reach high ranks by grinding one stat
     const RANKS = [
-      { min: 0, rank: 'E', name: 'Hunter no registrado', color: 'var(--rank-e)' },
-      { min: 6, rank: 'D', name: 'Hunter en evaluación', color: 'var(--rank-d)' },
-      { min: 16, rank: 'C', name: 'Hunter calificado', color: 'var(--rank-c)' },
-      { min: 31, rank: 'B', name: 'Hunter de élite', color: 'var(--rank-b)' },
-      { min: 51, rank: 'A', name: 'Hunter S-class candidato', color: 'var(--rank-a)' },
-      { min: 81, rank: 'S', name: 'Hunter Excepcional', color: 'var(--rank-s)' },
-      { min: 121, rank: 'NL', name: 'Patrimonio Nacional', color: 'var(--rank-national)' },
+      {
+        min: 0, rank: 'E', name: 'Hunter no registrado', color: 'var(--rank-e)',
+        oaaMin: 0, noDimBelow: null
+      },
+      {
+        min: 6, rank: 'D', name: 'Hunter en evaluación', color: 'var(--rank-d)',
+        oaaMin: 0, noDimBelow: null
+      },
+      {
+        min: 20, rank: 'C', name: 'Hunter calificado', color: 'var(--rank-c)',
+        oaaMin: 6, noDimBelow: null
+      },
+      {
+        min: 40, rank: 'B', name: 'Hunter de élite', color: 'var(--rank-b)',
+        oaaMin: 9, noDimBelow: 2
+      },   // no dim in E (< 2)
+      {
+        min: 65, rank: 'A', name: 'Hunter S-class candidato', color: 'var(--rank-a)',
+        oaaMin: 11, noDimBelow: 3.5
+      }, // no dim in E+ (< 3.5)
+      {
+        min: 95, rank: 'S', name: 'Hunter Excepcional', color: 'var(--rank-s)',
+        oaaMin: 12.5, noDimBelow: 4.5
+      }, // no dim below D+ (< 4.5)
+      {
+        min: 130, rank: 'NL', name: 'Patrimonio Nacional', color: 'var(--rank-national)',
+        oaaMin: 13.5, noDimBelow: 6.5
+      }, // no dim below C
     ];
 
     const HABITS_BASE = {
@@ -4131,6 +4376,33 @@
       special_exam_passed: 1000,
       talent_unlocked: 300,
       class_promotion: 500,
+    };
+
+    const THEMES = {
+      dark: {
+        name: 'Dark (default)', cost: 0, locked: false,
+        vars: { '--bg': '#05040A', '--bg2': '#0A0814', '--bg3': '#110E1F', '--card': '#14111F', '--card2': '#1A1628', '--sys': '#8B5CF6', '--sys-glow': 'rgba(139, 92, 246, .5)', '--sys-dim': 'rgba(139, 92, 246, .12)' }
+      },
+      light: {
+        name: 'Light', cost: 0, locked: false,
+        vars: null /* uses CSS body[data-theme="light"] block */
+      },
+      deep_blue: {
+        name: 'Azul Profundo', cost: 800, locked: true,
+        vars: { '--bg': '#020817', '--bg2': '#04122B', '--bg3': '#081C3F', '--card': '#0A1E40', '--card2': '#102A52', '--sys': '#3B82F6', '--sys-glow': 'rgba(59, 130, 246, .5)', '--sys-dim': 'rgba(59, 130, 246, .12)' }
+      },
+      crimson: {
+        name: 'Carmesí', cost: 800, locked: true,
+        vars: { '--bg': '#0A0405', '--bg2': '#140608', '--bg3': '#1F0A0E', '--card': '#1F0E12', '--card2': '#28161B', '--sys': '#EF4444', '--sys-glow': 'rgba(239, 68, 68, .5)', '--sys-dim': 'rgba(239, 68, 68, .12)' }
+      },
+      emerald: {
+        name: 'Esmeralda', cost: 800, locked: true,
+        vars: { '--bg': '#04080A', '--bg2': '#061416', '--bg3': '#0A1F22', '--card': '#0E1F22', '--card2': '#16282B', '--sys': '#10B981', '--sys-glow': 'rgba(16, 185, 129, .5)', '--sys-dim': 'rgba(16, 185, 129, .12)' }
+      },
+      gold: {
+        name: 'Dorado (prestigio)', cost: 1500, locked: true,
+        vars: { '--bg': '#0A0805', '--bg2': '#141008', '--bg3': '#1F180A', '--card': '#1F1A0E', '--card2': '#282212', '--sys': '#F59E0B', '--sys-glow': 'rgba(245, 158, 11, .5)', '--sys-dim': 'rgba(245, 158, 11, .12)' }
+      },
     };
 
     const PP_SPEND = {
@@ -4925,8 +5197,8 @@
     // ============================================================
 
     function ppEnabled() {
-      const classIdx = CLASS_ORDER.indexOf(state.currentClass || 'D');
-      return classIdx >= CLASS_ORDER.indexOf('B');
+      // V19: PP unlocked at Rank C threshold (lv 20)
+      return totalLevel() >= 20;
     }
 
     function earnPP(amount, reason) {
@@ -5216,8 +5488,8 @@
     // ============================================================
 
     function examEnabled() {
-      const classIdx = CLASS_ORDER.indexOf(state.currentClass || 'D');
-      return classIdx >= CLASS_ORDER.indexOf('A');
+      // V19: Exams unlocked at Rank B threshold (lv 40)
+      return totalLevel() >= 40;
     }
 
     function maybeOfferExam() {
@@ -6376,6 +6648,8 @@
       pp: load(K.pp, 0),
       ppLog: load(K.ppLog, []),
       ppLimits: load(K.ppLimits, {}),
+      unlockedThemes: load('mo_unlocked_themes', ['dark', 'light']),
+      classPoints: load('mo_class_points', { current: 0, history: [], lastWeeklyCalc: null }),
       pause: load(K.pause, null),
       specialExam: load(K.specialExam, null),
       examHistory: load(K.examHistory, []),
@@ -6392,6 +6666,8 @@
     function persist() {
       save(K.user, state.user);
       save(K.xp, state.xp);
+      save('mo_unlocked_themes', state.unlockedThemes);
+      save('mo_class_points', state.classPoints);
       save(K.custom, state.custom);
       save(K.weekly, state.weekly);
       save(K.monthly, state.monthly);
@@ -6438,20 +6714,31 @@
     // ============================================================
     // XP & LEVELS — CON FIX DE LVL 0
     // ============================================================
+    // V19: Streak XP multiplier — rewards consistency
+    function getStreakMultiplier() {
+      const streak = state.streaks?.daily_log?.current || 0;
+      if (streak >= 60) return 1.50;
+      if (streak >= 30) return 1.35;
+      if (streak >= 14) return 1.20;
+      if (streak >= 7) return 1.10;
+      return 1.00;
+    }
+
     function xpForLevel(level) {
-      // total XP needed to reach this level (cumulative).
-      // Starting at level 0, so:
+      // V19: sub-quadratic curve ((lvl+1)^1.5 * 100) — more achievable than quadratic
       // lvl 0: 0 XP
       // lvl 1: 100 XP
-      // lvl 2: 100 + 400 = 500
-      // lvl 3: 500 + 900 = 1400
+      // lvl 3: 901 XP
+      // lvl 5: 2,819 XP
+      // lvl 7: 6,140 XP
+      // lvl 10: 14,264 XP
       let total = 0;
-      for (let i = 0; i < level; i++) total += (i + 1) * (i + 1) * 100;
+      for (let i = 0; i < level; i++) total += Math.floor(Math.pow(i + 1, 1.5) * 100);
       return total;
     }
 
     function xpForNextLevel(currentLevel) {
-      return (currentLevel + 1) * (currentLevel + 1) * 100;
+      return Math.floor(Math.pow(currentLevel + 1, 1.5) * 100);
     }
 
     function levelFromXP(xp) {
@@ -6479,9 +6766,18 @@
 
     function currentRank() {
       const lvl = totalLevel();
+      // V19: Strict mode — check level AND OAA requirements
+      const oaa = state.oaa || { total: 0 };
+      const dims = ['academico', 'fisico', 'mental', 'social', 'identidad']
+        .map(k => oaa[k] || 0);
+      const minDim = Math.min(...dims);
+
       let rank = RANKS[0];
       for (const r of RANKS) {
-        if (lvl >= r.min) rank = r;
+        if (lvl < r.min) continue;
+        if (r.oaaMin && (oaa.total || 0) < r.oaaMin) continue;
+        if (r.noDimBelow !== null && r.noDimBelow !== undefined && minDim < r.noDimBelow) continue;
+        rank = r;
       }
       return rank;
     }
@@ -6516,22 +6812,37 @@
       const h = findHabit(habitId);
       if (!h) return;
 
-      const currentXP = log.xp_gained[h.stat];
-      const cap = STATS[h.stat].cap;
+      // V19: No more daily caps — if you did the work, you get the XP
       let xpToAdd = h.xp;
-      let capped = false;
-
-      if (currentXP + xpToAdd > cap) {
-        xpToAdd = Math.max(0, cap - currentXP);
-        capped = true;
-      }
 
       log.habits.push(habitId);
-      // First of the day bonus
       const realHabits = log.habits.filter(x => x !== '__touched');
+
+      // First log of the day bonus
       if (realHabits.length === 1) {
         xpToAdd += 5;
         setTimeout(() => sysToast('PRIMER LOG DEL DÍA · +5 BONUS'), 400);
+      }
+
+      // V19: First touch of this stat today bonus
+      const statTouchedToday = realHabits.slice(0, -1).some(hid => {
+        const hh = findHabit(hid);
+        return hh && hh.stat === h.stat;
+      });
+      if (!statTouchedToday) {
+        xpToAdd += 3;
+        setTimeout(() => sysToast(`PRIMERA ${STATS[h.stat].name.toUpperCase()} · +3 BONUS`), 700);
+      }
+
+      // V19: Apply streak multiplier
+      const streakMult = getStreakMultiplier();
+      if (streakMult > 1.0) {
+        const before = xpToAdd;
+        xpToAdd = Math.floor(xpToAdd * streakMult);
+        const bonus = xpToAdd - before;
+        if (bonus > 0) {
+          setTimeout(() => sysToast(`STREAK x${streakMult.toFixed(2)} · +${bonus} XP`), 1000);
+        }
       }
       // Prompt nota (no-blocking, aparece después)
       setTimeout(() => promptHabitNote(habitId), 800);
@@ -6551,8 +6862,6 @@
         if (newRank !== prevRank) {
           setTimeout(() => showRankUp(newRank), newLevel > prevLevel ? 2500 : 600);
         }
-      } else if (capped) {
-        toast(`Cap diario de ${STATS[h.stat].name}`);
       }
 
       updateDailyStreak();
@@ -7091,8 +7400,31 @@
       if (state.achievements.find(a => a.id === id)) return;
       state.achievements.push({ id, date: todayKey() });
       const ach = ACHIEVEMENTS.find(a => a.id === id);
-      if (ach) setTimeout(() => sysToast(`${ach.name.toUpperCase()} · DESBLOQUEADO`, 'positive'), 1000);
+      if (ach) setTimeout(() => showAchievementUnlock(ach), 1200);
       persist();
+    }
+
+    // V19.5: Rich achievement notification modal
+    function showAchievementUnlock(ach) {
+      const ov = document.createElement('div');
+      ov.className = 'levelup show';
+      ov.innerHTML = `
+        <div class="rankup-content achievement-unlock" style="max-width:340px;padding:32px 24px;box-shadow:0 0 60px var(--sys-glow);">
+          <div class="sysnotif-corner tl"></div>
+          <div class="sysnotif-corner tr"></div>
+          <div class="sysnotif-corner bl"></div>
+          <div class="sysnotif-corner br"></div>
+          <div class="mono text-xs text-sys" style="letter-spacing:.4em;margin-bottom:20px">LOGRO DESBLOQUEADO</div>
+          <div class="ach-unlock-icon" style="color:var(--sys);font-size:48px;margin:0 auto 16px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;border:1px solid var(--sys);border-radius:50%;box-shadow:0 0 24px var(--sys-glow);">
+            ${svgIcon(ach.icon, 'icon')}
+          </div>
+          <div class="display text-3xl" style="text-align:center;margin-bottom:8px;text-shadow:0 0 12px var(--sys-glow)">${ach.name.toUpperCase()}</div>
+          <div class="text-md text-ink2" style="text-align:center;line-height:1.5;margin-bottom:24px">${ach.desc}</div>
+          <button class="btn btn-block" onclick="this.closest('.levelup').remove()">Continuar</button>
+        </div>
+      `;
+      document.body.appendChild(ov);
+      try { haptic && haptic('success'); } catch (e) { }
     }
 
     function checkAchievements() {
@@ -7568,6 +7900,128 @@
     // ============================================================
     // V3.3 — INFORME DE EVALUACIÓN SEMANAL
     // ============================================================
+
+    const CLASS_POINT_BASE = {
+      D: 50,
+      C: 100,
+      B: 250,
+      A: 500,
+      Aplus: 750,
+    };
+
+    function maybeCalculateClassPoints() {
+      const now = new Date();
+      const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday
+      if (dayOfWeek !== 1) return; // Only run on Monday
+
+      const todayK = todayKey();
+      if (state.classPoints.lastWeeklyCalc === todayK) return;
+
+      const cls = state.currentClass || 'D';
+      const base = CLASS_POINT_BASE[cls] || 50;
+
+      // Iterate the last 7 days of logs
+      let habitsTotal = 0;
+      let combos = 0;
+      let intent3of3 = 0;
+      let screenTimeOk = 0;
+      let screenTimeFail = 0;
+      let inactiveDays = 0;
+      let sysquestCompleted = 0;
+      let sysquestFailed = 0;
+
+      for (let i = 1; i <= 7; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = dateToKey(d);
+        const l = load(K.log(key), null);
+        if (!l || (!l.habits?.length && l.scroll_am === null)) {
+          inactiveDays++;
+          continue;
+        }
+        const realHabits = (l.habits || []).filter(h => h !== '__touched');
+        habitsTotal += realHabits.length;
+
+        // Count combo: 3+ distinct stats touched
+        const statsTouched = new Set();
+        realHabits.forEach(hid => {
+          for (const [stat, list] of Object.entries(HABITS_BASE)) {
+            if (list.some(h => h.id === hid)) { statsTouched.add(stat); break; }
+          }
+        });
+        (state.custom || []).forEach(c => {
+          if (realHabits.includes(c.id)) statsTouched.add(c.stat);
+        });
+        if (statsTouched.size >= 3) combos++;
+
+        // Daily intent 3/3
+        const c = l.daily_intent?.completed || [];
+        if (c.length >= 3 && c.every(Boolean)) intent3of3++;
+
+        // Screen time
+        if (l.screen_time === 'pass') screenTimeOk++;
+        else if (l.screen_time === 'fail') screenTimeFail++;
+      }
+
+      // Sysquests this week
+      (state.sysquest_history || []).forEach(sq => {
+        if (sq.date && daysSince(sq.date) <= 7) {
+          if (sq.status === 'completed') sysquestCompleted++;
+          else if (sq.status === 'failed') sysquestFailed++;
+        }
+      });
+
+      const streakBonus = Math.min(35, Math.max(0, state.streaks.daily_log.current) * 5);
+
+      const bonuses = {
+        habits: habitsTotal * 2,
+        sysquests: sysquestCompleted * 10,
+        combos: combos * 5,
+        intent: intent3of3 * 20,
+        screenTime: screenTimeOk * 15,
+        streak: streakBonus,
+      };
+
+      const penalties = {
+        inactive: inactiveDays * -10,
+        sysquestFailed: sysquestFailed * -25,
+        screenTimeFail: screenTimeFail * -15,
+      };
+
+      const total = base
+        + Object.values(bonuses).reduce((a, b) => a + b, 0)
+        + Object.values(penalties).reduce((a, b) => a + b, 0);
+
+      const finalPoints = Math.max(0, total);
+
+      const entry = {
+        week: todayK,
+        class: cls,
+        base,
+        bonuses,
+        penalties,
+        total: finalPoints,
+      };
+
+      state.classPoints.current = finalPoints;
+      state.classPoints.history.push(entry);
+      // Keep only last 26 weeks (~6 months)
+      if (state.classPoints.history.length > 26) {
+        state.classPoints.history = state.classPoints.history.slice(-26);
+      }
+      state.classPoints.lastWeeklyCalc = todayK;
+
+      // Award PP: 1 class point = 1 PP
+      if (finalPoints > 0 && ppEnabled()) {
+        earnPP(finalPoints, 'weekly_class_points');
+      }
+
+      persist();
+
+      setTimeout(() => {
+        sysToast(`EVALUACIÓN SEMANAL · +${finalPoints} PP`, 'positive');
+      }, 2000);
+    }
 
     function generateWeeklyReport() {
       const today = new Date();
@@ -8114,13 +8568,14 @@
 
     function maybeAyanokojiMessage() {
       const daysSince = daysSinceCreated();
-      if (daysSince < 90) return;
+      // V19.5: First message at 14 days (was 90)
+      if (daysSince < 14) return;
 
-      // Cada 90 días
+      // V19.5: Then every 21 days (was 90)
       const lastMsg = state.ayanokoji.lastMessage;
       if (lastMsg) {
         const daysSinceLast = Math.floor((new Date() - new Date(lastMsg)) / (1000 * 60 * 60 * 24));
-        if (daysSinceLast < 90) return;
+        if (daysSinceLast < 21) return;
       }
 
       // No mostrar si ya se mostró hoy
@@ -8181,7 +8636,7 @@
         <div class="modal-handle"></div>
         <div class="modal-tag">MENTOR QUESTION</div>
         <div class="modal-title">Bloqueado</div>
-        <div class="modal-sub">Requiere Clase B con Private Points activos.</div>
+        <div class="modal-sub">Requiere Rank C con Private Points activos.</div>
       `;
       }
 
@@ -8418,6 +8873,7 @@
         case 'ecosystem': html = modalEcosystem(); break;
         case 'period_eval': html = modalPeriodEval(); break;
         case 'settings': html = modalSettings(); break;
+        case 'menu': html = modalMenu(); break;
         case 'dungeon_create': html = modalDungeonCreate(); break;
         case 'dungeon_view': html = modalDungeonView(args[0]); break;
         case 'reflection': html = modalReflection(); break;
@@ -8619,12 +9075,32 @@
       <div class="switch ${state.user.settings.sysquest_enabled !== false ? 'on' : ''}" onclick="toggleSetting('sysquest_enabled', this)"></div>
     </div>
 
-    <div class="setting-row">
-      <div>
-        <div class="setting-name">Tema claro</div>
-        <div class="setting-sub">Default: oscuro</div>
+    <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:10px;padding:14px 0;">
+      <div style="width:100%">
+        <div class="setting-name">Tema</div>
+        <div class="setting-sub">Apariencia visual del Sistema</div>
       </div>
-      <div class="switch ${state.user.theme === 'light' ? 'on' : ''}" onclick="toggleTheme(this)"></div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%">
+        ${Object.entries(THEMES).map(([id, t]) => {
+        const unlocked = state.unlockedThemes.includes(id);
+        const active = (state.user.theme || 'dark') === id;
+        const canAfford = state.pp >= t.cost;
+        const swatch = t.vars?.['--sys'] || (id === 'light' ? '#8B5CF6' : '#8B5CF6');
+        const bg = t.vars?.['--bg'] || (id === 'light' ? '#F5F3F8' : '#05040A');
+        return `
+            <button class="theme-chip ${active ? 'active' : ''} ${!unlocked ? 'locked' : ''}"
+                    onclick="pickTheme('${id}')"
+                    ${!unlocked && !canAfford ? 'disabled' : ''}
+                    style="background:${bg};border:1px solid ${active ? swatch : 'var(--border)'};color:var(--ink);padding:10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;text-align:left;opacity:${!unlocked && !canAfford ? 0.4 : 1};-webkit-tap-highlight-color:transparent;">
+              <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${swatch};box-shadow:0 0 6px ${swatch};flex-shrink:0"></span>
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</span>
+                <span style="display:block;font-family:var(--font-mono);font-size:9px;opacity:.6">${unlocked ? (active ? 'ACTIVO' : 'usar') : t.cost + ' PP'}</span>
+              </span>
+            </button>
+          `;
+      }).join('')}
+      </div>
     </div>
 
     <div class="setting-row" onclick="closeModal(); openModal('report')" class="clickable">
@@ -8654,18 +9130,12 @@
     <div class="setting-row" onclick="closeModal(); openModal('pp')" class="clickable">
       <div>
         <div class="setting-name">Private Points</div>
-        <div class="setting-sub">${ppEnabled() ? state.pp + ' PP' : 'Clase B requerida'}</div>
+        <div class="setting-sub">${ppEnabled() ? state.pp + ' PP' : 'Rank C requerido'}</div>
       </div>
       <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
     </div>
 
-    <div class="setting-row" onclick="closeModal(); openModal('mentor')" class="clickable">
-      <div>
-        <div class="setting-name">Mentor Question</div>
-        <div class="setting-sub">${ppEnabled() ? '50 PP · diagnóstico del Sistema' : 'Clase B requerida'}</div>
-      </div>
-      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
-    </div>
+
 
     <div class="setting-row" onclick="closeModal(); openModal('export')" class="clickable">
       <div>
@@ -8723,16 +9193,72 @@
     }
 
     function toggleTheme(el) {
+      // Legacy: toggle dark/light, kept for retro-compat in modalSettings
       state.user.theme = state.user.theme === 'dark' ? 'light' : 'dark';
       applyTheme();
-      el.classList.toggle('on');
+      if (el) el.classList.toggle('on');
       persist();
       if (state.page === 'stats') setTimeout(renderRadar, 100);
     }
 
+    function pickTheme(themeId) {
+      if (!state.unlockedThemes.includes(themeId)) {
+        unlockTheme(themeId);
+        return;
+      }
+      state.user.theme = themeId;
+      applyTheme();
+      persist();
+      render();
+      sysToast('TEMA: ' + THEMES[themeId].name.toUpperCase());
+    }
+
     function applyTheme() {
-      document.body.dataset.theme = state.user.theme;
-      document.getElementById('themeColorMeta').content = state.user.theme === 'light' ? '#F5F3F8' : '#05040A';
+      const themeId = state.user.theme || 'dark';
+      const theme = THEMES[themeId] || THEMES.dark;
+      document.body.dataset.theme = (themeId === 'light') ? 'light' : 'dark';
+
+      // Apply custom theme vars if defined (premium themes override defaults)
+      const root = document.documentElement;
+      if (theme.vars) {
+        Object.entries(theme.vars).forEach(([k, v]) => root.style.setProperty(k, v));
+      } else {
+        // Reset inline overrides (for dark/light defaults)
+        ['--bg', '--bg2', '--bg3', '--card', '--card2', '--sys', '--sys-glow', '--sys-dim'].forEach(k => root.style.removeProperty(k));
+      }
+
+      const metaContent = (themeId === 'light') ? '#F5F3F8' : (theme.vars?.['--bg'] || '#05040A');
+      const meta = document.getElementById('themeColorMeta');
+      if (meta) meta.content = metaContent;
+    }
+
+    function unlockTheme(themeId) {
+      const theme = THEMES[themeId];
+      if (!theme) return;
+      if (state.unlockedThemes.includes(themeId)) {
+        toast('Tema ya desbloqueado');
+        return;
+      }
+      if (state.pp < theme.cost) {
+        toast('Sin PP suficientes');
+        return;
+      }
+      customConfirm(`Desbloquear "${theme.name}" por ${theme.cost} PP?`, () => {
+        state.pp -= theme.cost;
+        state.ppLog.push({ type: 'spend', amount: -theme.cost, reason: 'theme_' + themeId, date: todayKey() });
+        state.unlockedThemes.push(themeId);
+        persist();
+        sysToast('TEMA DESBLOQUEADO · ' + theme.name.toUpperCase());
+        haptic('success');
+        applyThemeAndPick(themeId);
+      });
+    }
+
+    function applyThemeAndPick(themeId) {
+      state.user.theme = themeId;
+      applyTheme();
+      persist();
+      render();
     }
 
     function renameUser() {
@@ -8755,6 +9281,87 @@
           location.reload();
         });
       });
+    }
+
+    function modalMenu() {
+      const ppLocked = !ppEnabled();
+      return `
+    <div class="modal-handle"></div>
+    <div class="modal-tag">SYSTEM MENU</div>
+    <div class="modal-title">Menú</div>
+
+    <div class="modal-label">Acciones rápidas</div>
+
+    <div class="setting-row clickable" onclick="closeModal(); setTimeout(()=>openModal('quick'), 200)">
+      <div>
+        <div class="setting-name">Quick Log</div>
+        <div class="setting-sub">Marcar hábito rápido</div>
+      </div>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
+    <div class="setting-row clickable" onclick="closeModal(); goPage('focus')">
+      <div>
+        <div class="setting-name">Focus / Timer</div>
+        <div class="setting-sub">Pomodoro · Deep work</div>
+      </div>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
+    <div class="setting-row clickable" onclick="closeModal(); setTimeout(()=>openModal('reflection'), 200)">
+      <div>
+        <div class="setting-name">Cerrar el día</div>
+        <div class="setting-sub">Reflection nocturna</div>
+      </div>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
+    <div class="modal-label mt-4">Análisis</div>
+
+    <div class="setting-row clickable" onclick="closeModal(); setTimeout(()=>openModal('report'), 200)">
+      <div>
+        <div class="setting-name">Informe semanal</div>
+        <div class="setting-sub">${state.weeklyReports.length ? 'Último: sem ' + getLatestReport()?.weekNumber : 'Pendiente'}</div>
+      </div>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
+    <div class="setting-row clickable" onclick="closeModal(); setTimeout(()=>openModal('report_history'), 200)">
+      <div>
+        <div class="setting-name">Informes históricos</div>
+        <div class="setting-sub">${state.weeklyReports.length} archivados</div>
+      </div>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
+
+
+    <div class="modal-label mt-4">Sistema</div>
+
+    <div class="setting-row clickable" onclick="closeModal(); setTimeout(()=>openModal('settings'), 200)">
+      <div>
+        <div class="setting-name">Ajustes</div>
+        <div class="setting-sub">Configuración general</div>
+      </div>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
+    <div class="setting-row clickable" onclick="closeModal(); setTimeout(()=>openModal('ecosystem'), 200)">
+      <div>
+        <div class="setting-name">Ecosystem</div>
+        <div class="setting-sub">Integraciones</div>
+      </div>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
+    </div>
+
+    <div class="setting-row clickable" onclick="closeModal(); setTimeout(()=>openModal('export'), 200)">
+      <div>
+        <div class="setting-name">Exportar / Importar</div>
+        <div class="setting-sub">Backup JSON</div>
+      </div>
+      <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
+    </div>
+      `;
     }
 
     function modalDungeonCreate() {
@@ -9180,10 +9787,11 @@
           <div class="modal-handle"></div>
           <div class="modal-tag">PRIVATE POINTS</div>
           <div class="modal-title">Bloqueados</div>
-          <div class="modal-sub">Los Private Points se desbloquean al llegar a Clase B. Seguí subiendo tu OAA.</div>
+          <div class="modal-sub">Los Private Points se desbloquean al llegar a Rank C. Seguí subiendo niveles en cada stat.</div>
           <div class="text-center" style="padding:20px 0">
             <div class="display text-6xl text-ink4">🔒</div>
-            <div class="mono text-sm tracking-widest text-ink3 mt-2">CLASE B REQUERIDA</div>
+            <div class="mono text-sm tracking-widest text-ink3 mt-2">RANK C REQUERIDO</div>
+            <div class="mono text-md text-ink3 mt-1">Tu rango actual: ${currentRank().rank} · LV ${totalLevel()} / 20</div>
           </div>
         `;
       }
@@ -9951,6 +10559,8 @@
         getCurrentOAA();
         updateClassIfChanged();
         ppWeeklyOAABonus();
+        // V18: Calcular puntos de clase semanales (solo lunes)
+        maybeCalculateClassPoints();
         // Check pause mode expiry
         if (state.pause?.active && new Date(state.pause.until) < new Date()) {
           state.pause = null;
@@ -10033,6 +10643,11 @@
       const clsCode = classCode(cls);
       const todayHabitCount = log.habits.filter(h => h !== '__touched').length;
       const dailyPct = Math.min(100, (todayHabitCount / 10) * 100);
+      // V19.5: Streak indicator
+      const streak = state.streaks?.daily_log?.current || 0;
+      const streakHtml = streak >= 7
+        ? `<span class="header-streak ${streak >= 30 ? 'header-streak-glow' : ''}" title="${streak} días de streak">${streak >= 30 ? '🔥🔥' : '🔥'} ${streak}</span>`
+        : '';
       return `
     <div class="header">
             ${state.page !== 'home' ? `<button class="header-btn header-btn-back" onclick="goBack()">${svgIcon('chevron', 'icon')}</button>` : ''}
@@ -10040,13 +10655,11 @@
       <div class="header-info">
         <div class="header-tag">${rank.name}</div>
         <div class="header-title">
-          ${escapeHtml(state.user.name)}
-          <span class="header-rank" style="color:${rank.color}">${rank.rank} · CL ${clsCode} · LV ${lvl}</span>
+          ${escapeHtml(state.user.name)} ${streakHtml}
+          <span class="header-rank" style="color:${rank.color}">${rank.rank} · CL ${clsCode} · LV ${lvl}${ppEnabled() ? ` · <span style="color:var(--sys)">${state.pp} PP</span>` : ''}</span>
         </div>
       </div>
-      <button class="header-btn" onclick="openModal('settings')">
-        ${svgIcon('settings', 'icon')}
-      </button>
+
     </div>
     <div class="daily-progress">
       <div class="daily-progress-fill ${dailyPct > 0 ? 'has-progress' : ''}" style="width: ${dailyPct}%"></div>
@@ -10059,6 +10672,7 @@
         case 'home': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderHome()}</div>`;
         case 'stats': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderStats()}</div>`;
         case 'focus': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderFocus()}</div>`;
+        case 'pp': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderPP()}</div>`;
         case 'character': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderCharacter()}</div>`;
         case 'calendar': return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderCalendar()}</div>`;
         default: return `<div class="page active" style="${state.pageDirection === "right" ? "animation: slideInRight .3s var(--ease)" : "animation: slideInLeft .3s var(--ease)"}">${renderHome()}</div>`;
@@ -10068,6 +10682,41 @@
     function renderHome() {
       const hour = new Date().getHours();
       let html = '';
+
+      // V19.5: Daily quote at top (compact, before everything else)
+      const dailyQuote = load('mo_daily_quote', null);
+      if (dailyQuote && dailyQuote.date === todayKey()) {
+        html += `
+          <div class="daily-quote-compact">
+            <div class="daily-quote-tag">⟢ TRANSMISIÓN</div>
+            <div class="daily-quote-text">"${escapeHtml(dailyQuote.text)}"</div>
+            <div class="daily-quote-author">— ${escapeHtml(dailyQuote.author)}</div>
+          </div>
+        `;
+      }
+
+      // V19.5: Mini OAA card at top of home
+      const oaaSnap = state.oaa || { total: 0, academico: 0, fisico: 0, mental: 0, social: 0, identidad: 0 };
+      if (oaaSnap.total > 0) {
+        const dims = ['academico', 'fisico', 'mental', 'social', 'identidad'];
+        const dimLabels = { academico: 'Acad', fisico: 'Físi', mental: 'Mntl', social: 'Socl', identidad: 'Idnt' };
+        const dimValues = dims.map(d => ({ key: d, val: oaaSnap[d] || 0 }));
+        const high = dimValues.reduce((m, x) => x.val > m.val ? x : m, dimValues[0]);
+        const low = dimValues.reduce((m, x) => x.val < m.val ? x : m, dimValues[0]);
+        html += `
+          <div class="mini-oaa" onclick="goPage('character')">
+            <div class="mini-oaa-tag">OAA EVALUACIÓN</div>
+            <div class="mini-oaa-main">
+              <div class="mini-oaa-letter">${numToLetter(oaaSnap.total)}</div>
+              <div class="mini-oaa-info">
+                <div class="mini-oaa-row"><span class="mini-oaa-dim">↑ ${dimLabels[high.key]}</span> <span class="mini-oaa-val">${numToLetter(high.val)}</span></div>
+                <div class="mini-oaa-row"><span class="mini-oaa-dim">↓ ${dimLabels[low.key]}</span> <span class="mini-oaa-val">${numToLetter(low.val)}</span></div>
+              </div>
+              <span class="mini-oaa-chev">${svgIcon('chevron', 'icon')}</span>
+            </div>
+          </div>
+        `;
+      }
 
       // PAUSE MODE banner
       if (isPaused()) {
@@ -10204,17 +10853,25 @@
     `;
       }
 
-      // Stat oxidada
+      // Stat oxidada + V19.5: Suggested dungeon
       if (new Date().getDay() === 0) {
         const levels = Object.keys(STATS).map(k => ({ k, lvl: levelFromXP(state.xp[k]) }));
         const avg = levels.reduce((s, x) => s + x.lvl, 0) / 6;
         const rusty = levels.find(x => x.lvl < avg - 5);
         if (rusty) {
+          const hasActiveDungeon = state.bosses.some(b => !b.completed && b.stat === rusty.k);
           html += `
         <div class="checkin">
           <div class="checkin-tag">DESBALANCE DETECTADO</div>
           <div class="checkin-title">${STATS[rusty.k].name} oxidándose</div>
-          <div class="checkin-text">Está ${Math.round(avg - rusty.lvl)} niveles por debajo del promedio. Recomendación: priorizar esta semana.</div>
+          <div class="checkin-text">Está ${Math.round(avg - rusty.lvl)} niveles por debajo del promedio. ${hasActiveDungeon ? 'Ya tenés una mazmorra activa para esta stat.' : 'Forjar una mazmorra te ayuda a focalizar el esfuerzo.'}</div>
+          ${!hasActiveDungeon ? `
+            <div class="checkin-actions">
+              <button class="btn btn-sm" onclick="openModal('dungeon_create'); setTimeout(() => { const sel = document.getElementById('bossStat'); if (sel) sel.value = '${rusty.k}'; }, 300)">
+                Forjar mazmorra de ${STATS[rusty.k].name}
+              </button>
+            </div>
+          ` : ''}
         </div>
       `;
         }
@@ -10305,7 +10962,7 @@
               <div class="stat-bar">
                 <div class="stat-fill" style="width:${p.pct}%;background:${STATS[k].color}"></div>
               </div>
-              <div class="stat-xp">${p.current}/${p.needed} XP · hoy +${log.xp_gained[k]}/${STATS[k].cap}</div>
+              <div class="stat-xp">${p.current}/${p.needed} XP · hoy +${log.xp_gained[k] || 0}</div>
             </div>
           </div>
         `;
@@ -10317,17 +10974,7 @@
       html += renderHabits();
       html += renderQuestsCard();
 
-      // Daily quote del Sistema
-      const quote = load('mo_daily_quote', null);
-      if (quote && quote.date === todayKey()) {
-        html += `
-          <div class="card border-l-sys">
-            <div class="card-title"><span class="card-title-text">Transmisión del Sistema</span></div>
-            <div class="quote-text">"${escapeHtml(quote.text)}"</div>
-            <div class="quote-author">— ${escapeHtml(quote.author)}</div>
-          </div>
-        `;
-      }
+      // V19.5: Daily quote moved to top of home (see early section)
 
       // Daily summary card
       const todayHabits = log.habits.filter(h => h !== '__touched').length;
@@ -10591,21 +11238,7 @@
       <div class="heatmap" id="heatmap"></div>
     </div>
 
-    <div class="card">
-      <div class="card-title"><span class="card-title-text">Logros · ${state.achievements.length}/${ACHIEVEMENTS.length}</span></div>
-      <div class="ach-grid">
-        ${ACHIEVEMENTS.map(a => {
-        const got = state.achievements.find(x => x.id === a.id);
-        return `
-            <div class="ach ${got ? 'unlocked' : 'locked'}">
-              <div class="ach-icon">${svgIcon(a.icon)}</div>
-              <div class="ach-name">${a.name}</div>
-              <div class="ach-desc">${a.desc}</div>
-            </div>
-          `;
-      }).join('')}
-      </div>
-    </div>
+
 
     <div class="card">
       <div class="card-title"><span class="card-title-text">Streaks</span></div>
@@ -10867,6 +11500,24 @@
     ${renderTalentsSection()}
     ${renderExamHistory()}
 
+    <div class="card trophy-room">
+      <div class="card-title">
+        <span class="card-title-text">Trophy Room</span>
+        <span class="card-action" style="color:var(--sys)">${state.achievements.length} / ${ACHIEVEMENTS.length}</span>
+      </div>
+      <div class="trophy-grid">
+        ${ACHIEVEMENTS.map(a => {
+          const got = state.achievements.find(x => x.id === a.id);
+          return `
+            <div class="trophy ${got ? 'unlocked' : 'locked'}" onclick="showTrophyDetail('${a.id}')">
+              <div class="trophy-icon">${svgIcon(a.icon)}</div>
+              <div class="trophy-name">${got ? a.name : '???'}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+
     <div class="mt-2 flex gap-1">
       <button class="btn btn-ghost flex-1" onclick="openModal('export')">${svgIcon('download', 'icon')} Backup</button>
       <button class="btn btn-ghost flex-1" onclick="exportStatusWidget()">${svgIcon('hexagon', 'icon')} Widget PNG</button>
@@ -10874,6 +11525,32 @@
   `;
       }
       return html;
+    }
+
+    // V19.5: Trophy detail modal
+    function showTrophyDetail(id) {
+      const a = ACHIEVEMENTS.find(x => x.id === id);
+      if (!a) return;
+      const got = state.achievements.find(x => x.id === id);
+      const ov = document.createElement('div');
+      ov.className = 'levelup show';
+      ov.innerHTML = `
+        <div class="rankup-content" style="max-width:320px;padding:28px 22px;${got ? `box-shadow:0 0 40px var(--sys-glow);` : 'opacity:.85'}">
+          <div class="sysnotif-corner tl"></div>
+          <div class="sysnotif-corner tr"></div>
+          <div class="sysnotif-corner bl"></div>
+          <div class="sysnotif-corner br"></div>
+          <div class="mono text-xs ${got ? 'text-sys' : 'text-ink3'}" style="letter-spacing:.35em;margin-bottom:18px">${got ? 'DESBLOQUEADO' : 'BLOQUEADO'}</div>
+          <div class="trophy-detail-icon" style="margin:0 auto 14px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;border:1px solid ${got ? 'var(--sys)' : 'var(--ink3)'};border-radius:50%;color:${got ? 'var(--sys)' : 'var(--ink3)'};${got ? 'box-shadow:0 0 18px var(--sys-glow);' : ''}">
+            ${svgIcon(a.icon, 'icon')}
+          </div>
+          <div class="display text-2xl" style="text-align:center;margin-bottom:6px">${a.name}</div>
+          <div class="text-md text-ink2" style="text-align:center;line-height:1.5;margin-bottom:${got ? '12px' : '24px'}">${a.desc}</div>
+          ${got ? `<div class="mono text-xs text-ink3" style="text-align:center;margin-bottom:20px">Desbloqueado: ${got.date}</div>` : ''}
+          <button class="btn btn-block" onclick="this.closest('.levelup').remove()">Cerrar</button>
+        </div>
+      `;
+      document.body.appendChild(ov);
     }
 
     // ============================================================
@@ -11153,6 +11830,160 @@
       </svg>`;
     }
 
+    function renderPP() {
+      const enabled = ppEnabled();
+      if (!enabled) {
+        const r = currentRank();
+        const lvl = totalLevel();
+        return `
+          <div class="card text-center" style="padding:40px 20px">
+            <div class="display text-6xl text-ink4" style="opacity:.4">${svgIcon('lock', 'icon')}</div>
+            <div class="mono text-sm tracking-widest text-ink3 mt-3">RANK C REQUERIDO</div>
+            <div class="display text-2xl mt-2">Private Points bloqueados</div>
+            <div class="text-base text-ink2 mt-3" style="max-width:320px;margin:0 auto;line-height:1.5">
+              La economía del Sistema se desbloquea al llegar a Rank C. Seguí completando hábitos y subiendo niveles.
+            </div>
+            <div class="mt-6" style="padding-top:20px;border-top:1px solid var(--border)">
+              <div class="mono text-sm tracking-widest text-ink3">RANGO ACTUAL</div>
+              <div class="display text-4xl mt-2" style="color:${r.color}">${r.rank}</div>
+              <div class="text-sm text-ink2 mt-1">LV ${lvl} / 20 para Rank C</div>
+              <div class="stat-bar mt-3" style="max-width:240px;margin:12px auto 0">
+                <div class="stat-fill" style="width:${Math.min(100, (lvl / 20) * 100)}%;background:var(--sys)"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const weekEarned = state.ppLog.filter(l => l.type === 'earn' && daysSince(l.date) <= 7).reduce((s, l) => s + l.amount, 0);
+      const weekSpent = state.ppLog.filter(l => l.type === 'spend' && daysSince(l.date) <= 7).reduce((s, l) => s + Math.abs(l.amount), 0);
+
+      let html = `
+        <div class="card" style="text-align:center;padding:24px 20px">
+          <div class="mono text-sm tracking-widest text-ink3">PRIVATE POINTS</div>
+          <div class="display" style="font-size:48px;color:var(--sys);text-shadow:0 0 16px var(--sys-glow);margin-top:6px">${state.pp.toLocaleString()}</div>
+          <div class="mono text-sm text-ink2 mt-2">
+            <span style="color:var(--positive)">+${weekEarned}</span>
+            <span class="text-ink3 mx-2">·</span>
+            <span style="color:var(--negative)">−${weekSpent}</span>
+            <span class="text-ink3 ml-2">esta semana</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="card-title-text">Acciones</span></div>
+      `;
+
+      const actions = [
+        { key: 'skip_sysquest', fn: 'ppSkipSysquest()', condition: !!state.sysquest },
+        { key: 'quest_reroll', fn: 'ppQuestReroll()', condition: state.sysquest?.status === 'pending' },
+        { key: 'postpone_intent', fn: 'ppPostponeIntent()', condition: log.daily_intent.items.length > 0 },
+        { key: 'streak_insurance', fn: 'ppStreakInsurance()', condition: state.streaks.daily_log.current === 0 },
+        { key: 'pause_mode', fn: 'ppActivatePause()', condition: !isPaused() },
+        { key: 'double_dungeon', fn: 'promptDoubleDungeon()', condition: state.bosses.some(b => !b.completed && !b.doubleReward) },
+      ];
+
+      actions.forEach(a => {
+        const item = PP_SPEND[a.key];
+        if (!item) return;
+        const canAfford = state.pp >= item.cost;
+        const withinLimit = checkPPLimit(a.key);
+        const available = a.condition && canAfford && withinLimit;
+        html += `
+          <div class="setting-row" style="opacity:${available ? 1 : 0.4};">
+            <div>
+              <div class="setting-name">${item.label}</div>
+              <div class="setting-sub">${item.cost} PP · ${item.limit}</div>
+            </div>
+            <button class="btn btn-sm ${available ? '' : 'btn-ghost'}" ${available ? `onclick="${a.fn}"` : 'disabled'} style="min-width:70px;">
+              ${available ? 'Usar' : canAfford ? 'Limit' : 'Sin PP'}
+            </button>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+
+      // V19.5: Mentor Question featured card
+      html += `
+        <div class="card mentor-card" onclick="openModal('mentor')" style="cursor:pointer;border-left:2px solid var(--sys);position:relative;overflow:hidden">
+          <div class="sysnotif-corner tl"></div>
+          <div class="sysnotif-corner tr"></div>
+          <div class="sysnotif-corner bl"></div>
+          <div class="sysnotif-corner br"></div>
+          <div style="display:flex;align-items:flex-start;gap:14px;padding:6px 4px">
+            <div style="flex-shrink:0;width:42px;height:42px;border:1px solid var(--sys);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--sys);box-shadow:0 0 12px var(--sys-glow)">
+              ${svgIcon('eye', 'icon')}
+            </div>
+            <div style="flex:1;min-width:0">
+              <div class="mono text-xs text-sys" style="letter-spacing:.25em;margin-bottom:4px">MENTOR QUESTION</div>
+              <div class="display text-xl" style="margin-bottom:4px">Diagnóstico del Sistema</div>
+              <div class="text-sm text-ink2" style="line-height:1.4">El Sistema analiza tu evaluación actual y te devuelve una pregunta específica. 50 PP por consulta.</div>
+            </div>
+            <span class="text-ink3" style="align-self:center">${svgIcon('chevron', 'icon')}</span>
+          </div>
+        </div>
+      `;
+
+      // V18: Class Points breakdown
+      const lastEval = state.classPoints?.history?.[state.classPoints.history.length - 1];
+      if (lastEval) {
+        const totalBonus = Object.values(lastEval.bonuses || {}).reduce((a, b) => a + b, 0);
+        const totalPen = Object.values(lastEval.penalties || {}).reduce((a, b) => a + b, 0);
+        html += `
+          <div class="card">
+            <div class="card-title"><span class="card-title-text">Última evaluación semanal</span></div>
+            <div class="flex items-baseline gap-2 mb-2">
+              <div class="display text-3xl" style="color:var(--sys)">+${lastEval.total}</div>
+              <div class="mono text-sm text-ink3">PP · Clase ${lastEval.class} · ${lastEval.week}</div>
+            </div>
+            <div class="mono text-sm text-ink2" style="line-height:1.8">
+              <div>Base Clase ${lastEval.class}: <span style="color:var(--ink)">+${lastEval.base}</span></div>
+              <div style="color:var(--positive)">Bonuses: +${totalBonus}</div>
+              <div style="padding-left:12px;font-size:11px;opacity:.7">
+                ${lastEval.bonuses.habits ? `+${lastEval.bonuses.habits} hábitos · ` : ''}
+                ${lastEval.bonuses.sysquests ? `+${lastEval.bonuses.sysquests} sysquests · ` : ''}
+                ${lastEval.bonuses.combos ? `+${lastEval.bonuses.combos} combos · ` : ''}
+                ${lastEval.bonuses.intent ? `+${lastEval.bonuses.intent} intent 3/3 · ` : ''}
+                ${lastEval.bonuses.screenTime ? `+${lastEval.bonuses.screenTime} screen time · ` : ''}
+                ${lastEval.bonuses.streak ? `+${lastEval.bonuses.streak} streak` : ''}
+              </div>
+              ${totalPen < 0 ? `
+                <div style="color:var(--negative)">Penalizaciones: ${totalPen}</div>
+                <div style="padding-left:12px;font-size:11px;opacity:.7">
+                  ${lastEval.penalties.inactive ? `${lastEval.penalties.inactive} inactividad · ` : ''}
+                  ${lastEval.penalties.sysquestFailed ? `${lastEval.penalties.sysquestFailed} sysquests fallidas · ` : ''}
+                  ${lastEval.penalties.screenTimeFail ? `${lastEval.penalties.screenTimeFail} screen time excedido` : ''}
+                </div>
+              ` : ''}
+            </div>
+            <div class="text-xs text-ink3 mono mt-2" style="text-align:center;padding-top:8px;border-top:1px solid var(--border)">
+              Próxima evaluación: lunes
+            </div>
+          </div>
+        `;
+      }
+
+      const recent = state.ppLog.slice(-12).reverse();
+      if (recent.length) {
+        html += `<div class="card"><div class="card-title"><span class="card-title-text">Historial reciente</span></div>`;
+        recent.forEach(l => {
+          const color = l.type === 'earn' ? 'var(--positive)' : 'var(--negative)';
+          const sign = l.type === 'earn' ? '+' : '';
+          html += `
+            <div class="text-md flex items-center border-t" style="padding:8px 0">
+              <span class="mono font-bold" style="color:${color};width:60px">${sign}${l.amount}</span>
+              <span class="text-ink2 flex-1">${l.reason}</span>
+              <span class="mono log-date">${l.date.slice(5)}</span>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+
+      return html;
+    }
+
     function renderNav() {
       const p = state.page;
       return `
@@ -11166,16 +11997,16 @@
             <span>Status</span>
           </button>
           <button class="nav-tab nav-tab-center ${p === 'character' ? 'active' : ''}" onclick="goPage('character')">
-            <div class="nav-radar">${miniRadarSVG(36)}</div>
+            <div class="nav-radar">${miniRadarSVG(26)}</div>
             <span>Profile</span>
           </button>
-          <button class="nav-tab ${p === 'focus' ? 'active' : ''}" onclick="goPage('focus')">
-            ${svgIcon('timer')}
-            <span>Focus</span>
+          <button class="nav-tab ${p === 'pp' ? 'active' : ''}" onclick="goPage('pp')">
+            ${svgIcon('coin')}
+            <span>Points</span>
           </button>
-          <button class="nav-tab" onclick="openModal('quick')">
-            ${svgIcon('plus')}
-            <span>Quick</span>
+          <button class="nav-tab" onclick="openModal('menu')">
+            ${svgIcon('menu')}
+            <span>Menú</span>
           </button>
         </div>
       `;
