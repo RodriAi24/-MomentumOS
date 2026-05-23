@@ -4600,11 +4600,11 @@
       disciplina: { name: 'Disciplina', icon: 'disciplina', color: 'var(--stat-disciplina)' },
       alma: { name: 'Alma', icon: 'alma', color: 'var(--stat-alma)' },
       vinculo: { name: 'Vínculo', icon: 'vinculo', color: 'var(--stat-vinculo)' },
-      juego: { name: 'Juego', icon: 'juego', color: 'var(--stat-juego)' },
+      entretenimiento: { name: 'Entretenimiento', icon: 'juego', color: 'var(--stat-juego)' },
     };
 
-    // V19: Ranks now require BOTH total level AND OAA minimum + no stat below threshold
-    // This means you can't reach high ranks by grinding one stat
+    // V19.9: Commercial-viable rank thresholds
+    // Dedicated (135 XP/d): C=3wk, B=2.5mo, A=6mo, S=12mo, NL=2yr
     const RANKS = [
       {
         min: 0, rank: 'E', name: 'Hunter no registrado', color: 'var(--rank-e)',
@@ -4615,25 +4615,25 @@
         oaaMin: 0, noDimBelow: null
       },
       {
-        min: 20, rank: 'C', name: 'Hunter calificado', color: 'var(--rank-c)',
+        min: 12, rank: 'C', name: 'Hunter calificado', color: 'var(--rank-c)',
         oaaMin: 6, noDimBelow: null
       },
       {
-        min: 40, rank: 'B', name: 'Hunter de élite', color: 'var(--rank-b)',
+        min: 24, rank: 'B', name: 'Hunter de élite', color: 'var(--rank-b)',
         oaaMin: 9, noDimBelow: 2
-      },   // no dim in E (< 2)
+      },
       {
-        min: 65, rank: 'A', name: 'Hunter S-class candidato', color: 'var(--rank-a)',
+        min: 36, rank: 'A', name: 'Hunter S-class candidato', color: 'var(--rank-a)',
         oaaMin: 11, noDimBelow: 3.5
-      }, // no dim in E+ (< 3.5)
+      },
       {
-        min: 95, rank: 'S', name: 'Hunter Excepcional', color: 'var(--rank-s)',
+        min: 48, rank: 'S', name: 'Hunter Excepcional', color: 'var(--rank-s)',
         oaaMin: 12.5, noDimBelow: 4.5
-      }, // no dim below D+ (< 4.5)
+      },
       {
-        min: 130, rank: 'NL', name: 'Patrimonio Nacional', color: 'var(--rank-national)',
+        min: 66, rank: 'NL', name: 'Patrimonio Nacional', color: 'var(--rank-national)',
         oaaMin: 13.5, noDimBelow: 6.5
-      }, // no dim below C
+      },
     ];
 
     const HABITS_BASE = {
@@ -4641,15 +4641,17 @@
         { id: 'gym', label: 'Entrenamiento físico', xp: 15, icon: 'gym' },
         { id: 'walk30', label: 'Caminata 30+ min', xp: 10, icon: 'walk30' },
         { id: 'stretch', label: 'Movilidad', xp: 5, icon: 'stretch' },
-        { id: 'sleep7', label: 'Descanso 7h+', xp: 8, icon: 'sleep7' },
-        { id: 'hydration', label: 'Hidratación 2L+', xp: 3, icon: 'hydration' },
+        { id: 'sleep7', label: 'Descanso 7h+', xp: 10, icon: 'sleep7' },
+        { id: 'hydration', label: 'Hidratación 2L+', xp: 5, icon: 'hydration' },
+        { id: 'sport', label: 'Deporte / actividad', xp: 12, icon: 'gym' },
       ],
       sabiduria: [
-        { id: 'read25', label: 'Lectura 25+ min', xp: 8, icon: 'read25' },
+        { id: 'read25', label: 'Lectura 25+ min', xp: 10, icon: 'read25' },
         { id: 'cca', label: 'Estudio técnico', xp: 12, icon: 'cca' },
         { id: 'tutorial', label: 'Tutorial/paper', xp: 10, icon: 'tutorial' },
-        { id: 'lang', label: 'Idioma', xp: 6, icon: 'lang' },
-        { id: 'notes', label: 'Notas/síntesis', xp: 5, icon: 'notes' },
+        { id: 'lang', label: 'Idioma', xp: 8, icon: 'lang' },
+        { id: 'notes', label: 'Notas/síntesis', xp: 6, icon: 'notes' },
+        { id: 'chess', label: 'Ajedrez / puzzles', xp: 8, icon: 'chess' },
       ],
       disciplina: [
         { id: 'pomo', label: 'Pomodoro 25 min', xp: 8, icon: 'pomo' },
@@ -4661,10 +4663,12 @@
       ],
       alma: [
         { id: 'bass', label: 'Instrumento', xp: 10, icon: 'bass' },
-        { id: 'journal', label: 'Journal', xp: 6, icon: 'journal' },
+        { id: 'journal', label: 'Journal', xp: 8, icon: 'journal' },
         { id: 'walk_silent', label: 'Caminar sin auris', xp: 8, icon: 'walk_silent' },
         { id: 'stars', label: 'Astronomía/cielo', xp: 5, icon: 'stars' },
-        { id: 'selfcare', label: 'Autocuidado', xp: 4, icon: 'selfcare' },
+        { id: 'selfcare', label: 'Autocuidado', xp: 5, icon: 'selfcare' },
+        { id: 'drawing', label: 'Dibujo / arte', xp: 8, icon: 'hobby' },
+        { id: 'meditate', label: 'Meditación', xp: 10, icon: 'stars' },
       ],
       vinculo: [
         { id: 'call', label: 'Llamar/ver alguien', xp: 12, icon: 'call' },
@@ -4674,12 +4678,12 @@
         { id: 'quality_time', label: 'Tiempo de calidad sin pantallas', xp: 18, icon: 'meal' },
         { id: 'compliment', label: 'Decir algo lindo', xp: 6, icon: 'compliment' },
       ],
-      juego: [
-        { id: 'chess', label: 'Ajedrez', xp: 8, icon: 'chess' },
+      entretenimiento: [
         { id: 'series', label: 'Serie/peli', xp: 5, icon: 'series' },
         { id: 'videogame', label: 'Videojuego', xp: 6, icon: 'videogame' },
         { id: 'astro_nba', label: 'NBA/stats deportes', xp: 7, icon: 'astro_nba' },
-        { id: 'hobby', label: 'Hobby creativo', xp: 5, icon: 'hobby' },
+        { id: 'hobby', label: 'Hobby recreativo', xp: 5, icon: 'hobby' },
+        { id: 'scroll_fun', label: 'Scroll recreativo', xp: 3, icon: 'series' },
       ],
     };
 
@@ -4691,7 +4695,7 @@
       { id: 'first_dungeon', name: 'Cazador', desc: '1ra mazmorra ganada', icon: 'ach_crown' },
       { id: 'balanced', name: 'Balanceado', desc: '6 stats lvl 5+', icon: 'ach_balance' },
       { id: 'no_scroll_30', name: 'Mañanas limpias', desc: '30 días sin scroll AM', icon: 'ach_sun' },
-      { id: 'level_50', name: 'B-rank', desc: 'Nivel total 51', icon: 'ach_bolt' },
+      { id: 'level_50', name: 'B-rank', desc: 'Nivel total 24', icon: 'ach_bolt' },
       { id: 'streak_30', name: 'Llama eterna', desc: 'Streak de 30 días', icon: 'ach_fire' },
       { id: 'social_butterfly', name: 'Tejedor', desc: 'Vínculo lvl 10', icon: 'ach_wings' },
       { id: 'first_sysquest', name: 'Obediente', desc: '1ra Daily Quest', icon: 'ach_eye' },
@@ -5415,7 +5419,6 @@
       if (logs.length < 7) return null;
 
       const almaIds = HABITS_BASE.alma.map(h => h.id);
-      const juegoIds = HABITS_BASE.juego.map(h => h.id);
 
       // Consistencia Alma
       let almaCount = 0;
@@ -5431,15 +5434,24 @@
           }
         });
       });
-      // V14: targets subidos
       const almaScore = Math.min(14, Math.pow(almaDays.size / 25, 1.4) * 14);
 
-      // Diversidad Juego: necesitás 6+ tipos para A
-      const juegoTypes = new Set();
-      logs.forEach(log => {
-        log.habits.forEach(h => { if (juegoIds.includes(h)) juegoTypes.add(h); });
-      });
-      const juegoScore = (juegoTypes.size / 6) * 14;
+      // V19.9: Entertainment penalty system
+      // If entertainment level is disproportionately high vs other stats, penalize Identidad
+      const entLvl = levelFromXP(state.xp.entretenimiento || 0);
+      const otherStats = ['fuerza', 'sabiduria', 'disciplina', 'alma', 'vinculo'];
+      const otherAvg = otherStats.reduce((s, k) => s + levelFromXP(state.xp[k] || 0), 0) / 5;
+      const entRatio = otherAvg > 0 ? entLvl / otherAvg : 0;
+      let entScore;
+      if (entRatio < 0.7) {
+        entScore = 2; // Healthy balance: small positive
+      } else if (entRatio <= 1.0) {
+        entScore = 0; // Neutral
+      } else if (entRatio <= 1.5) {
+        entScore = -2; // Too much entertainment
+      } else {
+        entScore = -4; // Identity = entertainment (problem)
+      }
 
       // Mazmorras: requieren más para alto score
       const recentBosses = state.bosses.filter(b => b.completed && daysSince(b.completedAt) <= 30);
@@ -5454,7 +5466,7 @@
       const journaled = logs.filter(l => l.reflection?.journal && l.reflection.journal.length > 10).length;
       const journalScore = Math.min(14, (journaled / 20) * 14);
 
-      let raw = almaScore * 0.30 + juegoScore * 0.20 + bossScore * 0.25 + customScore * 0.15 + journalScore * 0.10;
+      let raw = almaScore * 0.35 + bossScore * 0.25 + customScore * 0.15 + journalScore * 0.10 + entScore * 0.15;
 
       if (state.custom.length > 0) {
         let maxLogs = 0;
@@ -5585,8 +5597,8 @@
     // ============================================================
 
     function ppEnabled() {
-      // V19: PP unlocked at Rank C threshold (lv 20)
-      return totalLevel() >= 20;
+      // V19.9: PP unlocked at Rank C (lv 12)
+      return totalLevel() >= 12;
     }
 
     function earnPP(amount, reason) {
@@ -5885,8 +5897,8 @@
     // ============================================================
 
     function examEnabled() {
-      // V19: Exams unlocked at Rank B threshold (lv 40)
-      return totalLevel() >= 40;
+      // V19.9: Exams unlocked at Rank B (lv 24)
+      return totalLevel() >= 24;
     }
 
     function maybeOfferExam() {
@@ -6237,12 +6249,12 @@
 
       if (!log.habits.includes('chess')) {
         log.habits.push('chess');
-        const gained = log.xp_gained.juego;
-        const cap = STATS.juego.cap;
+        const gained = log.xp_gained.entretenimiento;
+        const cap = STATS.entretenimiento.cap;
         const xpToAdd = Math.min(8, cap - gained);
         if (xpToAdd > 0) {
-          log.xp_gained.juego += xpToAdd;
-          state.xp.juego += xpToAdd;
+          log.xp_gained.entretenimiento += xpToAdd;
+          state.xp.entretenimiento += xpToAdd;
         }
         saveLog(log);
         persist();
@@ -7018,7 +7030,7 @@
 
     let state = {
       user: load(K.user, null),
-      xp: load(K.xp, { fuerza: 0, sabiduria: 0, disciplina: 0, alma: 0, vinculo: 0, juego: 0 }),
+      xp: load(K.xp, { fuerza: 0, sabiduria: 0, disciplina: 0, alma: 0, vinculo: 0, entretenimiento: 0 }),
       custom: load(K.custom, []),
       weekly: load(K.weekly, null),
       monthly: load(K.monthly, null),
@@ -7092,7 +7104,7 @@
         screen_time: null, // null = no respondido, 'pass' | 'fail'
         daily_intent: { items: [], completed: [], blocks: {} },
         reflection: null,
-        xp_gained: { fuerza: 0, sabiduria: 0, disciplina: 0, alma: 0, vinculo: 0, juego: 0 },
+        xp_gained: { fuerza: 0, sabiduria: 0, disciplina: 0, alma: 0, vinculo: 0, entretenimiento: 0 },
       });
     }
 
@@ -7104,12 +7116,13 @@
     // XP & LEVELS — CON FIX DE LVL 0
     // ============================================================
     // V19: Streak XP multiplier — rewards consistency
+    // V19.9: Streak multiplier — raised cap to x1.60
     function getStreakMultiplier() {
       const streak = state.streaks?.daily_log?.current || 0;
-      if (streak >= 60) return 1.50;
-      if (streak >= 30) return 1.35;
-      if (streak >= 14) return 1.20;
-      if (streak >= 7) return 1.10;
+      if (streak >= 60) return 1.60;
+      if (streak >= 30) return 1.40;
+      if (streak >= 14) return 1.25;
+      if (streak >= 7) return 1.15;
       return 1.00;
     }
 
@@ -7156,7 +7169,7 @@
       // V19: Strict mode — check level AND OAA requirements
       const oaa = state.oaa || { total: 0 };
       const dims = ['academico', 'fisico', 'mental', 'social', 'identidad']
-        .map(k => oaa[k] || 0);
+        .map(k => oaa.dims?.[k] ?? oaa[k] ?? 0);
       const minDim = Math.min(...dims);
 
       let rank = RANKS[0];
@@ -8332,14 +8345,14 @@
           <div class="card">
             <div class="card-title"><span class="card-title-text">Special Exams · historial</span></div>
             ${hist.slice(-6).reverse().map(e => {
-          const tpl = SPECIAL_EXAMS.find(x => x.id === e.examId);
+          const tpl = SPECIAL_EXAMS.find(x => x.id === (e.examId || e.id));
           const color = e.status === 'passed' ? 'var(--positive)' : e.status === 'failed' ? 'var(--negative)' : 'var(--ink3)';
           const icon = e.status === 'passed' ? 'check' : 'x';
           return `
                 <div class="log-row">
                   <span style="color:${color}">${svgIcon(icon, 'icon icon-sm')}</span>
                   <span class="flex-1">${tpl ? escapeHtml(tpl.name) : e.examId}</span>
-                  <span class="mono log-date">${e.status} · ${(e.completedAt || e.offeredDate || '').slice(5)}</span>
+                  <span class="mono log-date">${e.result || e.status} · ${(e.endDate || e.completedAt || e.offeredDate || '').slice(5)}</span>
                 </div>
               `;
         }).join('')}
@@ -8844,12 +8857,16 @@
     `;
       state.weeklyReports.slice().reverse().forEach((r, idx) => {
         const realIdx = state.weeklyReports.length - 1 - idx;
-        const color = r.oaa.totalChange > 0.3 ? 'var(--positive)' : r.oaa.totalChange < -0.3 ? 'var(--negative)' : 'var(--ink3)';
+        const oaaData = r.oaa || {};
+        const totalChange = oaaData.totalChange ?? 0;
+        const totalLetter = oaaData.totalLetter || (typeof r.oaaTotal === 'number' ? numToLetter(r.oaaTotal) : '?');
+        const observations = r.observations || [];
+        const color = totalChange > 0.3 ? 'var(--positive)' : totalChange < -0.3 ? 'var(--negative)' : 'var(--ink3)';
         html += `
         <div class="setting-row" onclick="closeModal(); openModal('report', ${realIdx})" class="clickable">
           <div>
-            <div class="setting-name">Semana ${r.weekNumber} · ${r.oaa.totalLetter}</div>
-            <div class="setting-sub" style="color:${color}">${r.oaa.totalChange > 0 ? '+' : ''}${r.oaa.totalChange.toFixed(1)} · ${r.observations.length} obs</div>
+            <div class="setting-name">Semana ${r.weekNumber} · ${totalLetter}</div>
+            <div class="setting-sub" style="color:${color}">${totalChange > 0 ? '+' : ''}${totalChange.toFixed(1)} · ${observations.length} obs</div>
           </div>
           <span class="text-ink3">${svgIcon('chevron', 'icon')}</span>
         </div>
@@ -9589,7 +9606,7 @@
 
       const colors = {
         fuerza: '#FF4444', sabiduria: '#FFB020', disciplina: '#4ADE80',
-        alma: '#60A5FA', vinculo: '#F472B6', juego: '#C084FC',
+        alma: '#60A5FA', vinculo: '#F472B6', entretenimiento: '#C084FC',
       };
 
       if (xpStackChart) xpStackChart.destroy();
@@ -10438,7 +10455,7 @@
       ${b.steps.map((s, i) => `
         <div class="boss-step-row ${s.done ? 'done' : ''}" onclick="toggleBossStep('${b.id}', ${i})">
           <div class="boss-step-check ${s.done ? 'done' : ''}">${svgIcon('check', 'icon icon-sm')}</div>
-          <div class="boss-step-name">${escapeHtml(s.name)}</div>
+          <div class="boss-step-name">${escapeHtml(s.label || s.name || 'Step ' + (i + 1))}</div>
         </div>
       `).join('')}
     </div>
@@ -10548,7 +10565,7 @@
           <div class="text-center" style="padding:20px 0">
             <div class="display text-6xl text-ink4">🔒</div>
             <div class="mono text-sm tracking-widest text-ink3 mt-2">RANK C REQUERIDO</div>
-            <div class="mono text-md text-ink3 mt-1">Tu rango actual: ${currentRank().rank} · LV ${totalLevel()} / 20</div>
+            <div class="mono text-md text-ink3 mt-1">Tu rango actual: ${currentRank().rank} · LV ${totalLevel()} / 12</div>
           </div>
         `;
       }
@@ -10979,7 +10996,7 @@
         icon: 'hexagon',
         tag: 'ATRIBUTOS',
         title: '6 dimensiones de progreso',
-        text: 'Fuerza · Sabiduría · Disciplina · Alma · Vínculo · Juego.\n\nNo se trata de maxear una. El Hunter completo crece en todas.'
+        text: 'Fuerza · Sabiduría · Disciplina · Alma · Vínculo · Entretenimiento.\n\nNo se trata de maxear una. El Hunter completo crece en todas.'
       },
       {
         icon: 'bolt',
@@ -11285,7 +11302,7 @@
       'Para llegar a Rank S necesitás OAA total ≥ 12.5 y ningún dim debajo de D+.',
       'El Daily Quote se renueva cada 24h. Cita del Sistema basada en filósofos y estrategas.',
       'Podés exportar e importar todo tu progreso desde Menu → Backup JSON.',
-      'Los hábitos de Juego (hobbies, ajedrez, lectura recreativa) construyen tu identidad fuera del trabajo.',
+      'Los hábitos de Entretenimiento (hobbies, ajedrez, lectura recreativa) construyen tu identidad fuera del trabajo.',
       'El Suggested Dungeon se activa cuando una stat está 5+ niveles abajo del promedio.',
       'Si tu OAA cae 3+ puntos en 14 días, el Sistema te lo comunica explícitamente.',
       'Streak roto pero récord alto: cuando recuperes 30 días, desbloqueás el achievement Resiliente.',
@@ -11666,7 +11683,7 @@
       if (oaaSnap.total > 0) {
         const dims = ['academico', 'fisico', 'mental', 'social', 'identidad'];
         const dimLabels = { academico: 'Acad', fisico: 'Físi', mental: 'Mntl', social: 'Socl', identidad: 'Idnt' };
-        const dimValues = dims.map(d => ({ key: d, val: oaaSnap[d] || 0 }));
+        const dimValues = dims.map(d => ({ key: d, val: oaaSnap.dims?.[d] ?? oaaSnap[d] ?? 0 }));
         const high = dimValues.reduce((m, x) => x.val > m.val ? x : m, dimValues[0]);
         const low = dimValues.reduce((m, x) => x.val < m.val ? x : m, dimValues[0]);
         html += `
@@ -12050,8 +12067,9 @@
   <div style="display:flex;justify-content:flex-end;margin-bottom:8px;"><span class="card-action" onclick="openModal('custom')">+ custom</span></div>`;
       for (const stat of Object.keys(STATS)) {
         const habits = all[stat];
-        const gained = log.xp_gained[stat];
-        const cap = STATS[stat].cap;
+        const gained = log.xp_gained?.[stat] || 0;
+        const statDone = habits.filter(h => log.habits.includes(h.id)).length;
+        const statTotal = habits.length;
         const collapseId = 'hab_' + stat;
         html += `
       <div class="habit-group">
@@ -12061,14 +12079,14 @@
             <span style="color:${STATS[stat].color};display:inline-flex">${svgIcon(STATS[stat].icon, 'icon icon-sm')}</span>
             ${STATS[stat].name}
           </div>
-          <div class="habit-group-cap">${gained}/${cap}</div>
+          <div class="habit-group-cap">${statDone}/${statTotal}</div>
           <span style="width:7px;height:7px;border-right:1.5px solid var(--ink3);border-bottom:1.5px solid var(--ink3);transform:rotate(${isCollapsed(collapseId) ? '-45' : '45'}deg);transition:transform .25s var(--ease);flex-shrink:0;margin-left:4px;"></span>
         </div>
         <div class="card-collapse ${isCollapsed(collapseId) ? 'collapsed' : ''}" id="collapse_${collapseId}">
         <div class="habit-grid">
           ${habits.map(h => {
           const done = log.habits.includes(h.id);
-          const capped = !done && gained >= cap;
+          const capped = false; // V19: no daily caps
           return `
               <button class="habit-chip ${done ? 'done' : ''} ${capped ? 'capped' : ''}" onclick="logHabit('${h.id}', event)">
                 <span class="habit-chip-icon" style="color:${done ? 'var(--sys2)' : STATS[stat].color}">${svgIcon(h.icon || 'plus', 'icon icon-sm')}</span>
@@ -12304,7 +12322,7 @@
             </div>
             <div class="text-sm text-ink2" style="line-height:1.5">
               ${xpPerDay > 0
-            ? `Al ritmo actual de ${Math.round(xpPerDay)} XP/día, alcanzarías Rank ${nextRank.rank} en aproximadamente <strong style="color:var(--ink)">${daysEst} días</strong>.`
+            ? `Al ritmo actual de ${Math.round(xpPerDay)} XP/día, alcanzarías Rank ${nextRank.rank} en aproximadamente <strong style="color:var(--ink)">${(nextRank.rank === 'NL' || nextRank.rank === 'S') && daysEst > 365 ? (daysEst / 365).toFixed(1) + ' años' : daysEst + ' días'}</strong>.`
             : 'Sin actividad reciente para calcular proyección.'
           }
             </div>
@@ -12830,8 +12848,8 @@
       if (!enabled) {
         const r = currentRank();
         const lvl = totalLevel();
-        const pct = Math.min(100, (lvl / 20) * 100);
-        const remaining = Math.max(0, 20 - lvl);
+        const pct = Math.min(100, (lvl / 12) * 100);
+        const remaining = Math.max(0, 12 - lvl);
         return `
           <div class="card pp-locked-card" style="padding:32px 22px">
             <div class="pp-locked-icon" style="text-align:center">
@@ -12867,7 +12885,7 @@
                   <span class="text-sm text-ink2">Private Points (PP) — economía interna</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px">
-                  <span style="color:var(--sys);flex-shrink:0">${svgIcon('eye', 'icon')}</span>
+                  <span style="color:var(--sys);flex-shrink:0">${svgIcon('ach_eye', 'icon')}</span>
                   <span class="text-sm text-ink2">Mentor Question — diagnóstico del Sistema</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px">
@@ -12942,7 +12960,7 @@
           <div class="sysnotif-corner br"></div>
           <div style="display:flex;align-items:flex-start;gap:14px;padding:6px 4px">
             <div style="flex-shrink:0;width:42px;height:42px;border:1px solid var(--sys);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--sys);box-shadow:0 0 12px var(--sys-glow)">
-              ${svgIcon('eye', 'icon')}
+              ${svgIcon('ach_eye', 'icon')}
             </div>
             <div style="flex:1;min-width:0">
               <div class="mono text-xs text-sys" style="letter-spacing:.25em;margin-bottom:4px">MENTOR QUESTION</div>
